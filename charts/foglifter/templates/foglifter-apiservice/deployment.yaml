@@ -1,0 +1,47 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-apiservice
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ default "1" ((.Values.foglifter).apiservice).replicas | int }}
+  selector:
+    matchLabels:
+      name: {{ .Release.Name }}-apiservice
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-apiservice
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: apiservice-app
+          image: "{{ default "vsodevops" (.Values.foglifter).registry }}/{{ default "foglifter-api-service" ((.Values.foglifter).apiservice).repository }}:{{ default "latest" (.Values.foglifter).imageTag }}"
+          imagePullPolicy: "{{ default "Always" (.Values.foglifter).imagePullPolicy }}"
+          args:
+            - node
+            - dist/main.js
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-cm
+          {{- $port := default "8080" ((.Values.foglifter).apiservice).port | int }}
+          env:
+            {{- if ((.Values.foglifter).apiservice).trustToken }}
+            - name: TRUST_TOKEN
+              value: "{{ ((.Values.foglifter).apiservice).trustToken }}"
+            {{- end }}
+            - name: PORT
+              value: "{{ $port }}"
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-mongo-secret
+                  key: MONGO_URI
+          ports:
+            - containerPort: {{ $port }}
+          resources:
+            {{- toYaml ((.Values.foglifter).apiservice).resources | nindent 12 }}
+      {{- if (ne (.Values.priorityClass).create false) }}
+      priorityClassName: {{ .Release.Name }}
+      {{- end }}

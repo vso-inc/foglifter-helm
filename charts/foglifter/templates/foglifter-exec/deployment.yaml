@@ -1,0 +1,55 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-exec
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ default "1" ((.Values.foglifter).exec).replicas | int }}
+  selector:
+    matchLabels:
+      name: {{ .Release.Name }}-exec
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-exec
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: exec-app
+          image: "{{ default "vsodevops" (.Values.foglifter).registry }}/{{ default "foglifter-exec-app" ((.Values.foglifter).exec).repository }}:{{ default "latest" (.Values.foglifter).imageTag }}"
+          imagePullPolicy: "{{ default "Always" (.Values.foglifter).imagePullPolicy }}"
+          args:
+            - node
+            {{- if ((((.Values.foglifter).exec).resources).limits).memory }}
+            - "--max-old-space-size={{ ((((.Values.foglifter).exec).resources).limits).memory }}"
+            {{- end }}
+            - src/server.js
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-cm
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-mongo-secret
+                  key: MONGO_URI
+          resources:
+            {{- toYaml ((.Values.foglifter).exec).resources | nindent 12 }}
+      {{- if (ne ((.Values.foglifter).exec).coreAntiAffinity false) }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - {{ .Release.Name }}-exec
+                topologyKey: kubernetes.io/hostname
+      {{- end }}
+      {{- if (ne (.Values.priorityClass).create false) }}
+      priorityClassName: {{ .Release.Name }}
+      {{- end }}

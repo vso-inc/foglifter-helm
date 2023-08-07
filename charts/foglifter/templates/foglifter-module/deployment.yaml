@@ -1,0 +1,46 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-module
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ default "1" ((.Values.foglifter).module).replicas | int }}
+  selector:
+    matchLabels:
+      name: {{ .Release.Name }}-module
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-module
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: module-app
+          image: "{{ default "vsodevops" (.Values.foglifter).registry }}/{{ default "foglifter-module-app" ((.Values.foglifter).module).repository }}:{{ default "latest" (.Values.foglifter).imageTag }}"
+          imagePullPolicy: "{{ default "Always" (.Values.foglifter).imagePullPolicy }}"
+          args:
+            - node
+            {{- if ((((.Values.foglifter).module).resources).limits).memory }}
+            - "--max-old-space-size={{ ((((.Values.foglifter).module).resources).limits).memory }}"
+            {{- end }}
+            - src/app.js
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-cm
+          {{- $port := default "8080" ((.Values.foglifter).module).port | int }}
+          env:
+            - name: PORT
+              value: "{{ $port }}"
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-mongo-secret
+                  key: MONGO_URI
+          ports:
+            - containerPort: {{ $port }}
+          resources:
+            {{- toYaml ((.Values.foglifter).module).resources | nindent 12 }}
+      {{- if (ne (.Values.priorityClass).create false) }}
+      priorityClassName: {{ .Release.Name }}
+      {{- end }}

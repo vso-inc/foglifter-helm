@@ -1,0 +1,14 @@
+{{- if (ne ((.Values.mongo).backups).enabled false) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-mongo-backup-pvc-0
+  labels:
+    app: {{ .Release.Name }}-mongo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: "{{ default "10Gi" ((.Values.mongo).backups).storage }}"
+{{- end }}

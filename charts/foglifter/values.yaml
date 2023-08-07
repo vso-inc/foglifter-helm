@@ -1,82 +1,173 @@
-# Default values for foglifter.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Recommended default FogLifter configurations
 
-replicaCount: 1
+# FogLifter deployment configurations
+foglifter:
 
-image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  # Image registry for all FogLifter deployments
+  registry: vsodevops
 
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+  # Image tag for all FogLifter deployments
+  imageTag: 2.1.0
 
-serviceAccount:
-  # Specifies whether a service account should be created
+  # ImagePullPolicy for all FogLifter deployments
+  imagePullPolicy: Always
+
+  # FogLifter ConfigMap parameters
+  cm:
+    # Create ConfigMap
+    create: true
+    # Environment variables to be passed to FogLifter deployments via ConfigMap
+    data: {}
+      # FOO: bar
+      # LOREM: ipsum
+
+  # FogLifter ServiceAccount parameters
+  serviceAccount:
+    # Create ServiceAccount
+    create: true
+
+  # FogLifter apiservice deployment parameters
+  apiservice:
+    # Apiservice deployment port
+    port: 8080
+    # Apiservice deployment replicas
+    replicas: 1
+    # Apiservice deployment image repository
+    repository: foglifter-api-service
+    # Apiservice trust token
+    trustToken: ""
+    # Apiservice deployment resources
+    resources: {}
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+      # limits:
+      #   cpu: 500m
+      #   memory: 2048Mi
+
+  # FogLifter core deployment parameters
+  core:
+    # Core deployment port
+    port: 8080
+    # Core deployment replicas
+    replicas: 1
+    # Core deployment image repository
+    repository: foglifter-core-app
+    # Core deployment podAntiAffinity towards exec app
+    execAntiAffinity: true
+    # Core deployment resources
+    resources: {}
+      # requests:
+      #   cpu: 1000m
+      #   memory: 2048Mi
+      # limits:
+      #   cpu: 4000m
+      #   memory: 8192Mi
+
+  # FogLifter exec deployment parameters
+  exec:
+    # Exec deployment replicas
+    replicas: 1
+    # Exec deployment image repository
+    repository: foglifter-exec-app
+    # Exec deployment podAntiAffinity towards core app
+    coreAntiAffinity: true
+    # Exec deployment resources
+    resources: {}
+      # requests:
+      #   cpu: 1000m
+      #   memory: 2048Mi
+      # limits:
+      #   cpu: 4000m
+      #   memory: 8192Mi
+
+  # FogLifter module deployment parameters
+  module:
+    # Module deployment port
+    port: 8080
+    # Module deployment replicas
+    replicas: 1
+    # Module deployment image repository
+    repository: foglifter-module-app
+    # Module deployment resources
+    resources: {}
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+      # limits:
+      #   cpu: 500m
+      #   memory: 2048Mi
+
+# FogLifter MongoDB backend configurations
+mongo:
+
+  # Create Mongo secret
+  # Should only be set to true on first installation (e.g. with --set flag)
+  createSecret: false
+
+  # Image registry for Mongo workloads
+  # Should end with forward-slash if set (e.g. "quay.io/")
+  registry: ""
+  # Image repository for Mongo workloads
+  repository: mongo
+  # Image tag for Mongo workloads
+  imageTag: 5.0.6
+  # ImagePullPolicy for Mongo resources
+  imagePullPolicy: IfNotPresent
+
+  # Mongo port
+  port: 27017
+
+  # Mongo database name
+  dbName: foglifterDB
+  # Mongo database path
+  dbPath: /data/db
+  # Mongo config path
+  configPath: /data/conf
+
+  # Storage to allocate to database PersistentVolume
+  storage: 10Gi
+
+  # Mongo ServiceAccount parameters
+  serviceAccount:
+    # Create ServiceAccount
+    create: true
+
+  # Mongo database backup configurations
+  backups:
+    # Enable database backups
+    enabled: true
+    # Database backups path
+    path: /data/backups
+    # Backups schedule
+    # https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#schedule-syntax
+    schedule: 0 0 * * *
+    # Number of backups to retain
+    retain: 3
+    # Storage to allocate to backups PersistentVolume
+    storage: 10Gi
+
+  # Mongo replication configurations
+  replication:
+    # Enable Mongo replication
+    enabled: false
+    # Replication set name
+    name: foglifterRS
+    # Replication set key path
+    keyPath: /data/key
+
+  # Resources for Mongo workloads
+  resources: {}
+    # requests:
+    #   cpu: 100m
+    #   memory: 1024Mi
+    # limits:
+    #   cpu: 1000m
+    #   memory: 4096Mi
+
+# FogLifter PriorityClass parameters
+priorityClass:
+  # Create PriorityClass to resist eviction
   create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-podAnnotations: {}
-
-podSecurityContext: {}
-  # fsGroup: 2000
-
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-service:
-  type: ClusterIP
-  port: 80
-
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
+  # PriorityClass priority value
+  value: 1000000
