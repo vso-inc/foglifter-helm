@@ -42,7 +42,7 @@ spec:
           ports:
             - containerPort: {{ $port }}
           resources:
-            {{- toYaml (.Values.apiservice).resources | nindent 12 }}
+            {{- default dict (.Values.apiservice).resources | toYaml | nindent 12 }}
       {{- if (ne (.Values.priorityClass).create false) }}
       priorityClassName: {{ .Release.Name }}
       {{- end }}

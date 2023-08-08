@@ -6,5 +6,5 @@ metadata:
   labels:
     app: {{ .Release.Name }}
 data:
-  {{- toYaml (.Values.cm).data | nindent 2 }}
+  {{- default dict (.Values.cm).data | toYaml | nindent 2 }}
 {{- end }}

@@ -36,7 +36,7 @@ spec:
                   name: {{ default $mongoSecret .Values.mongoSecret }}
                   key: MONGO_URI
           resources:
-            {{- toYaml (.Values.exec).resources | nindent 12 }}
+            {{- default dict (.Values.exec).resources | toYaml | nindent 12 }}
       {{- if (ne (.Values.exec).coreAntiAffinity false) }}
       affinity:
         podAntiAffinity:

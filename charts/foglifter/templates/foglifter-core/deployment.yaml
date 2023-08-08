@@ -49,7 +49,7 @@ spec:
           ports:
             - containerPort: {{ $port }}
           resources:
-            {{- toYaml (.Values.core).resources | nindent 12 }}
+            {{- default dict (.Values.core).resources | toYaml | nindent 12 }}
       {{- if (ne (.Values.core).execAntiAffinity false) }}
       affinity:
         podAntiAffinity:

@@ -47,7 +47,7 @@ spec:
           ports:
             - containerPort: {{ default "27017" .Values.port | int }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- default dict .Values.resources | toYaml | nindent 12 }}
           volumeMounts:
             - name: mongo-pvc
               mountPath: "{{ $dbPath }}"
