@@ -1,9 +1,5 @@
 # Recommended default FogLifter MongoDB backend configurations
 
-# Create Mongo secret
-# Should only be set to true on first installation (e.g. with --set flag)
-createSecret: false
-
 # Image registry for Mongo workloads
 # Should end with forward-slash if set (e.g. "quay.io/")
 registry: ""
