@@ -1,4 +1,4 @@
-{{- if (ne ((.Values.foglifter).cm).create false) }}
+{{- if (ne (.Values.cm).create false) }}
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -6,5 +6,5 @@ metadata:
   labels:
     app: {{ .Release.Name }}
 data:
-  {{- toYaml ((.Values.foglifter).cm).data | nindent 2 }}
+  {{- toYaml (.Values.cm).data | nindent 2 }}
 {{- end }}

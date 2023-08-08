@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}
 spec:
-  replicas: {{ default "1" ((.Values.foglifter).apiservice).replicas | int }}
+  replicas: {{ default "1" (.Values.apiservice).replicas | int }}
   selector:
     matchLabels:
       name: {{ .Release.Name }}-apiservice
@@ -17,31 +17,32 @@ spec:
     spec:
       containers:
         - name: apiservice-app
-          image: "{{ default "vsodevops" (.Values.foglifter).registry }}/{{ default "foglifter-api-service" ((.Values.foglifter).apiservice).repository }}:{{ default "latest" (.Values.foglifter).imageTag }}"
-          imagePullPolicy: "{{ default "Always" (.Values.foglifter).imagePullPolicy }}"
+          image: "{{ default "vsodevops" .Values.registry }}/{{ default "foglifter-api-service" (.Values.apiservice).repository }}:{{ default "latest" .Values.imageTag }}"
+          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           args:
             - node
             - dist/main.js
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm
-          {{- $port := default "8080" ((.Values.foglifter).apiservice).port | int }}
+          {{- $port := default "8080" (.Values.apiservice).port | int }}
           env:
-            {{- if ((.Values.foglifter).apiservice).trustToken }}
+            {{- if (.Values.apiservice).trustToken }}
             - name: TRUST_TOKEN
-              value: "{{ ((.Values.foglifter).apiservice).trustToken }}"
+              value: "{{ (.Values.apiservice).trustToken }}"
             {{- end }}
             - name: PORT
               value: "{{ $port }}"
             - name: MONGO_URI
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-mongo-secret
+                  {{- $mongoSecret := printf "%s-mongo-secret" .Release.Name }}
+                  name: {{ default $mongoSecret .Values.mongoSecret }}
                   key: MONGO_URI
           ports:
             - containerPort: {{ $port }}
           resources:
-            {{- toYaml ((.Values.foglifter).apiservice).resources | nindent 12 }}
+            {{- toYaml (.Values.apiservice).resources | nindent 12 }}
       {{- if (ne (.Values.priorityClass).create false) }}
       priorityClassName: {{ .Release.Name }}
       {{- end }}

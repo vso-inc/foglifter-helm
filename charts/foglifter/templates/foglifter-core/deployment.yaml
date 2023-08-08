@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}
 spec:
-  replicas: {{ default "1" ((.Values.foglifter).core).replicas | int }}
+  replicas: {{ default "1" (.Values.core).replicas | int }}
   selector:
     matchLabels:
       name: {{ .Release.Name }}-core
@@ -21,12 +21,12 @@ spec:
             name: {{ .Release.Name }}-cm
       containers:
         - name: core-app
-          image: "{{ default "vsodevops" (.Values.foglifter).registry }}/{{ default "foglifter-core-app" ((.Values.foglifter).core).repository }}:{{ default "latest" (.Values.foglifter).imageTag }}"
-          imagePullPolicy: "{{ default "Always" (.Values.foglifter).imagePullPolicy }}"
+          image: "{{ default "vsodevops" .Values.registry }}/{{ default "foglifter-core-app" (.Values.core).repository }}:{{ default "latest" .Values.imageTag }}"
+          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           args:
             - node
-            {{- if ((((.Values.foglifter).core).resources).limits).memory }}
-            - "--max-old-space-size={{ ((((.Values.foglifter).core).resources).limits).memory }}"
+            {{- if (((.Values.core).resources).limits).memory }}
+            - "--max-old-space-size={{ (((.Values.core).resources).limits).memory }}"
             {{- end }}
             - src/server.js
           volumeMounts:
@@ -36,20 +36,21 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm
-          {{- $port := default "8080" ((.Values.foglifter).core).port | int }}
+          {{- $port := default "8080" (.Values.core).port | int }}
           env:
             - name: PORT
               value: "{{ $port }}"
             - name: MONGO_URI
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-mongo-secret
+                  {{- $mongoSecret := printf "%s-mongo-secret" .Release.Name }}
+                  name: {{ default $mongoSecret .Values.mongoSecret }}
                   key: MONGO_URI
           ports:
             - containerPort: {{ $port }}
           resources:
-            {{- toYaml ((.Values.foglifter).core).resources | nindent 12 }}
-      {{- if (ne ((.Values.foglifter).core).execAntiAffinity false) }}
+            {{- toYaml (.Values.core).resources | nindent 12 }}
+      {{- if (ne (.Values.core).execAntiAffinity false) }}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

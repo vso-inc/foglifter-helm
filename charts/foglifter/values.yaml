@@ -1,169 +1,20 @@
 # Recommended default FogLifter configurations
 
-# FogLifter deployment configurations
-foglifter:
+# Image registry for all FogLifter deployments
+registry: vsodevops
+# Image tag for all FogLifter deployments
+imageTag: 2.1.0
+# ImagePullPolicy for all FogLifter deployments
+imagePullPolicy: Always
 
-  # Image registry for all FogLifter deployments
-  registry: vsodevops
-
-  # Image tag for all FogLifter deployments
-  imageTag: 2.1.0
-
-  # ImagePullPolicy for all FogLifter deployments
-  imagePullPolicy: Always
-
-  # FogLifter ConfigMap parameters
-  cm:
-    # Create ConfigMap
-    create: true
-    # Environment variables to be passed to FogLifter deployments via ConfigMap
-    data: {}
-      # FOO: bar
-      # LOREM: ipsum
-
-  # FogLifter ServiceAccount parameters
-  serviceAccount:
-    # Create ServiceAccount
-    create: true
-
-  # FogLifter apiservice deployment parameters
-  apiservice:
-    # Apiservice deployment port
-    port: 8080
-    # Apiservice deployment replicas
-    replicas: 1
-    # Apiservice deployment image repository
-    repository: foglifter-api-service
-    # Apiservice trust token
-    trustToken: ""
-    # Apiservice deployment resources
-    resources: {}
-      # requests:
-      #   cpu: 100m
-      #   memory: 128Mi
-      # limits:
-      #   cpu: 500m
-      #   memory: 2048Mi
-
-  # FogLifter core deployment parameters
-  core:
-    # Core deployment port
-    port: 8080
-    # Core deployment replicas
-    replicas: 1
-    # Core deployment image repository
-    repository: foglifter-core-app
-    # Core deployment podAntiAffinity towards exec app
-    execAntiAffinity: true
-    # Core deployment resources
-    resources: {}
-      # requests:
-      #   cpu: 1000m
-      #   memory: 2048Mi
-      # limits:
-      #   cpu: 4000m
-      #   memory: 8192Mi
-
-  # FogLifter exec deployment parameters
-  exec:
-    # Exec deployment replicas
-    replicas: 1
-    # Exec deployment image repository
-    repository: foglifter-exec-app
-    # Exec deployment podAntiAffinity towards core app
-    coreAntiAffinity: true
-    # Exec deployment resources
-    resources: {}
-      # requests:
-      #   cpu: 1000m
-      #   memory: 2048Mi
-      # limits:
-      #   cpu: 4000m
-      #   memory: 8192Mi
-
-  # FogLifter module deployment parameters
-  module:
-    # Module deployment port
-    port: 8080
-    # Module deployment replicas
-    replicas: 1
-    # Module deployment image repository
-    repository: foglifter-module-app
-    # Module deployment resources
-    resources: {}
-      # requests:
-      #   cpu: 100m
-      #   memory: 128Mi
-      # limits:
-      #   cpu: 500m
-      #   memory: 2048Mi
-
-# FogLifter MongoDB backend configurations
-mongo:
-
-  # Create Mongo secret
-  # Should only be set to true on first installation (e.g. with --set flag)
-  createSecret: false
-
-  # Image registry for Mongo workloads
-  # Should end with forward-slash if set (e.g. "quay.io/")
-  registry: ""
-  # Image repository for Mongo workloads
-  repository: mongo
-  # Image tag for Mongo workloads
-  imageTag: 5.0.6
-  # ImagePullPolicy for Mongo resources
-  imagePullPolicy: IfNotPresent
-
-  # Mongo port
-  port: 27017
-
-  # Mongo database name
-  dbName: foglifterDB
-  # Mongo database path
-  dbPath: /data/db
-  # Mongo config path
-  configPath: /data/conf
-
-  # Storage to allocate to database PersistentVolume
-  storage: 10Gi
-
-  # Mongo ServiceAccount parameters
-  serviceAccount:
-    # Create ServiceAccount
-    create: true
-
-  # Mongo database backup configurations
-  backups:
-    # Enable database backups
-    enabled: true
-    # Database backups path
-    path: /data/backups
-    # Backups schedule
-    # https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#schedule-syntax
-    schedule: 0 0 * * *
-    # Number of backups to retain
-    retain: 3
-    # Storage to allocate to backups PersistentVolume
-    storage: 10Gi
-
-  # Mongo replication configurations
-  replication:
-    # Enable Mongo replication
-    enabled: false
-    # Replication set name
-    name: foglifterRS
-    # Replication set key path
-    keyPath: /data/key
-
-  # Resources for Mongo workloads
-  resources: {}
-    # requests:
-    #   cpu: 100m
-    #   memory: 1024Mi
-    # limits:
-    #   cpu: 1000m
-    #   memory: 4096Mi
+# FogLifter ConfigMap parameters
+cm:
+  # Create ConfigMap
+  create: true
+  # Environment variables to be passed to FogLifter deployments via ConfigMap
+  data: {}
+    # FOO: bar
+    # LOREM: ipsum
 
 # FogLifter PriorityClass parameters
 priorityClass:
@@ -171,3 +22,83 @@ priorityClass:
   create: true
   # PriorityClass priority value
   value: 1000000
+
+# FogLifter ServiceAccount parameters
+serviceAccount:
+  # Create ServiceAccount
+  create: true
+
+# FogLifter MongoDB secret name
+mongoSecret: ""
+
+# FogLifter apiservice deployment parameters
+apiservice:
+  # Apiservice deployment port
+  port: 8080
+  # Apiservice deployment replicas
+  replicas: 1
+  # Apiservice deployment image repository
+  repository: foglifter-api-service
+  # Apiservice trust token
+  trustToken: ""
+  # Apiservice deployment resources
+  resources: {}
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # limits:
+    #   cpu: 500m
+    #   memory: 2048Mi
+
+# FogLifter core deployment parameters
+core:
+  # Core deployment port
+  port: 8080
+  # Core deployment replicas
+  replicas: 1
+  # Core deployment image repository
+  repository: foglifter-core-app
+  # Core deployment podAntiAffinity towards exec app
+  execAntiAffinity: true
+  # Core deployment resources
+  resources: {}
+    # requests:
+    #   cpu: 1000m
+    #   memory: 2048Mi
+    # limits:
+    #   cpu: 4000m
+    #   memory: 8192Mi
+
+# FogLifter exec deployment parameters
+exec:
+  # Exec deployment replicas
+  replicas: 1
+  # Exec deployment image repository
+  repository: foglifter-exec-app
+  # Exec deployment podAntiAffinity towards core app
+  coreAntiAffinity: true
+  # Exec deployment resources
+  resources: {}
+    # requests:
+    #   cpu: 1000m
+    #   memory: 2048Mi
+    # limits:
+    #   cpu: 4000m
+    #   memory: 8192Mi
+
+# FogLifter module deployment parameters
+module:
+  # Module deployment port
+  port: 8080
+  # Module deployment replicas
+  replicas: 1
+  # Module deployment image repository
+  repository: foglifter-module-app
+  # Module deployment resources
+  resources: {}
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # limits:
+    #   cpu: 500m
+    #   memory: 2048Mi

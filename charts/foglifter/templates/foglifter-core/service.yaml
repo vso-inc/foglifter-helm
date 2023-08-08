@@ -6,7 +6,7 @@ metadata:
     app: {{ .Release.Name }}
 spec:
   type: ClusterIP
-  {{- $port := default "8080" ((.Values.foglifter).core).port | int }}
+  {{- $port := default "8080" (.Values.core).port | int }}
   ports:
   - port: {{ $port }}
     targetPort: {{ $port }}

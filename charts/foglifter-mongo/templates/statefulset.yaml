@@ -1,53 +1,53 @@
 kind: StatefulSet
 apiVersion: apps/v1
 metadata:
-  name: {{ .Release.Name }}-mongo
+  name: {{ .Release.Name }}
   labels:
-    app: {{ .Release.Name }}-mongo
+    app: {{ .Release.Name }}
 spec:
-  serviceName: {{ .Release.Name }}-mongo-svc
+  serviceName: {{ .Release.Name }}-svc
   podManagementPolicy: OrderedReady
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-mongo
+      app: {{ .Release.Name }}
   replicas: 1
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-mongo
+        app: {{ .Release.Name }}
     spec:
-      serviceAccountName: {{ .Release.Name }}-mongo-sa
+      serviceAccountName: {{ .Release.Name }}-sa
       terminationGracePeriodSeconds: 10
-      {{- $dbPath := default "/data/db" (.Values.mongo).dbPath }}
-      {{- $configPath := default "/data/conf" (.Values.mongo).configPath }}
+      {{- $dbPath := default "/data/db" .Values.dbPath }}
+      {{- $configPath := default "/data/conf" .Values.configPath }}
       containers:
         - name: mongo
           args:
             - --config
             - "{{ $configPath }}/mongod.conf"
-          image: "{{ default "" (.Values.mongo).registry }}{{ default "mongo" (.Values.mongo).repository }}:{{ default "5.0.6" (.Values.mongo).imageTag }}"
-          imagePullPolicy: "{{ default "Always" (.Values.mongo).imagePullPolicy }}"
+          image: "{{ default "" .Values.registry }}{{ default "mongo" .Values.repository }}:{{ default "5.0.6" .Values.imageTag }}"
+          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           env:
             - name: MONGO_INITDB_ROOT_USERNAME
               value: root
             - name: MONGO_INITDB_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-mongo-secret
+                  name: {{ .Release.Name }}-secret
                   key: MONGO_ROOT_PSWD
             - name: MONGO_INITDB_DATABASE
-              value: "{{ default "foglifterDB" (.Values.mongo).dbName }}"
+              value: "{{ default "foglifterDB" .Values.dbName }}"
             - name: MONGO_APP_USER
               value: flUser
             - name: MONGO_APP_PSWD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-mongo-secret
+                  name: {{ .Release.Name }}-secret
                   key: MONGO_APP_PSWD
           ports:
-            - containerPort: {{ default "27017" (.Values.mongo).port | int }}
+            - containerPort: {{ default "27017" .Values.port | int }}
           resources:
-            {{- toYaml (.Values.mongo).resources | nindent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: mongo-pvc
               mountPath: "{{ $dbPath }}"
@@ -58,7 +58,7 @@ spec:
       volumes:
         - name: mongo-init
           configMap:
-            name: {{ .Release.Name }}-mongo-init-cm
+            name: {{ .Release.Name }}-init-cm
             defaultMode: 0777
             items:
               - key: mongo-init.sh
@@ -66,7 +66,7 @@ spec:
                 mode: 0777
         - name: mongod-conf
           configMap:
-            name: {{ .Release.Name }}-mongo-conf-cm
+            name: {{ .Release.Name }}-conf-cm
             defaultMode: 0777
             items:
               - key: mongod.conf
@@ -74,10 +74,11 @@ spec:
                 mode: 0777
   volumeClaimTemplates:
     - metadata:
-        name: {{ .Release.Name }}-mongo-pvc
+        name: {{ .Release.Name }}-pvc
       spec:
         accessModes:
           - ReadWriteOnce
         resources:
           requests:
-            storage: "{{ default "10Gi" (.Values.mongo).storage }}"
+            storage: "{{ default "10Gi" .Values.storage }}"
+        storageClassName: "{{ default "default" .Values.storageClass }}"

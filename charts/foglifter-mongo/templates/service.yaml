@@ -1,16 +1,16 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-mongo-svc
+  name: {{ .Release.Name }}-svc
   labels:
-    app: {{ .Release.Name }}-mongo
+    app: {{ .Release.Name }}
 spec:
   type: ClusterIP
   clusterIP: None
   publishNotReadyAddresses: true
   ports:
-    {{- $port := default "27017" (.Values.mongo).port | int }}
+    {{- $port := default "27017" .Values.port | int }}
     - port: {{ $port }}
       targetPort: {{ $port }}
   selector:
-    app: {{ .Release.Name }}-mongo
+    app: {{ .Release.Name }}

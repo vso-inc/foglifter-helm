@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}
 spec:
-  replicas: {{ default "1" ((.Values.foglifter).exec).replicas | int }}
+  replicas: {{ default "1" (.Values.exec).replicas | int }}
   selector:
     matchLabels:
       name: {{ .Release.Name }}-exec
@@ -17,12 +17,12 @@ spec:
     spec:
       containers:
         - name: exec-app
-          image: "{{ default "vsodevops" (.Values.foglifter).registry }}/{{ default "foglifter-exec-app" ((.Values.foglifter).exec).repository }}:{{ default "latest" (.Values.foglifter).imageTag }}"
-          imagePullPolicy: "{{ default "Always" (.Values.foglifter).imagePullPolicy }}"
+          image: "{{ default "vsodevops" .Values.registry }}/{{ default "foglifter-exec-app" (.Values.exec).repository }}:{{ default "latest" .Values.imageTag }}"
+          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           args:
             - node
-            {{- if ((((.Values.foglifter).exec).resources).limits).memory }}
-            - "--max-old-space-size={{ ((((.Values.foglifter).exec).resources).limits).memory }}"
+            {{- if (((.Values.exec).resources).limits).memory }}
+            - "--max-old-space-size={{ (((.Values.exec).resources).limits).memory }}"
             {{- end }}
             - src/server.js
           envFrom:
@@ -32,11 +32,12 @@ spec:
             - name: MONGO_URI
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-mongo-secret
+                  {{- $mongoSecret := printf "%s-mongo-secret" .Release.Name }}
+                  name: {{ default $mongoSecret .Values.mongoSecret }}
                   key: MONGO_URI
           resources:
-            {{- toYaml ((.Values.foglifter).exec).resources | nindent 12 }}
-      {{- if (ne ((.Values.foglifter).exec).coreAntiAffinity false) }}
+            {{- toYaml (.Values.exec).resources | nindent 12 }}
+      {{- if (ne (.Values.exec).coreAntiAffinity false) }}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
