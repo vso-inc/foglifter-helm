@@ -45,7 +45,7 @@ spec:
                       {{- end }}
                     {{- end }}
                     {{- if not $mongoSecret }}
-                      {{- fail "Mongo secret not found" }}
+                      {{- $mongoSecret = "mongo-secret" }}
                     {{- end }}
                   {{- end }}
                   name: {{ $mongoSecret }}
