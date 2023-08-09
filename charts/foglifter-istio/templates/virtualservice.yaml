@@ -11,59 +11,53 @@ spec:
     - {{ .Release.Name }}
   http:
     {{- if (ne (.Values.argocd).enabled false) }}
-    {{- if not (.Values.argocd).fqdn }}{{- fail "Please set the argocd.fqdn value." }}{{- end }}
     - match:
         - uri:
             prefix: {{ default "/argo-cd" (.Values.argocd).prefix }}
       route:
         - destination:
-            host: {{ (.Values.argocd).fqdn }}
+            host: {{ default "" (.Values.argocd).fqdn }}
             port:
               number: {{ default "80" (.Values.argocd).port | int }}
     {{- end }}
-    {{- if not (.Values.apiservice).fqdn }}{{- fail "Please set the apiservice.fqdn value." }}{{- end }}
     - match:
         - uri:
             prefix: {{ default "/api/auth" (.Values.apiservice).prefix }}
       route:
         - destination:
-            host: {{ (.Values.apiservice).fqdn }}
+            host: {{ default "" (.Values.apiservice).fqdn }}
             port:
               number: {{ default "8080" (.Values.apiservice).port | int }}
-    {{- if not (.Values.core).fqdn }}{{- fail "Please set the core.fqdn value." }}{{- end }}
     - route:
         - destination:
-            host: {{ (.Values.core).fqdn }}
+            host: {{ default "" (.Values.core).fqdn }}
             port:
               number: {{ default "8080" (.Values.core).port | int }}
-    {{- if not (.Values.module).fqdn }}{{- fail "Please set the module.fqdn value." }}{{- end }}
     - match:
         - uri:
             prefix: {{ default "/api/module" (.Values.module).prefix }}
       route:
         - destination:
-            host: {{ (.Values.module).fqdn }}
+            host: {{ default "" (.Values.module).fqdn }}
             port:
               number: {{ default "8080" (.Values.module).port | int }}
     {{- if (ne (.Values.view).enabled false) }}
-    {{- if not (.Values.view).fqdn }}{{- fail "Please set the view.fqdn value." }}{{- end }}
     - match:
         - uri:
             prefix: {{ default "/dashboard" (.Values.view).prefix }}
       route:
         - destination:
-            host: {{ (.Values.view).fqdn }}
+            host: {{ default "" (.Values.view).fqdn }}
             port:
               number: {{ default "3000" (.Values.view).port | int }}
     {{- end }}
   {{- if (ne (.Values.mongo).enabled false) }}
-  {{- if not (.Values.mongo).fqdn }}{{- fail "Please set the mongo.fqdn value." }}{{- end }}
   tcp:
     - match:
         - port: {{ default "27017" (.Values.mongo).port | int }}
       route:
         - destination:
-            host: {{ (.Values.mongo).fqdn }}
+            host: {{ default "" (.Values.mongo).fqdn }}
             port:
               number: {{ default "27017" (.Values.mongo).port | int }}
   {{- end }}

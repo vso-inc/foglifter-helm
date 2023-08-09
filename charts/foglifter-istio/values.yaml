@@ -61,7 +61,6 @@ mongo:
   # Enable Mongo ingress
   enabled: true
   # Mongo ingress port
-  # MUST coincide with mongo port under gateway.service.ports if enabled
   port: 27017
   # # Internal FQDN of View service
   # e.g. foglifter-mongo-svc.foglifter-mongo.svc.cluster.local
@@ -71,37 +70,9 @@ http:
   # Enable HTTP
   enabled: true
   # Istio HTTP ingress port
-  # MUST coincide with http2 port under gateway.service.ports if enabled
   port: 80
 
 # Istio HTTPS ingress port
-# MUST coincide with https port under gateway.service.ports
 httpsPort: 443
 # Istio status-port
-# MUST coincide with status-port port under gateway.service.ports
 statusPort: 15021
-
-gateway:
-  service:
-    type: LoadBalancer
-    ports:
-      - name: status-port
-        port: 15021
-        protocol: TCP
-        targetPort: 15021
-      - name: http2
-        port: 80
-        protocol: TCP
-        targetPort: 80
-      - name: https
-        port: 443
-        protocol: TCP
-        targetPort: 443
-      - name: mongo
-        port: 27017
-        protocol: TCP
-        targetPort: 27017
-
-istiod:
-  global:
-    hub: gcr.io/istio-release

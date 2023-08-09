@@ -1,20 +1,9 @@
 apiVersion: v2
 name: foglifter-istio
-description: Helm chart for FogLifter® Istio ingress
+description: Helm chart for FogLifter® Istio ingress configurations
 
 type: application
 
 version: 0.1.0
 
 appVersion: "~1.18.1"
-
-dependencies:
-  - name: base
-    repository: https://istio-release.storage.googleapis.com/charts
-    version: ~1.18.1
-  - name: istiod
-    repository: https://istio-release.storage.googleapis.com/charts
-    version: ~1.18.1
-  - name: gateway
-    repository: https://istio-release.storage.googleapis.com/charts
-    version: ~1.18.1
