@@ -1,0 +1,47 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-postgres
+  labels:
+    app: {{ .Release.Name }}-postgres
+spec:
+  serviceName: {{ .Release.Name }}-postgres-svc
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-postgres
+  replicas: {{ default "1" (.Values.postgres).replicas | int }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-postgres
+    spec:
+      serviceAccountName: {{ .Release.Name }}-postgres-sa
+      containers:
+        - name: postgres
+          image: "{{ default "" (.Values.postgres).registry }}{{ default "postgres" (.Values.postgres).repository }}:{{ default "13" (.Values.postgres).imageTag }}"
+          imagePullPolicy: "{{ default "IfNotPresent" (.Values.postgres).imagePullPolicy }}"
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: {{ default "5432" (.Values.postgres).port | int }}
+          resources:
+            {{- default dict (.Values.postgres).resources | toYaml | nindent 12 }}
+          volumeMounts:
+            - name: {{ .Release.Name }}-postgres-pvc
+              mountPath: "/var/lib/postgresql/data"
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Release.Name }}-postgres-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ default "1Gi" (.Values.postgres).storageClass }}
+        storageClassName: {{ default "default" (.Values.postgres).storageClass }}

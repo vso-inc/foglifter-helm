@@ -1,0 +1,81 @@
+# Recommended default configurations for FogLifter View
+
+# FogLifter View app configurations
+view:
+
+  # Container registry for View app workloads
+  # Should end with forward-slash if set (e.g. "quay.io/")
+  registry: tooljet/
+  # Image repository for View app workloads
+  repository: tooljet-ce
+  # Image tag for View app workloads
+  imageTag: v2.10.2
+  # ImagePullPolicy for View app workloads
+  imagePullPolicy: IfNotPresent
+
+  # View app enterprise configurations
+  enterprise:
+    # Enable View app enterprise mode
+    enabled: false
+    # View app enterprise license key
+    license: ""
+
+  # View app host/URL
+  # e.g. https://foglifter-dev.vso-inc.net/dashboard
+  host: ""
+  # View app URL prefix
+  prefix: /dashboard/
+
+
+  resources: {}
+    # requests:
+    #   memory: 500Mi
+    #   cpu: 500m
+    # limits:
+    #   memory: 1Gi
+    #   cpu: 1000m
+
+# FogLifter View Postgres backend configurations
+postgres:
+  # Container registry for Postgres workloads
+  # Should end with forward-slash if set (e.g. "quay.io/")
+  registry: ""
+  # Image repository for Postgres workloads
+  repository: postgres
+  # Image tag for Postgres workloads
+  imageTag: 13
+  # ImagePullPolicy for Postgres workloads
+  imagePullPolicy: IfNotPresent
+
+  # Postgres database name
+  dbName: ""
+
+  # Resources to allocate to Postgres workloads
+  resources: {}
+    # requests:
+    #   cpu: 250m
+    #   memory: 250Mi
+    # limits:
+    #   cpu: 500m
+    #   memory: 500Mi
+
+# FogLifter View Redis backend configurations
+redis:
+
+  # Container registry for Redis workloads
+  # Should end with forward-slash if set (e.g. "quay.io/")
+  registry: ""
+  # Image repository for Redis workloads
+  repository: redis
+  # Image tag for Redis workloads
+  imageTag: 6
+  # ImagePullPolicy for Redis workloads
+  imagePullPolicy: IfNotPresent
+
+  resources: {}
+    # requests:
+    #   cpu: 100m
+    #   memory: 100Mi
+    # limits:
+    #   cpu: 200m
+    #   memory: 200Mi

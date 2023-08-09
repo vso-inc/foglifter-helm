@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: exec-app
-          image: "{{ default "vsodevops" .Values.registry }}/{{ default "foglifter-exec-app" (.Values.exec).repository }}:{{ default "latest" .Values.imageTag }}"
+          image: "{{ default "vsodevops/" .Values.registry }}{{ default "foglifter-exec-app" (.Values.exec).repository }}:{{ default "latest" .Values.imageTag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           args:
             - node

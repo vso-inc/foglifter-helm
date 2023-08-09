@@ -1,6 +1,6 @@
 # Recommended default FogLifter MongoDB backend configurations
 
-# Image registry for Mongo workloads
+# Container registry for Mongo workloads
 # Should end with forward-slash if set (e.g. "quay.io/")
 registry: ""
 # Image repository for Mongo workloads

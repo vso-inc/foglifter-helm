@@ -54,7 +54,7 @@ spec:
         - destination:
             host: {{ (.Values.view).fqdn }}
             port:
-              number: {{ default "80" (.Values.view).port | int }}
+              number: {{ default "3000" (.Values.view).port | int }}
     {{- end }}
   {{- if (ne (.Values.mongo).enabled false) }}
   {{- if not (.Values.mongo).fqdn }}{{- fail "Please set the mongo.fqdn value." }}{{- end }}

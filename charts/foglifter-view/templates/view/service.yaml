@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Release.Name }}
+  ports:
+  - protocol: TCP
+    port: {{ default "3000" (.Values.view).port | int }}
+    targetPort: {{ default "3000" (.Values.view).port | int }}

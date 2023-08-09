@@ -1,7 +1,8 @@
 # Recommended default FogLifter configurations
 
 # Image registry for all FogLifter deployments
-registry: vsodevops
+# Should end with forward-slash if set (e.g. "quay.io/")
+registry: "vsodevops/"
 # Image tag for all FogLifter deployments
 imageTag: 2.1.0
 # ImagePullPolicy for all FogLifter deployments

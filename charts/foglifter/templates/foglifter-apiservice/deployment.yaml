@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: apiservice-app
-          image: "{{ default "vsodevops" .Values.registry }}/{{ default "foglifter-api-service" (.Values.apiservice).repository }}:{{ default "latest" .Values.imageTag }}"
+          image: "{{ default "vsodevops/" .Values.registry }}{{ default "foglifter-api-service" (.Values.apiservice).repository }}:{{ default "latest" .Values.imageTag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           args:
             - node

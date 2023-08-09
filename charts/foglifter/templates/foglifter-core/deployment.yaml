@@ -21,7 +21,7 @@ spec:
             name: {{ .Release.Name }}-cm
       containers:
         - name: core-app
-          image: "{{ default "vsodevops" .Values.registry }}/{{ default "foglifter-core-app" (.Values.core).repository }}:{{ default "latest" .Values.imageTag }}"
+          image: "{{ default "vsodevops/" .Values.registry }}{{ default "foglifter-core-app" (.Values.core).repository }}:{{ default "latest" .Values.imageTag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           args:
             - node
