@@ -1,0 +1,27 @@
+{{- if (eq ((.Values.traefik).application).install true) }}
+{{- $values := (omit .Values.traefik "application") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ default "foglifter-traefik" ((.Values.traefik).application).name }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ default "traefik" ((.Values.traefik).application).project }}
+  source:
+    chart: foglifter-traefik
+    repoURL: https://github.com/vso-inc/foglifter-helm/tree/develop/charts
+    targetRevision: {{ default "0.1.0" ((.Values.traefik).application).version | semver }}
+    helm:
+      values: |
+        {{- default dict $values | toYaml | nindent 8 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ default "traefik-system" ((.Values.traefik).application).namespace }}
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
+{{- end }}

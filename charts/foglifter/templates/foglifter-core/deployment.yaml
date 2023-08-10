@@ -15,13 +15,14 @@ spec:
         name: {{ .Release.Name }}-core
         app: {{ .Release.Name }}
     spec:
+      serviceAccountName: {{ .Release.Name }}-sa
       volumes:
         - name: config-volume
           configMap:
             name: {{ .Release.Name }}-cm
       containers:
         - name: core-app
-          image: "{{ default "vsodevops/" .Values.registry }}{{ default "foglifter-core-app" (.Values.core).repository }}:{{ default "latest" .Values.imageTag }}"
+          image: "{{ default "vsodevops/" .Values.registry }}{{ default "foglifter-core-app" (.Values.core).repository }}:{{ default "latest" (.Values.core).tag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           args:
             - node
@@ -53,7 +54,7 @@ spec:
                       {{- end }}
                     {{- end }}
                     {{- if not $mongoSecret }}
-                      {{- $mongoSecret = "mongo-secret" }}
+                      {{- $mongoSecret = "foglifter-mongo-secret" }}
                     {{- end }}
                   {{- end }}
                   name: {{ $mongoSecret }}

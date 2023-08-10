@@ -52,7 +52,7 @@ spec:
                   mountPath: {{ $path }}
           restartPolicy: OnFailure
           {{- if (ne (.Values.serviceAccount).create false) }}
-          serviceAccountName: mongo-sa
+          serviceAccountName: {{ .Release.Name }}-sa
           {{- end }}
           terminationGracePeriodSeconds: 10
           volumes:

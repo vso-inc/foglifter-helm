@@ -1,7 +1,7 @@
 # Recommended default configurations for FogLifter View
 
 # FogLifter View app configurations
-view:
+viewApp:
 
   # Container registry for View app workloads
   # Should end with forward-slash if set (e.g. "quay.io/")

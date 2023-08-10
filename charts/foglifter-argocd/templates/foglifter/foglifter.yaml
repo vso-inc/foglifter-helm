@@ -1,0 +1,33 @@
+{{- if (eq ((.Values.foglifter).application).install true) }}
+{{- $values := (omit .Values.foglifter "application") }}
+{{- $name := ((.Values.foglifter).application).name }}
+{{- $registry := (default "vsodevops/" (.Values.foglifter).registry) }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: "{{ $name }}-apiservice={{ $registry }}foglifter-api-service:{{ default "1.0.1" ((.Values.foglifter).apiservice).tag }}, {{ $name }}-core={{ $registry }}foglifter-core-app:{{ default "2.1.0" ((.Values.foglifter).core).tag }}, {{ $name }}-exec={{ $registry }}foglifter-exec-app:{{ default "2.1.0" ((.Values.foglifter).exec).tag }}, foglifter-module={{ $registry }}foglifter-module-app:{{ default "2.1.0" ((.Values.foglifter).module).tag }}"
+    argocd-image-updater.argoproj.io/update-strategy: digest
+    argocd-image-updater.argoproj.io/pull-secret: pullsecret:{{ .Release.Namespace }}/{{ default "foglifter-pullsecret" (.Values.foglifter).imagePullSecret }}
+  name: {{ $name }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ default "foglifter" ((.Values.foglifter).application).project }}
+  source:
+    chart: foglifter
+    repoURL: https://github.com/vso-inc/foglifter-helm/tree/develop/charts
+    targetRevision: {{ default "0.1.1" ((.Values.foglifter).application).version | semver }}
+    helm:
+      values: |
+        {{- default dict $values | toYaml | nindent 8 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ default "foglifter" ((.Values.foglifter).application).namespace }}
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
+{{- end }}

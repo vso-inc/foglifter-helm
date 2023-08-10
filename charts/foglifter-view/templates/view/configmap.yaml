@@ -14,10 +14,10 @@ data:
   REDIS_HOST: {{ .Release.Name }}-redis-svc
   REDIS_PORT: "{{ default "6379" (.Values.redis).port | int }}"
   REDIS_USER: default
-  SUB_PATH: "{{ default "/dashboard/" (.Values.view).prefix }}"
-  TOOLJET_HOST: "{{ (.Values.view).host }}{{ default "/dashboard/" (.Values.view).prefix }}"
-  {{- if (eq ((.Values.view).enterprise).enabled true) }}
-  WHITE_LABEL_FAVICON: "{{ (.Values.view).host }}/favicon.ico"
-  WHITE_LABEL_LOGO: "{{ (.Values.view).host }}/assets/images/FogLifter.png"
+  SUB_PATH: "{{ default "/dashboard/" (.Values.viewApp).prefix }}"
+  TOOLJET_HOST: "{{ (.Values.viewApp).host }}{{ default "/dashboard/" (.Values.viewApp).prefix }}"
+  {{- if (eq ((.Values.viewApp).enterprise).enabled true) }}
+  WHITE_LABEL_FAVICON: "{{ (.Values.viewApp).host }}/favicon.ico"
+  WHITE_LABEL_LOGO: "{{ (.Values.viewApp).host }}/assets/images/FogLifter.png"
   WHITE_LABEL_TEXT: FogLifter View
   {{- end }}

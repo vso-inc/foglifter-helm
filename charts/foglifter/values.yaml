@@ -3,10 +3,10 @@
 # Image registry for all FogLifter deployments
 # Should end with forward-slash if set (e.g. "quay.io/")
 registry: "vsodevops/"
-# Image tag for all FogLifter deployments
-imageTag: 2.1.0
 # ImagePullPolicy for all FogLifter deployments
 imagePullPolicy: Always
+# ImagePullSecret name for all FogLifter deployments
+imagePullSecret: ""
 
 # FogLifter ConfigMap parameters
 cm:
@@ -24,11 +24,6 @@ priorityClass:
   # PriorityClass priority value
   value: 1000000
 
-# FogLifter ServiceAccount parameters
-serviceAccount:
-  # Create ServiceAccount
-  create: true
-
 # FogLifter MongoDB secret name
 mongoSecret: ""
 
@@ -40,6 +35,8 @@ apiservice:
   replicas: 1
   # Apiservice deployment image repository
   repository: foglifter-api-service
+  # Apiservice deployment image tag
+  tag: 1.0.1
   # Apiservice trust token
   trustToken: ""
   # Apiservice deployment resources
@@ -59,6 +56,8 @@ core:
   replicas: 1
   # Core deployment image repository
   repository: foglifter-core-app
+  # Core deployment image tag
+  tag: 2.1.0
   # Core deployment podAntiAffinity towards exec app
   execAntiAffinity: true
   # Core deployment resources
@@ -76,6 +75,8 @@ exec:
   replicas: 1
   # Exec deployment image repository
   repository: foglifter-exec-app
+  # Exec deployment image tag
+  tag: 2.1.0
   # Exec deployment podAntiAffinity towards core app
   coreAntiAffinity: true
   # Exec deployment resources
@@ -95,6 +96,8 @@ module:
   replicas: 1
   # Module deployment image repository
   repository: foglifter-module-app
+  # Module deployment image tag
+  tag: 2.1.0
   # Module deployment resources
   resources: {}
     # requests:

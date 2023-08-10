@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Release.Name }}-image-updater
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: argocd-image-updater
+    repoURL: https://argoproj.github.io/argo-helm
+    targetRevision: {{ default "0.9.1" .Values.imageUpdaterVersion | semver }}
+    helm:
+      values: |
+        config:
+          argocd:
+            grpcWeb: false
+            insecure: true
+            serverAddress: {{ .Release.Name }}-server.{{ .Release.Namespace }}.cluster.local
+          logLevel: debug
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: {{ .Release.Namespace }}
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - FailOnSharedResource=false
+    automated:
+      selfHeal: true
+      prune: true

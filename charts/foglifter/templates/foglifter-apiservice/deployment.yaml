@@ -15,9 +15,10 @@ spec:
         name: {{ .Release.Name }}-apiservice
         app: {{ .Release.Name }}
     spec:
+      serviceAccountName: {{ .Release.Name }}-sa
       containers:
         - name: apiservice-app
-          image: "{{ default "vsodevops/" .Values.registry }}{{ default "foglifter-api-service" (.Values.apiservice).repository }}:{{ default "latest" .Values.imageTag }}"
+          image: "{{ default "vsodevops/" .Values.registry }}{{ default "foglifter-api-service" (.Values.apiservice).repository }}:{{ default "latest" (.Values.apiservice).tag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           args:
             - node
@@ -46,7 +47,7 @@ spec:
                       {{- end }}
                     {{- end }}
                     {{- if not $mongoSecret }}
-                      {{- $mongoSecret = "mongo-secret" }}
+                      {{- $mongoSecret = "foglifter-mongo-secret" }}
                     {{- end }}
                   {{- end }}
                   name: {{ $mongoSecret }}

@@ -23,12 +23,7 @@ configPath: /data/conf
 # Storage to allocate to database PersistentVolume
 storage: 10Gi
 # StorageClass name
-storageClass: 
-
-# Mongo ServiceAccount parameters
-serviceAccount:
-  # Create ServiceAccount
-  create: true
+storageClass: default
 
 # Mongo database backup configurations
 backups:

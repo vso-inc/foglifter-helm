@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ .Release.Name }}-exec-svc
+  name: {{ .Release.Name }}-module-svc
   labels:
     app: {{ .Release.Name }}
 spec:
@@ -11,4 +11,4 @@ spec:
   - port: {{ $port }}
     targetPort: {{ $port }}
   selector:
-    name: {{ .Release.Name }}-exec
+    name: {{ .Release.Name }}-module

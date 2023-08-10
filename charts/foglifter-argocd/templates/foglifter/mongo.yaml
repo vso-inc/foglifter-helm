@@ -1,0 +1,27 @@
+{{- if (eq ((.Values.mongo).application).install true) }}
+{{- $values := (omit .Values.mongo "application") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ default "foglifter-mongo" ((.Values.mongo).application).name }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ default "foglifter" ((.Values.mongo).application).project }}
+  source:
+    chart: foglifter-mongo
+    repoURL: https://github.com/vso-inc/foglifter-helm/tree/develop/charts
+    targetRevision: {{ default "0.1.0" ((.Values.mongo).application).version | semver }}
+    helm:
+      values: |
+        {{- default dict $values | toYaml | nindent 8 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ default "foglifter" ((.Values.mongo).application).namespace }}
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
+{{- end }}

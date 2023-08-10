@@ -15,9 +15,10 @@ spec:
         name: {{ .Release.Name }}-exec
         app: {{ .Release.Name }}
     spec:
+      serviceAccountName: {{ .Release.Name }}-sa
       containers:
         - name: exec-app
-          image: "{{ default "vsodevops/" .Values.registry }}{{ default "foglifter-exec-app" (.Values.exec).repository }}:{{ default "latest" .Values.imageTag }}"
+          image: "{{ default "vsodevops/" .Values.registry }}{{ default "foglifter-exec-app" (.Values.exec).repository }}:{{ default "latest" (.Values.exec).tag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           args:
             - node
@@ -42,7 +43,7 @@ spec:
                       {{- end }}
                     {{- end }}
                     {{- if not $mongoSecret }}
-                      {{- $mongoSecret = "mongo-secret" }}
+                      {{- $mongoSecret = "foglifter-mongo-secret" }}
                     {{- end }}
                   {{- end }}
                   name: {{ $mongoSecret }}
