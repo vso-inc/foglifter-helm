@@ -1,0 +1,45 @@
+{{- if (eq ((.Values.traefik).application).install true) }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ default "traefik" ((.Values.traefik).application).project }}
+  source:
+    chart: traefik
+    repoURL: https://traefik.github.io/charts
+    targetRevision: {{ default "24.0.0" ((.Values.traefik).application).traefikVersion | semver }}
+    helm:
+      values: |
+        providers:
+          kubernetesCRD:
+            enabled: true
+            allowCrossNamespace: true
+            allowEmptyServices: true
+        ports:
+          web:
+            redirectTo: websecure
+          {{- if (ne ((.Values.traefik).mongo).enabled false) }}
+          mongo:
+            port: {{ default "27017" ((.Values.traefik).mongo).port | int }}
+            expose: true
+            exposedPort: {{ default "27017" ((.Values.traefik).mongo).port | int }}
+            protocol: TCP
+          {{- end }}
+        ingressRoute:
+          dashboard:
+            matchRule: PathPrefix(`/traefik`)
+        additionalArguments:
+          - "--providers.kubernetescrd.allowCrossNamespace=true"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ default "traefik-system" ((.Values.traefik).application).namespace }}
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
+{{- end }}

@@ -1,82 +1,108 @@
-# Default values for foglifter.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Recommended default FogLifter configurations
 
-replicaCount: 1
+# Image registry for all FogLifter deployments
+# Should end with forward-slash if set (e.g. "quay.io/")
+registry: "vsodevops/"
+# ImagePullPolicy for all FogLifter deployments
+imagePullPolicy: Always
+# ImagePullSecret name for all FogLifter deployments
+imagePullSecret: ""
 
-image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
-
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
-
-serviceAccount:
-  # Specifies whether a service account should be created
+# FogLifter ConfigMap parameters
+cm:
+  # Create ConfigMap
   create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  # Environment variables to be passed to FogLifter deployments via ConfigMap
+  data: {}
+    # FOO: bar
+    # LOREM: ipsum
 
-podAnnotations: {}
+# FogLifter PriorityClass parameters
+priorityClass:
+  # Create PriorityClass to resist eviction
+  create: true
+  # PriorityClass priority value
+  value: 1000000
 
-podSecurityContext: {}
-  # fsGroup: 2000
+# FogLifter MongoDB secret name
+mongoSecret: ""
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+# FogLifter apiservice deployment parameters
+apiservice:
+  # Apiservice deployment port
+  port: 8080
+  # Apiservice deployment replicas
+  replicas: 1
+  # Apiservice deployment image repository
+  repository: foglifter-api-service
+  # Apiservice deployment image tag
+  tag: 1.0.1
+  # Apiservice trust token
+  trustToken: ""
+  # Apiservice deployment resources
+  resources: {}
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # limits:
+    #   cpu: 500m
+    #   memory: 2048Mi
 
-service:
-  type: ClusterIP
-  port: 80
+# FogLifter core deployment parameters
+core:
+  # Core deployment port
+  port: 8080
+  # Core deployment replicas
+  replicas: 1
+  # Core deployment image repository
+  repository: foglifter-core-app
+  # Core deployment image tag
+  tag: 2.1.0
+  # Core deployment podAntiAffinity towards exec app
+  execAntiAffinity: true
+  # Core deployment resources
+  resources: {}
+    # requests:
+    #   cpu: 1000m
+    #   memory: 2048Mi
+    # limits:
+    #   cpu: 4000m
+    #   memory: 8192Mi
 
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+# FogLifter exec deployment parameters
+exec:
+  # Exec deployment replicas
+  replicas: 1
+  # Exec deployment image repository
+  repository: foglifter-exec-app
+  # Exec deployment image tag
+  tag: 2.1.0
+  # Exec deployment podAntiAffinity towards core app
+  coreAntiAffinity: true
+  # Exec deployment resources
+  resources: {}
+    # requests:
+    #   cpu: 1000m
+    #   memory: 2048Mi
+    # limits:
+    #   cpu: 4000m
+    #   memory: 8192Mi
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
+# FogLifter module deployment parameters
+module:
+  # Module deployment port
+  port: 8080
+  # Module deployment replicas
+  replicas: 1
+  # Module deployment image repository
+  repository: foglifter-module-app
+  # Module deployment image tag
+  tag: 2.1.0
+  # Module deployment resources
+  resources: {}
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # limits:
+    #   cpu: 500m
+    #   memory: 2048Mi

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Release.Name }}-redis
+  name: {{ .Release.Name }}-redis
+spec:
+  replicas: {{ default "1" (.Values.redis).replicas | int }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-redis
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-redis
+    spec:
+      containers:
+        - name: redis
+          image: "{{ default "" (.Values.redis).registry }}{{ default "redis" (.Values.redis).repository }}:{{ default "6" (.Values.redis).imageTag }}"
+          imagePullPolicy: "{{ default "IfNotPresent" (.Values.redis).imagePullPolicy }}"
+          command:
+            - redis-server
+            - "/redis-master/redis.conf"
+            - "--requirepass $(REDIS_PASSWORD)"
+          env:
+            - name: MASTER
+              value: "true"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-redis-secret
+                  key: REDIS_PASSWORD
+          ports:
+            - containerPort: {{ default "6379" (.Values.redis).port | int }}
+          resources:
+            {{- default dict (.Values.redis).resources | toYaml | nindent 12 }}
+          volumeMounts:
+            - mountPath: /redis-master-data
+              name: data
+            - mountPath: /redis-master
+              name: config
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-redis-cm
+            items:
+              - key: redis-config
+                path: redis.conf

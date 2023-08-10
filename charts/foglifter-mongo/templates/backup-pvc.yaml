@@ -1,0 +1,15 @@
+{{- if (ne (.Values.backups).enabled false) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-backup-pvc-0
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: "{{ default "10Gi" (.Values.backups).storage }}"
+  storageClassName: "{{ default "default" .Values.storageClass }}"
+{{- end }}

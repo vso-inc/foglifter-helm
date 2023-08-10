@@ -1,0 +1,9 @@
+apiVersion: v2
+name: foglifter-mongo
+description: Helm chart for FogLifter® MongoDB backend
+
+type: application
+
+version: 0.1.0
+
+appVersion: "5.0.6"

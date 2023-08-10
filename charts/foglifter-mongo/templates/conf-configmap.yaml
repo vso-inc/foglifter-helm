@@ -1,0 +1,32 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-conf-cm
+  labels:
+    app: {{ .Release.Name }}
+data:
+  mongod.conf: |
+    # mongod.conf
+    # http://docs.mongodb.org/manual/reference/configuration-options/
+    storage:
+      dbPath: {{ default "/data/db" .Values.dbPath }}
+      journal:
+        enabled: true
+    systemLog:
+      destination: file
+      logAppend: true
+      path: /var/log/mongodb/mongod.log
+    net:
+      port: {{ default "27017" .Values.port | int }}
+      bindIp: 0.0.0.0
+    processManagement:
+      timeZoneInfo: /usr/share/zoneinfo
+    {{- if (eq (.Values.replication).enabled true) }}
+    replication:
+      replSetName: {{ default "foglifterRS" (.Values.replication).name }}
+    {{- end }}
+    security:
+      authorization: enabled
+      {{- if (eq (.Values.replication).enabled true) }}
+      keyFile: {{ default "/data/key" (.Values.replication).keyPath }}/mongod.key
+      {{- end }}

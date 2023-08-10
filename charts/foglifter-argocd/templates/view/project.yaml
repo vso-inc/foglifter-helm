@@ -1,0 +1,13 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: {{ default "view" ((.Values.view).application).project }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Project for FogLifter View with Postgres and Redis backend
+  sourceRepos:
+    - 'https://vso-inc.github.io/foglifter-helm'
+  destinations:
+    - namespace: {{ default "foglifter-view" ((.Values.view).application).namespace }}
+      server: https://kubernetes.default.svc

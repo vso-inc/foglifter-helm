@@ -1,0 +1,60 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-module
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ default "1" (.Values.module).replicas | int }}
+  selector:
+    matchLabels:
+      name: {{ .Release.Name }}-module
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-module
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-sa
+      containers:
+        - name: module-app
+          image: "{{ default "vsodevops/" .Values.registry }}{{ default "foglifter-module-app" (.Values.module).repository }}:{{ default "latest" (.Values.module).tag }}"
+          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          args:
+            - node
+            {{- if (((.Values.module).resources).limits).memory }}
+            - "--max-old-space-size={{ (((.Values.module).resources).limits).memory }}"
+            {{- end }}
+            - src/app.js
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-cm
+          {{- $port := default "8080" (.Values.module).port | int }}
+          env:
+            - name: PORT
+              value: "{{ $port }}"
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  {{- $mongoSecret := "" }}
+                  {{- if .Values.mongoSecret }}
+                    {{- $mongoSecret = .Values.mongoSecret }}
+                  {{- else }}
+                    {{- range $i, $secret := (lookup "v1" "Secret" .Release.Namespace "").items }}
+                      {{- if (get (get $secret "data" | default dict) "MONGO_URI") }}
+                        {{- $mongoSecret = $secret.metadata.name }}
+                      {{- end }}
+                    {{- end }}
+                    {{- if not $mongoSecret }}
+                      {{- $mongoSecret = "foglifter-mongo-secret" }}
+                    {{- end }}
+                  {{- end }}
+                  name: {{ $mongoSecret }}
+                  key: MONGO_URI
+          ports:
+            - containerPort: {{ $port }}
+          resources:
+            {{- default dict (.Values.module).resources | toYaml | nindent 12 }}
+      {{- if (ne (.Values.priorityClass).create false) }}
+      priorityClassName: {{ .Release.Name }}
+      {{- end }}

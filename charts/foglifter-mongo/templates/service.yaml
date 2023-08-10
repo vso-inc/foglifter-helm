@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-svc
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    {{- $port := default "27017" .Values.port | int }}
+    - port: {{ $port }}
+      targetPort: {{ $port }}
+  selector:
+    app: {{ .Release.Name }}

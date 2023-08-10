@@ -1,0 +1,16 @@
+{{- if (ne (.Values.mongo).enabled false) }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: {{ .Release.Name }}-mongo
+spec:
+  entryPoints:
+    - mongo
+  routes:
+    - match: HostSNI(`*`)
+      kind: Rule
+      services:
+        - name: {{ default "foglifter-mongo-svc" (.Values.mongo).name }}
+          namespace: {{ default "foglifter" (.Values.mongo).namespace }}
+          port: {{ default "27017" (.Values.mongo).port | int }}
+{{- end }}

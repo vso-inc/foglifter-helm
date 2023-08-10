@@ -1,0 +1,64 @@
+{{- if (ne (.Values.backups).enabled false) }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-backup
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  schedule: "{{ default "0 0 * * *" (.Values.backups).schedule }}"
+  jobTemplate:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+          labels:
+            app: {{ .Release.Name }}
+        spec:
+          containers:
+            - name: mongo-backup
+              image: "{{ default "" .Values.registry }}{{ default "mongo" .Values.repository }}:{{ default "5.0.6" .Values.imageTag }}"
+              imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+              {{- $path := default "/data/backups" (.Values.backups).path }}
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  ls {{ $path }}
+                  backup_path={{ $path }}/mongodump-$(date +'%Y-%m-%d-%H%M%S')
+                  mongodump --uri "$MONGO_URI" --out=$backup_path
+
+                  backups=$(ls -t {{ $path }} | grep mongodump | tail -n +{{ add (default "3" (.Values.backups).retain | int) 1 }})
+                  for backup in $backups; do
+                    echo "Removing $backup"
+                    rm -rf "{{ $path }}/$backup"
+                  done
+                  ls {{ $path }}
+              env:
+                - name: MONGO_URI
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Release.Name }}-secret
+                      key: MONGO_URI
+              resources:
+                {{- default dict .Values.resources | toYaml | nindent 16 }}
+              volumeMounts:
+                - name: mongo-pvc
+                  mountPath: {{ $path }}
+          restartPolicy: OnFailure
+          {{- if (ne (.Values.serviceAccount).create false) }}
+          serviceAccountName: {{ .Release.Name }}-sa
+          {{- end }}
+          terminationGracePeriodSeconds: 10
+          volumes:
+            - name: mongo-pvc
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-backup-pvc-0
+  successfulJobsHistoryLimit: {{ default "3" (.Values.backups).retain | int }}
+  failedJobsHistoryLimit: 1
+{{- end }}

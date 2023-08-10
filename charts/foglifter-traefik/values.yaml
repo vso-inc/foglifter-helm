@@ -1,0 +1,74 @@
+# Recommended default FogLifter Traefik configurations
+
+# Namespace for FogLifter services
+foglifterNamespace: foglifter
+
+
+# # TLS certificate configurations
+certificate:
+  # Use existing tls secret
+  useExisting: false
+  # Existing tls secret name
+  name: ""
+
+# FogLifter core app ingress configurations
+core:
+  # Core app ingress port
+  port: 8080
+  # Core app service name
+  name: foglifter-core-svc
+
+# FogLifter apiservice ingress configurations
+apiservice:
+  # Apiservice ingress port
+  port: 8080
+  # Apiservice service name
+  name: foglifter-apiservice-svc
+  # Apiservice ingress prefix
+  prefix: /api/auth
+
+# FogLifter module app ingress configurations
+module:
+  # Module app ingress port
+  port: 8080
+  # Module app service name
+  name: foglifter-module-svc
+  # Module app ingress prefix
+  prefix: /api/module
+
+# Argo CD ingress configurations
+argocd:
+  # Enable Argo CD ingress
+  enabled: true
+  # Argo CD ingress port
+  port: 80
+  # Argo CD server service name
+  name: foglifter-argocd-server
+  # Argo CD server service namespace
+  namespace: foglifter-argocd
+  # Argo CD ingress prefix
+  prefix: /argo-cd
+
+# FogLifter View ingress configurations
+view:
+  # Enable View ingress
+  enabled: true
+  # View ingress port
+  port: 3000
+  # View app service name
+  name: foglifter-view-svc
+  # View app service namespace
+  namespace: foglifter-view
+  # View app ingress prefix
+  prefix: /dashboard
+
+# MongoDB ingress configurations
+mongo:
+  # Enable Mongo ingress
+  enabled: true
+  # Mongo ingress port
+  port: 27017
+  # Mongo service name
+  name: foglifter-mongo-svc
+  # Mongo service namespace
+  namespace: foglifter

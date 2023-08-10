@@ -1,82 +1,81 @@
-# Default values for foglifter-view.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Recommended default configurations for FogLifter View
 
-replicaCount: 1
+# FogLifter View app configurations
+viewApp:
 
-image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  # Container registry for View app workloads
+  # Should end with forward-slash if set (e.g. "quay.io/")
+  registry: tooljet/
+  # Image repository for View app workloads
+  repository: tooljet-ce
+  # Image tag for View app workloads
+  imageTag: v2.10.2
+  # ImagePullPolicy for View app workloads
+  imagePullPolicy: IfNotPresent
 
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+  # View app enterprise configurations
+  enterprise:
+    # Enable View app enterprise mode
+    enabled: false
+    # View app enterprise license key
+    license: ""
 
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  # View app host/URL
+  # e.g. https://foglifter-dev.vso-inc.net/dashboard
+  host: ""
+  # View app URL prefix
+  prefix: /dashboard/
 
-podAnnotations: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
+  resources: {}
+    # requests:
+    #   memory: 500Mi
+    #   cpu: 500m
+    # limits:
+    #   memory: 1Gi
+    #   cpu: 1000m
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+# FogLifter View Postgres backend configurations
+postgres:
+  # Container registry for Postgres workloads
+  # Should end with forward-slash if set (e.g. "quay.io/")
+  registry: ""
+  # Image repository for Postgres workloads
+  repository: postgres
+  # Image tag for Postgres workloads
+  imageTag: 13
+  # ImagePullPolicy for Postgres workloads
+  imagePullPolicy: IfNotPresent
 
-service:
-  type: ClusterIP
-  port: 80
+  # Postgres database name
+  dbName: ""
 
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  # Resources to allocate to Postgres workloads
+  resources: {}
+    # requests:
+    #   cpu: 250m
+    #   memory: 250Mi
+    # limits:
+    #   cpu: 500m
+    #   memory: 500Mi
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+# FogLifter View Redis backend configurations
+redis:
 
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+  # Container registry for Redis workloads
+  # Should end with forward-slash if set (e.g. "quay.io/")
+  registry: ""
+  # Image repository for Redis workloads
+  repository: redis
+  # Image tag for Redis workloads
+  imageTag: 6
+  # ImagePullPolicy for Redis workloads
+  imagePullPolicy: IfNotPresent
 
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
+  resources: {}
+    # requests:
+    #   cpu: 100m
+    #   memory: 100Mi
+    # limits:
+    #   cpu: 200m
+    #   memory: 200Mi

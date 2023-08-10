@@ -1,0 +1,379 @@
+imageUpdaterVersion: 0.9.1
+
+# Recommended default FogLifter configurations
+foglifter:
+
+  # Argo CD application configurations
+  application:
+    # Install application
+    install: false
+    # Application destination namespace
+    namespace: foglifter
+    # Application name
+    name: foglifter
+    # Application Argo CD project
+    project: foglifter
+    # Chart version
+    version: 0.1.0
+
+  # Image registry for all FogLifter deployments
+  # Should end with forward-slash if set (e.g. "quay.io/")
+  registry: "vsodevops/"
+  # ImagePullPolicy for all FogLifter deployments
+  imagePullPolicy: Always
+  # ImagePullSecret name for all FogLifter deployments
+  imagePullSecret: ""
+
+  # FogLifter ConfigMap parameters
+  cm:
+    # Create ConfigMap
+    create: true
+    # Environment variables to be passed to FogLifter deployments via ConfigMap
+    data: {}
+      # FOO: bar
+      # LOREM: ipsum
+
+  # FogLifter PriorityClass parameters
+  priorityClass:
+    # Create PriorityClass to resist eviction
+    create: true
+    # PriorityClass priority value
+    value: 1000000
+
+  # FogLifter MongoDB secret name
+  mongoSecret: ""
+
+  # FogLifter apiservice deployment parameters
+  apiservice:
+    # Apiservice deployment port
+    port: 8080
+    # Apiservice deployment replicas
+    replicas: 1
+    # Apiservice deployment image repository
+    repository: foglifter-api-service
+    # Apiservice deployment image tag
+    tag: 1.0.1
+    # Apiservice trust token
+    trustToken: ""
+    # Apiservice deployment resources
+    resources: {}
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+      # limits:
+      #   cpu: 500m
+      #   memory: 2048Mi
+
+  # FogLifter core deployment parameters
+  core:
+    # Core deployment port
+    port: 8080
+    # Core deployment replicas
+    replicas: 1
+    # Core deployment image repository
+    repository: foglifter-core-app
+    # Core deployment image tag
+    tag: 2.1.0
+    # Core deployment podAntiAffinity towards exec app
+    execAntiAffinity: true
+    # Core deployment resources
+    resources: {}
+      # requests:
+      #   cpu: 1000m
+      #   memory: 2048Mi
+      # limits:
+      #   cpu: 4000m
+      #   memory: 8192Mi
+
+  # FogLifter exec deployment parameters
+  exec:
+    # Exec deployment replicas
+    replicas: 1
+    # Exec deployment image repository
+    repository: foglifter-exec-app
+    # Exec deployment image tag
+    tag: 2.1.0
+    # Exec deployment podAntiAffinity towards core app
+    coreAntiAffinity: true
+    # Exec deployment resources
+    resources: {}
+      # requests:
+      #   cpu: 1000m
+      #   memory: 2048Mi
+      # limits:
+      #   cpu: 4000m
+      #   memory: 8192Mi
+
+  # FogLifter module deployment parameters
+  module:
+    # Module deployment port
+    port: 8080
+    # Module deployment replicas
+    replicas: 1
+    # Module deployment image repository
+    repository: foglifter-module-app
+    # Module deployment image tag
+    tag: 2.1.0
+    # Module deployment resources
+    resources: {}
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+      # limits:
+      #   cpu: 500m
+      #   memory: 2048Mi
+
+# Recommended default FogLifter MongoDB backend configurations
+mongo:
+
+  # Argo CD application configurations
+  application:
+    # Install application
+    install: false
+    # Application name
+    name: foglifter-mongo
+    # Chart version
+    version: 0.1.0
+
+  # Container registry for Mongo workloads
+  # Should end with forward-slash if set (e.g. "quay.io/")
+  registry: ""
+  # Image repository for Mongo workloads
+  repository: mongo
+  # Image tag for Mongo workloads
+  imageTag: 5.0.6
+  # ImagePullPolicy for Mongo resources
+  imagePullPolicy: IfNotPresent
+
+  # Mongo port
+  port: 27017
+
+  # Mongo database name
+  dbName: foglifterDB
+  # Mongo database path
+  dbPath: /data/db
+  # Mongo config path
+  configPath: /data/conf
+
+  # Storage to allocate to database PersistentVolume
+  storage: 10Gi
+  # StorageClass name
+  storageClass: default
+
+  # Mongo database backup configurations
+  backups:
+    # Enable database backups
+    enabled: true
+    # Database backups path
+    path: /data/backups
+    # Backups schedule
+    # https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#schedule-syntax
+    schedule: 0 0 * * *
+    # Number of backups to retain
+    retain: 3
+    # Storage to allocate to backups PersistentVolume
+    storage: 10Gi
+
+  # Mongo replication configurations
+  replication:
+    # Enable Mongo replication
+    enabled: false
+    # Replication set name
+    name: foglifterRS
+    # Replication set key path
+    keyPath: /data/key
+
+  # Resources for Mongo workloads
+  resources: {}
+    # requests:
+    #   cpu: 100m
+    #   memory: 1024Mi
+    # limits:
+    #   cpu: 1000m
+    #   memory: 4096Mi
+
+# Recommended default FogLifter Traefik ingress configurations
+traefik:
+
+  # Argo CD application configurations
+  application:
+    # Install application
+    install: false
+    # Application destination namespace
+    namespace: traefik-system
+    # Application name
+    name: foglifter-traefik
+    # Application Argo CD project
+    project: traefik
+    # FogLifter Traefik ingress chart version
+    version: 0.1.0
+    # Traefik chart version
+    traefikVersion: 24.0.0
+
+  # Namespace for FogLifter services
+  foglifterNamespace: foglifter
+
+  # TLS certificate configurations
+  certificate:
+    # Use existing tls secret
+    useExisting: false
+    # Existing tls secret name
+    name: ""
+
+  # FogLifter core app ingress configurations
+  core:
+    # Core app ingress port
+    port: 8080
+    # Core app service name
+    name: foglifter-core-svc
+
+  # FogLifter apiservice ingress configurations
+  apiservice:
+    # Apiservice ingress port
+    port: 8080
+    # Apiservice service name
+    name: foglifter-apiservice-svc
+    # Apiservice ingress prefix
+    prefix: /api/auth
+
+  # FogLifter module app ingress configurations
+  module:
+    # Module app ingress port
+    port: 8080
+    # Module app service name
+    name: foglifter-module-svc
+    # Module app ingress prefix
+    prefix: /api/module
+
+  # Argo CD ingress configurations
+  argocd:
+    # Enable Argo CD ingress
+    enabled: true
+    # Argo CD ingress port
+    port: 80
+    # Argo CD server service name
+    name: foglifter-argocd-server
+    # Argo CD server service namespace
+    namespace: foglifter-argocd
+    # Argo CD ingress prefix
+    prefix: /argo-cd
+
+  # FogLifter View ingress configurations
+  view:
+    # Enable View ingress
+    enabled: true
+    # View ingress port
+    port: 3000
+    # View app service name
+    name: foglifter-view-svc
+    # View app service namespace
+    namespace: foglifter-view
+    # View app ingress prefix
+    prefix: /dashboard
+
+  # MongoDB ingress configurations
+  mongo:
+    # Enable Mongo ingress
+    enabled: true
+    # Mongo ingress port
+    port: 27017
+    # Mongo service name
+    name: foglifter-mongo-svc
+    # Mongo service namespace
+    namespace: foglifter
+
+# Recommended default configurations for FogLifter View
+view:
+
+  # Argo CD application configurations
+  application:
+    # Install application
+    install: false
+    # Application destination namespace
+    namespace: foglifter-view
+    # Application name
+    name: foglifter-view
+    # Application Argo CD project
+    project: view
+    # Chart version
+    version: 0.1.0
+
+  # FogLifter View app configurations
+  viewApp:
+
+    # Container registry for View app workloads
+    # Should end with forward-slash if set (e.g. "quay.io/")
+    registry: tooljet/
+    # Image repository for View app workloads
+    repository: tooljet-ce
+    # Image tag for View app workloads
+    imageTag: v2.10.2
+    # ImagePullPolicy for View app workloads
+    imagePullPolicy: IfNotPresent
+
+    # View app enterprise configurations
+    enterprise:
+      # Enable View app enterprise mode
+      enabled: false
+      # View app enterprise license key
+      license: ""
+
+    # View app host/URL
+    # e.g. https://foglifter-dev.vso-inc.net/dashboard
+    host: ""
+    # View app URL prefix
+    prefix: /dashboard/
+
+
+    resources: {}
+      # requests:
+      #   memory: 500Mi
+      #   cpu: 500m
+      # limits:
+      #   memory: 1Gi
+      #   cpu: 1000m
+
+  # FogLifter View Postgres backend configurations
+  postgres:
+    # Container registry for Postgres workloads
+    # Should end with forward-slash if set (e.g. "quay.io/")
+    registry: ""
+    # Image repository for Postgres workloads
+    repository: postgres
+    # Image tag for Postgres workloads
+    imageTag: 13
+    # ImagePullPolicy for Postgres workloads
+    imagePullPolicy: IfNotPresent
+
+    # Postgres database name
+    dbName: ""
+
+    # Resources to allocate to Postgres workloads
+    resources: {}
+      # requests:
+      #   cpu: 250m
+      #   memory: 250Mi
+      # limits:
+      #   cpu: 500m
+      #   memory: 500Mi
+
+  # FogLifter View Redis backend configurations
+  redis:
+
+    # Container registry for Redis workloads
+    # Should end with forward-slash if set (e.g. "quay.io/")
+    registry: ""
+    # Image repository for Redis workloads
+    repository: redis
+    # Image tag for Redis workloads
+    imageTag: 6
+    # ImagePullPolicy for Redis workloads
+    imagePullPolicy: IfNotPresent
+
+    resources: {}
+      # requests:
+      #   cpu: 100m
+      #   memory: 100Mi
+      # limits:
+      #   cpu: 200m
+      #   memory: 200Mi

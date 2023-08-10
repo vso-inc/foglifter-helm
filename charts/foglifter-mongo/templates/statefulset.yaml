@@ -1,0 +1,84 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  serviceName: {{ .Release.Name }}-svc
+  podManagementPolicy: OrderedReady
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-sa
+      terminationGracePeriodSeconds: 10
+      {{- $dbPath := default "/data/db" .Values.dbPath }}
+      {{- $configPath := default "/data/conf" .Values.configPath }}
+      containers:
+        - name: mongo
+          args:
+            - --config
+            - "{{ $configPath }}/mongod.conf"
+          image: "{{ default "" .Values.registry }}{{ default "mongo" .Values.repository }}:{{ default "5.0.6" .Values.imageTag }}"
+          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: root
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: MONGO_ROOT_PSWD
+            - name: MONGO_INITDB_DATABASE
+              value: "{{ default "foglifterDB" .Values.dbName }}"
+            - name: MONGO_APP_USER
+              value: flUser
+            - name: MONGO_APP_PSWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: MONGO_APP_PSWD
+          ports:
+            - containerPort: {{ default "27017" .Values.port | int }}
+          resources:
+            {{- default dict .Values.resources | toYaml | nindent 12 }}
+          volumeMounts:
+            - name: {{ .Release.Name }}-pvc
+              mountPath: "{{ $dbPath }}"
+            - name: mongo-init
+              mountPath: "/docker-entrypoint-initdb.d"
+            - name: mongod-conf
+              mountPath: "{{ $configPath }}"
+      volumes:
+        - name: mongo-init
+          configMap:
+            name: {{ .Release.Name }}-init-cm
+            defaultMode: 0777
+            items:
+              - key: mongo-init.sh
+                path: mongo-init.sh
+                mode: 0777
+        - name: mongod-conf
+          configMap:
+            name: {{ .Release.Name }}-conf-cm
+            defaultMode: 0777
+            items:
+              - key: mongod.conf
+                path: mongod.conf
+                mode: 0777
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Release.Name }}-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "{{ default "10Gi" .Values.storage }}"
+        storageClassName: "{{ default "default" .Values.storageClass }}"

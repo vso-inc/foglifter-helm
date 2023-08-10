@@ -1,0 +1,82 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-core
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ default "1" (.Values.core).replicas | int }}
+  selector:
+    matchLabels:
+      name: {{ .Release.Name }}-core
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-core
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-sa
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ .Release.Name }}-cm
+      containers:
+        - name: core-app
+          image: "{{ default "vsodevops/" .Values.registry }}{{ default "foglifter-core-app" (.Values.core).repository }}:{{ default "latest" (.Values.core).tag }}"
+          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          args:
+            - node
+            {{- if (((.Values.core).resources).limits).memory }}
+            - "--max-old-space-size={{ (((.Values.core).resources).limits).memory }}"
+            {{- end }}
+            - src/server.js
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+              readOnly: true
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-cm
+          {{- $port := default "8080" (.Values.core).port | int }}
+          env:
+            - name: PORT
+              value: "{{ $port }}"
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  {{- $mongoSecret := "" }}
+                  {{- if .Values.mongoSecret }}
+                    {{- $mongoSecret = .Values.mongoSecret }}
+                  {{- else }}
+                    {{- range $i, $secret := (lookup "v1" "Secret" .Release.Namespace "").items }}
+                      {{- if (get (get $secret "data" | default dict) "MONGO_URI") }}
+                        {{- $mongoSecret = $secret.metadata.name }}
+                      {{- end }}
+                    {{- end }}
+                    {{- if not $mongoSecret }}
+                      {{- $mongoSecret = "foglifter-mongo-secret" }}
+                    {{- end }}
+                  {{- end }}
+                  name: {{ $mongoSecret }}
+                  key: MONGO_URI
+          ports:
+            - containerPort: {{ $port }}
+          resources:
+            {{- default dict (.Values.core).resources | toYaml | nindent 12 }}
+      {{- if (ne (.Values.core).execAntiAffinity false) }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - {{ .Release.Name }}-exec
+                topologyKey: kubernetes.io/hostname
+      {{- end }}
+      {{- if (ne (.Values.priorityClass).create false) }}
+      priorityClassName: {{ .Release.Name }}
+      {{- end }}

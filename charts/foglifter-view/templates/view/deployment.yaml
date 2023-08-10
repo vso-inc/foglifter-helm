@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-sa
+      containers:
+        - name: view-app
+          image: "{{ default "tooljet/" (.Values.viewApp).registry }}{{ default "tooljet-ce" (.Values.viewApp).repository }}:{{ default "v2.10.2" (.Values.viewApp).imageTag }}"
+          imagePullPolicy: "{{ default "IfNotPresent" (.Values.viewApp).imagePullPolicy }}"
+          args: 
+            - npm
+            - run
+            - start:prod
+          resources:
+            {{- default dict (.Values.viewApp).resources | toYaml | nindent 12 }}
+          ports:
+            - containerPort: {{ default "3000" (.Values.viewApp).port | int }}
+          readinessProbe:
+            httpGet:
+              port: {{ default "3000" (.Values.viewApp).port | int }}
+              path: /api/health
+            successThreshold: 1
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 6
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-cm
+          env:
+            - name: PG_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-redis-secret
+                  key: REDIS_PASSWORD
+            - name: LOCKBOX_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: lockbox_master_key
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: secret_key_base
+            - name: LICENSE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: license_key

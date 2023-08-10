@@ -1,0 +1,58 @@
+# Recommended default FogLifter MongoDB backend configurations
+
+# Container registry for Mongo workloads
+# Should end with forward-slash if set (e.g. "quay.io/")
+registry: ""
+# Image repository for Mongo workloads
+repository: mongo
+# Image tag for Mongo workloads
+imageTag: 5.0.6
+# ImagePullPolicy for Mongo resources
+imagePullPolicy: IfNotPresent
+
+# Mongo port
+port: 27017
+
+# Mongo database name
+dbName: foglifterDB
+# Mongo database path
+dbPath: /data/db
+# Mongo config path
+configPath: /data/conf
+
+# Storage to allocate to database PersistentVolume
+storage: 10Gi
+# StorageClass name
+storageClass: default
+
+# Mongo database backup configurations
+backups:
+  # Enable database backups
+  enabled: true
+  # Database backups path
+  path: /data/backups
+  # Backups schedule
+  # https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#schedule-syntax
+  schedule: 0 0 * * *
+  # Number of backups to retain
+  retain: 3
+  # Storage to allocate to backups PersistentVolume
+  storage: 10Gi
+
+# Mongo replication configurations
+replication:
+  # Enable Mongo replication
+  enabled: false
+  # Replication set name
+  name: foglifterRS
+  # Replication set key path
+  keyPath: /data/key
+
+# Resources for Mongo workloads
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 1024Mi
+  # limits:
+  #   cpu: 1000m
+  #   memory: 4096Mi
