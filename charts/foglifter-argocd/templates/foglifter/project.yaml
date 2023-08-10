@@ -7,7 +7,7 @@ metadata:
 spec:
   description: Project for FogLifter and MongoDB backend
   sourceRepos:
-    - 'https://github.com/vso-inc/foglifter-helm/tree/develop/charts'
+    - 'https://vso-inc.github.io/foglifter-helm'
   destinations:
     - namespace: {{ default "foglifter" ((.Values.foglifter).application).namespace }}
       server: https://kubernetes.default.svc

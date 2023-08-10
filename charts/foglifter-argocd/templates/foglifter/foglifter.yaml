@@ -16,7 +16,7 @@ spec:
   project: {{ default "foglifter" ((.Values.foglifter).application).project }}
   source:
     chart: foglifter
-    repoURL: https://github.com/vso-inc/foglifter-helm/tree/develop/charts
+    repoURL: https://vso-inc.github.io/foglifter-helm
     targetRevision: {{ default "0.1.0" ((.Values.foglifter).application).version | semver }}
     helm:
       values: |

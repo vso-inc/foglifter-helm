@@ -10,7 +10,7 @@ spec:
   project: {{ default "traefik" ((.Values.traefik).application).project }}
   source:
     chart: foglifter-traefik
-    repoURL: https://github.com/vso-inc/foglifter-helm/tree/develop/charts
+    repoURL: https://vso-inc.github.io/foglifter-helm
     targetRevision: {{ default "0.1.0" ((.Values.traefik).application).version | semver }}
     helm:
       values: |
