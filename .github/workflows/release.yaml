@@ -1,0 +1,32 @@
+name: Release Charts
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.FOGLIFTER_CI_SIGNKEY }}" > ~/.ssh/foglifter-ci-signkey
+          chmod 600 ~/.ssh/foglifter-ci-signkey
+          echo "${{ secrets.FOGLIFTER_CI_SIGNKEY_PUB }}" > ~/.ssh/foglifter-ci-signkey.pub
+          git config user.name 'foglifter-ci'
+          git config user.email 'foglifter-ci@vso-inc.com'
+          git config user.signingkey '~/.ssh/foglifter-ci-signkey.pub'
+          git config commit.gpgsign 'true'
+          git config gpg.format 'ssh'
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.5.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
