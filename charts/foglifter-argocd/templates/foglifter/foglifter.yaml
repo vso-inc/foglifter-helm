@@ -17,7 +17,7 @@ spec:
   source:
     chart: foglifter
     repoURL: https://github.com/vso-inc/foglifter-helm/tree/develop/charts
-    targetRevision: {{ default "0.1.1" ((.Values.foglifter).application).version | semver }}
+    targetRevision: {{ default "0.1.0" ((.Values.foglifter).application).version | semver }}
     helm:
       values: |
         {{- default dict $values | toYaml | nindent 8 }}
