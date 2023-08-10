@@ -14,7 +14,7 @@ foglifter:
     # Application Argo CD project
     project: foglifter
     # Chart version
-    version: 0.1.0
+    version: 0.1.1
 
   # Image registry for all FogLifter deployments
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -133,7 +133,7 @@ mongo:
     # Application name
     name: foglifter-mongo
     # Chart version
-    version: 0.1.0
+    version: 0.1.1
 
   # Container registry for Mongo workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -206,7 +206,7 @@ traefik:
     # Application Argo CD project
     project: traefik
     # FogLifter Traefik ingress chart version
-    version: 0.1.0
+    version: 0.1.1
     # Traefik chart version
     traefikVersion: 24.0.0
 
@@ -296,7 +296,7 @@ view:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.1.0
+    version: 0.1.1
 
   # FogLifter View app configurations
   viewApp:
