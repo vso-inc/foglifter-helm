@@ -17,7 +17,8 @@ spec:
         {{- default dict $values | toYaml | nindent 8 }}
   destination:
     server: https://kubernetes.default.svc
-    namespace: {{ default "foglifter" ((.Values.mongo).application).namespace }}
+    {{- $foglifterNamespace := (default "foglifter" ((.Values.foglifter).application).namespace ) }}
+    namespace: {{ default $foglifterNamespace ((.Values.mongo).application).namespace }}
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
