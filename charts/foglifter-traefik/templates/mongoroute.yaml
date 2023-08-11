@@ -8,7 +8,6 @@ spec:
     - mongo
   routes:
     - match: HostSNI(`*`)
-      kind: Rule
       services:
         - name: {{ default "foglifter-mongo-svc" (.Values.mongo).name }}
           namespace: {{ default "foglifter" (.Values.mongo).namespace }}
