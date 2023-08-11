@@ -11,3 +11,6 @@ spec:
   destinations:
     - namespace: {{ default "foglifter-view" ((.Values.view).application).namespace }}
       server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
