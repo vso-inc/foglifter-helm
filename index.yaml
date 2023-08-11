@@ -24,6 +24,16 @@ entries:
   foglifter-argocd:
   - apiVersion: v2
     appVersion: 2.1.0
+    created: "2023-08-11T14:28:58.312354631Z"
+    description: Helm chart for FogLifter® installation with Argo CD
+    digest: 17c62fcc523d5694845bd6aab58803657d69c2588ad9d57685cfda0b9ab95f7c
+    name: foglifter-argocd
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-argocd-0.1.2/foglifter-argocd-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 2.1.0
     created: "2023-08-10T20:56:05.226884172Z"
     description: Helm chart for FogLifter® installation with Argo CD
     digest: 6382c5dd2416446451b9ad5785c677fddaa3cc8167a74ba895d73dfcb2a32f04
@@ -95,4 +105,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2023-08-10T20:56:05.633138491Z"
+generated: "2023-08-11T14:28:58.312381533Z"
