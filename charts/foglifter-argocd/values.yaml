@@ -206,7 +206,7 @@ traefik:
     # Application Argo CD project
     project: traefik
     # FogLifter Traefik ingress chart version
-    version: 0.1.1
+    version: 0.1.2
     # Traefik chart version
     traefikVersion: 24.0.0
 
@@ -296,7 +296,7 @@ view:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.1.1
+    version: 0.1.2
 
   # FogLifter View app configurations
   viewApp:
@@ -344,6 +344,11 @@ view:
     imageTag: 13
     # ImagePullPolicy for Postgres workloads
     imagePullPolicy: IfNotPresent
+
+    # Storage to allocate to database PersistentVolume
+    storage: 1Gi
+    # StorageClass name
+    storageClass: default
 
     # Postgres database name
     dbName: ""
