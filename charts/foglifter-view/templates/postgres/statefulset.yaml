@@ -32,9 +32,17 @@ spec:
             - containerPort: {{ default "5432" (.Values.postgres).port | int }}
           resources:
             {{- default dict (.Values.postgres).resources | toYaml | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: true
+            runAsUser: 999
           volumeMounts:
             - name: {{ .Release.Name }}-postgres-pvc
               mountPath: "/var/lib/postgresql/data"
+              subPath: pgdata
+      securityContext:
+        fsGroup: 999
+        runAsGroup: 999
+        runAsUser: 999
   volumeClaimTemplates:
     - metadata:
         name: {{ .Release.Name }}-postgres-pvc
