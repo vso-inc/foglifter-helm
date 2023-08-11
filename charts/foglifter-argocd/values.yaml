@@ -133,7 +133,7 @@ mongo:
     # Application name
     name: foglifter-mongo
     # Chart version
-    version: 0.1.1
+    version: 0.1.2
 
   # Container registry for Mongo workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
