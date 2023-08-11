@@ -43,5 +43,5 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: {{ default "1Gi" (.Values.postgres).storageClass }}
+            storage: {{ default "1Gi" (.Values.postgres).storage }}
         storageClassName: {{ default "default" (.Values.postgres).storageClass }}

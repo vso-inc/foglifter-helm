@@ -47,6 +47,11 @@ postgres:
   # ImagePullPolicy for Postgres workloads
   imagePullPolicy: IfNotPresent
 
+  # Storage to allocate to database PersistentVolume
+  storage: 1Gi
+  # StorageClass name
+  storageClass: default
+
   # Postgres database name
   dbName: ""
 
