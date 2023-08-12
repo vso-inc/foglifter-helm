@@ -18,9 +18,15 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: {{ default "foglifter-view" ((.Values.view).application).namespace }}
+  ignoreDifferences:
+    - group: ''
+      kind: Secret
+      jsonPointers:
+        - /data/license_key
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
+      - RespectIgnoreDifferences=true
     automated:
       selfHeal: true
       prune: true

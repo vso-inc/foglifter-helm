@@ -206,7 +206,7 @@ traefik:
     # Application Argo CD project
     project: traefik
     # FogLifter Traefik ingress chart version
-    version: 0.1.2
+    version: 0.1.3
     # Traefik chart version
     traefikVersion: 24.0.0
 
