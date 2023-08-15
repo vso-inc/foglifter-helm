@@ -63,7 +63,7 @@ jobs:
       - name: Run chart-testing (install)
         # if: steps.list-changed.outputs.changed == 'true'
         run: >
-          ct install --all
+          ct install --all --debug
           --excluded-charts=foglifter-argocd
           --target-branch=${{ github.event.repository.default_branch }}
           --build-id=${{ github.run_id }}
