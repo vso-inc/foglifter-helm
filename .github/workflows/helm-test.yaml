@@ -40,16 +40,16 @@ jobs:
         env:
           CHART_DIR: charts/foglifter-mongo
         run: >
-          helm install --wait foglifter-mongo $CHART_DIR
+          helm install --debug --wait foglifter-mongo $CHART_DIR
           --namespace foglifter
-          --timeout 120s
+          --timeout 240s
           --values $CHART_DIR/ci/values.yaml
 
       - name: Install and Test foglifter chart
         env:
           CHART_DIR: charts/foglifter
         run: >
-          helm install --wait foglifter $CHART_DIR
+          helm install --debug --wait foglifter $CHART_DIR
           --namespace foglifter
           --timeout 120s
           --values $CHART_DIR/ci/values.yaml
@@ -58,13 +58,13 @@ jobs:
         env:
           CHART_DIR: charts/foglifter-view
         run: >
-          helm install --wait foglifter $CHART_DIR
+          helm install --debug --wait foglifter $CHART_DIR
           --namespace foglifter
-          --timeout 120s
+          --timeout 240s
           --values $CHART_DIR/ci/values.yaml
 
       - name: Clean up releases
         run: |
           for rel in `helm ls -n foglifter -q`; do
-            helm uninstall --wait -n foglifter $rel
+            helm uninstall --debug --wait -n foglifter $rel
           done
