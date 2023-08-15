@@ -12,7 +12,7 @@ jobs:
   lint-test:
     runs-on: ubuntu-latest
     env:
-      IMAGE_REGISTRY: https://index.docker.io/v1/
+      IMAGE_REGISTRY: docker.io
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -56,9 +56,9 @@ jobs:
         run: |
           kubectl create ns foglifter
           kubectl -n foglifter create secret docker-registry foglifter-pullsecret \
-          --docker-server=${{ env.IMAGE_REGISTRY }} \
-          --docker-username=${{ secrets.IMAGE_REGISTRY_USERNAME }} \
-          --docker-password=${{ secrets.IMAGE_REGISTRY_PASSWORD }}
+          --docker-server="${{ env.IMAGE_REGISTRY }}" \
+          --docker-username="${{ secrets.IMAGE_REGISTRY_USERNAME }}" \
+          --docker-password="${{ secrets.IMAGE_REGISTRY_PASSWORD }}"
 
       - name: Run chart-testing (install)
         # if: steps.list-changed.outputs.changed == 'true'
@@ -69,4 +69,4 @@ jobs:
           --build-id=${{ github.run_id }}
           --namespace=foglifter
           --helm-extra-args="--timeout 800s"
-          --helm-extra-set-args="--set=storageClass=standard --set=postgres.storageClass=standard --set=viewApp.host=localhost"
+          --helm-extra-set-args="--set=imagePullSecret=foglifter-pullsecret --set=storageClass=standard --set=postgres.storageClass=standard --set=viewApp.host=localhost"
