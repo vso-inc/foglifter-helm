@@ -1,0 +1,70 @@
+name: Helm Install & Test
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  helm-install-test:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_REGISTRY: docker.io
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Helm
+        id: install
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+          rm -rf get_helm.sh
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.7.0
+
+      - name: Create FogLifter pullsecret
+        run: |
+          kubectl create ns foglifter
+          kubectl -n foglifter create secret docker-registry foglifter-pullsecret \
+          --docker-server "${{ env.IMAGE_REGISTRY }}" \
+          --docker-username "${{ secrets.IMAGE_REGISTRY_USERNAME }}" \
+          --docker-password "${{ secrets.IMAGE_REGISTRY_PASSWORD }}"
+
+      - name: Install and Test foglifter-mongo chart
+        env:
+          CHART_DIR: charts/foglifter-mongo
+        run: >
+          helm install --wait foglifter-mongo $CHART_DIR
+          --namespace foglifter
+          --timeout 120s
+          --values $CHART_DIR/ci/values.yaml
+
+      - name: Install and Test foglifter chart
+        env:
+          CHART_DIR: charts/foglifter
+        run: >
+          helm install --wait foglifter $CHART_DIR
+          --namespace foglifter
+          --timeout 120s
+          --values $CHART_DIR/ci/values.yaml
+
+      - name: Install and Test foglifter-view chart
+        env:
+          CHART_DIR: charts/foglifter-view
+        run: >
+          helm install --wait foglifter $CHART_DIR
+          --namespace foglifter
+          --timeout 120s
+          --values $CHART_DIR/ci/values.yaml
+
+      - name: Clean up releases
+        run: |
+          for rel in `helm ls -n foglifter -q`; do
+            helm uninstall --wait -n foglifter $rel
+          done

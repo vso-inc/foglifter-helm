@@ -6,7 +6,8 @@ registry: "vsodevops/"
 # ImagePullPolicy for all FogLifter deployments
 imagePullPolicy: Always
 # ImagePullSecret name for all FogLifter deployments
-imagePullSecret: ""
+# Must be created separately from helm install/upgrade
+imagePullSecret: "foglifter-pullsecret"
 
 # FogLifter ConfigMap parameters
 cm:

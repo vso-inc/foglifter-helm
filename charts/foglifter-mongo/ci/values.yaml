@@ -1,0 +1,2 @@
+storageClass: standard
+backups.schedule: "* * * * *"

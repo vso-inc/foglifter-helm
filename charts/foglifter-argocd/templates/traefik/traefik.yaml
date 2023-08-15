@@ -10,7 +10,7 @@ spec:
   source:
     chart: traefik
     repoURL: https://traefik.github.io/charts
-    targetRevision: {{ default "24.0.0" ((.Values.traefik).application).traefikVersion | semver }}
+    targetRevision: {{ ((.Values.traefik).application).traefikVersion | semver }}
     helm:
       values: |
         providers:
@@ -30,7 +30,7 @@ spec:
           {{- end }}
         ingressRoute:
           dashboard:
-            matchRule: PathPrefix(`/traefik`)
+            matchRule: PathPrefix(`/`)
         additionalArguments:
           - "--providers.kubernetescrd.allowCrossNamespace=true"
   destination:

@@ -9,7 +9,7 @@ spec:
   source:
     chart: argocd-image-updater
     repoURL: https://argoproj.github.io/argo-helm
-    targetRevision: {{ default "0.9.1" .Values.imageUpdaterVersion | semver }}
+    targetRevision: {{ .Values.imageUpdaterVersion | semver }}
     helm:
       values: |
         config:
