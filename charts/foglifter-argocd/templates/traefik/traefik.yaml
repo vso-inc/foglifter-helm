@@ -30,7 +30,7 @@ spec:
           {{- end }}
         ingressRoute:
           dashboard:
-            matchRule: PathPrefix(`/traefik`)
+            matchRule: PathPrefix(`/`)
         additionalArguments:
           - "--providers.kubernetescrd.allowCrossNamespace=true"
   destination:

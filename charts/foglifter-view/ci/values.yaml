@@ -1,0 +1,2 @@
+postgres.storageClass: standard
+viewApp.host: localhost

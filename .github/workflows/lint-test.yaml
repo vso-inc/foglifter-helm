@@ -56,36 +56,33 @@ jobs:
         run: |
           kubectl create ns foglifter
           kubectl -n foglifter create secret docker-registry foglifter-pullsecret \
-          --docker-server="${{ env.IMAGE_REGISTRY }}" \
-          --docker-username="${{ secrets.IMAGE_REGISTRY_USERNAME }}" \
-          --docker-password="${{ secrets.IMAGE_REGISTRY_PASSWORD }}"
+          --docker-server "${{ env.IMAGE_REGISTRY }}" \
+          --docker-username "${{ secrets.IMAGE_REGISTRY_USERNAME }}" \
+          --docker-password "${{ secrets.IMAGE_REGISTRY_PASSWORD }}"
 
       - name: Install and Test foglifter-mongo chart
         # if: steps.list-changed.outputs.changed == 'true'
         run: >
-          ct install --charts=charts/foglifter-mongo --debug
-          --target-branch=${{ github.event.repository.default_branch }}
-          --build-id=${{ github.run_id }}
-          --namespace=foglifter
-          --helm-extra-args="--timeout 120s"
-          --helm-extra-set-args="--set=storageClass=standard --set='backups.schedule=\"* * * * *\"'"
+          ct install --charts charts/foglifter-mongo --debug
+          --target-branch ${{ github.event.repository.default_branch }}
+          --build-id ${{ github.run_id }}
+          --namespace foglifter
+          --helm-extra-args "--timeout 120s -f charts/foglifter-mongo/ci/values.yaml"
 
       - name: Install and Test foglifter chart
         # if: steps.list-changed.outputs.changed == 'true'
         run: >
-          ct install --charts=charts/foglifter --debug
-          --target-branch=${{ github.event.repository.default_branch }}
-          --build-id=${{ github.run_id }}
-          --namespace=foglifter
-          --helm-extra-args="--timeout 120s"
-          --helm-extra-set-args="--set=imagePullSecret='foglifter-pullsecret'"
+          ct install --charts charts/foglifter --debug
+          --target-branch ${{ github.event.repository.default_branch }}
+          --build-id ${{ github.run_id }}
+          --namespace foglifter
+          --helm-extra-args "--timeout 120s -f charts/foglifter/ci/values.yaml"
 
       - name: Install and Test foglifter-view chart
         # if: steps.list-changed.outputs.changed == 'true'
         run: >
-          ct install --charts=charts/foglifter-view --debug
-          --target-branch=${{ github.event.repository.default_branch }}
-          --build-id=${{ github.run_id }}
-          --namespace=foglifter
-          --helm-extra-args="--timeout 300s"
-          --helm-extra-set-args="--set=postgres.storageClass=standard --set=viewApp.host=localhost"
+          ct install --charts charts/foglifter-view --debug
+          --target-branch ${{ github.event.repository.default_branch }}
+          --build-id ${{ github.run_id }}
+          --namespace foglifter
+          --helm-extra-args "--timeout 300s -f charts/foglifter-view/ci/values.yaml"
