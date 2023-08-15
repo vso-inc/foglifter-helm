@@ -60,7 +60,7 @@ jobs:
         env:
           CHART_DIR: charts/foglifter-view
         run: >
-          helm install --debug --wait foglifter $CHART_DIR
+          helm install --debug --wait foglifter-view $CHART_DIR
           --namespace foglifter
           --timeout 240s
           --values $CHART_DIR/values.yaml
