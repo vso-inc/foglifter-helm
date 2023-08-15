@@ -68,7 +68,7 @@ jobs:
           --build-id=${{ github.run_id }}
           --namespace=foglifter
           --helm-extra-args="--timeout 120s"
-          --helm-extra-set-args="--set=storageClass=standard"
+          --helm-extra-set-args="--set=storageClass=standard --set='backups.schedule=\"* * * * *\"'"
 
       - name: Install and Test foglifter chart
         # if: steps.list-changed.outputs.changed == 'true'
