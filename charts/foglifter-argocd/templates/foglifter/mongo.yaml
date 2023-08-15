@@ -11,7 +11,7 @@ spec:
   source:
     chart: foglifter-mongo
     repoURL: https://vso-inc.github.io/foglifter-helm
-    targetRevision: {{ default "0.1.1" ((.Values.mongo).application).version | semver }}
+    targetRevision: {{ ((.Values.mongo).application).version | semver }}
     helm:
       values: |
         {{- default dict $values | toYaml | nindent 8 }}
