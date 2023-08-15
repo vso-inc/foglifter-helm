@@ -1,2 +1,3 @@
 storageClass: standard
-backups.schedule: "* * * * *"
+backups:
+  schedule: "* * * * *"
