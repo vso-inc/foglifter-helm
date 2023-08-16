@@ -1,4 +1,4 @@
 postgres:
   storageClass: local-path
 viewApp:
-  host: 127.0.0.1:3000
+  host: https://foglifter-view-svc:3000
