@@ -1,2 +1,4 @@
-postgres.storageClass: standard
-viewApp.host: localhost
+postgres:
+  storageClass: standard
+viewApp:
+  host: 127.0.0.1:3000

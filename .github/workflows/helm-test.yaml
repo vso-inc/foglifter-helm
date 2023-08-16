@@ -42,7 +42,7 @@ jobs:
         run: >
           helm install --debug --wait foglifter-mongo $CHART_DIR
           --namespace foglifter
-          --timeout 240s
+          --timeout 120s
           --values $CHART_DIR/values.yaml
           --values $CHART_DIR/ci/values.yaml
 
