@@ -1,4 +1,4 @@
 postgres:
-  storageClass: standard
+  storageClass: local-path
 viewApp:
   host: 127.0.0.1:3000

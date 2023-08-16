@@ -25,8 +25,11 @@ jobs:
           ./get_helm.sh
           rm -rf get_helm.sh
 
-      - name: Create kind cluster
-        uses: helm/kind-action@v1.8.0
+      - name: Create K3s cluster
+        run: |
+          curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="777" sh -s -
+          mkdir -p ~/.kube
+          cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 
       - name: Create FogLifter pullsecret
         run: |
@@ -36,40 +39,36 @@ jobs:
           --docker-username "${{ secrets.IMAGE_REGISTRY_USERNAME }}" \
           --docker-password "${{ secrets.IMAGE_REGISTRY_PASSWORD }}"
 
-      # - name: Install and Test foglifter-mongo chart
-      #   env:
-      #     CHART_DIR: charts/foglifter-mongo
-      #   run: >
-      #     helm install --debug --wait foglifter-mongo $CHART_DIR
-      #     --namespace foglifter
-      #     --timeout 120s
-      #     --values $CHART_DIR/values.yaml
-      #     --values $CHART_DIR/ci/values.yaml
+      - name: Install and Test foglifter-mongo chart
+        env:
+          CHART_DIR: charts/foglifter-mongo
+        run: >
+          helm install --debug --wait foglifter-mongo $CHART_DIR
+          --namespace foglifter
+          --timeout 120s
+          --values $CHART_DIR/values.yaml
+          --values $CHART_DIR/ci/values.yaml
 
-      # - name: Install and Test foglifter chart
-      #   env:
-      #     CHART_DIR: charts/foglifter
-      #   run: >
-      #     helm install --debug --wait foglifter $CHART_DIR
-      #     --namespace foglifter
-      #     --timeout 120s
-      #     --values $CHART_DIR/values.yaml
-      #     --values $CHART_DIR/ci/values.yaml
+      - name: Install and Test foglifter chart
+        env:
+          CHART_DIR: charts/foglifter
+        run: >
+          helm install --debug --wait foglifter $CHART_DIR
+          --namespace foglifter
+          --timeout 120s
+          --values $CHART_DIR/values.yaml
+          --values $CHART_DIR/ci/values.yaml
 
       - name: Install and Test foglifter-view chart
         env:
           CHART_DIR: charts/foglifter-view
         run: >
-          helm install --debug  foglifter-view $CHART_DIR
+          helm install --debug --wait foglifter-view $CHART_DIR
           --namespace foglifter
+          --timeout 120s
           --values $CHART_DIR/values.yaml
           --values $CHART_DIR/ci/values.yaml
-
-      - name: Debug foglifter-view
-        run: |
-          sleep 5
-          kubectl -n foglifter logs -f $(kubectl -n foglifter get po -l app=foglifter-view -o name)
-
+ 
       - name: Clean up releases
         run: |
           for rel in `helm ls -n foglifter -q`; do
