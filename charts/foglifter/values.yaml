@@ -9,6 +9,9 @@ imagePullPolicy: Always
 # Must be created separately from helm install/upgrade
 imagePullSecret: "foglifter-pullsecret"
 
+# FogLifter decryption key secret name
+decryptionKeySecret: ""
+
 # FogLifter ConfigMap parameters
 cm:
   # Create ConfigMap

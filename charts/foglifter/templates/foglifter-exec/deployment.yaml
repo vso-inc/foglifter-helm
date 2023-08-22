@@ -30,6 +30,23 @@ spec:
             - configMapRef:
                 name: {{ .Release.Name }}-cm
           env:
+            {{- $decryptionKeySecret := "" }}
+            {{- if .Values.decryptionKeySecret }}
+              {{- $decryptionKeySecret = .Values.decryptionKeySecret }}
+            {{- else }}
+              {{- range $i, $secret := (lookup "v1" "Secret" .Release.Namespace "").items }}
+                {{- if (get (get $secret "data" | default dict) "DECRYPTION_KEY") }}
+                  {{- $decryptionKeySecret = $secret.metadata.name }}
+                {{- end }}
+              {{- end }}
+            {{- end }}
+            {{- if $decryptionKeySecret }}
+            - name: DECRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $decryptionKeySecret }}
+                  key: DECRYPTION_KEY
+            {{- end }}
             - name: MONGO_URI
               valueFrom:
                 secretKeyRef:
