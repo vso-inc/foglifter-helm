@@ -14,7 +14,7 @@ foglifter:
     # Application Argo CD project
     project: foglifter
     # Chart version
-    version: 0.1.2
+    version: 0.1.3
 
   # Image registry for all FogLifter deployments
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -23,6 +23,9 @@ foglifter:
   imagePullPolicy: Always
   # ImagePullSecret name for all FogLifter deployments
   imagePullSecret: ""
+
+  # FogLifter decryption key secret name
+  decryptionKeySecret: ""
 
   # FogLifter ConfigMap parameters
   cm:
@@ -133,7 +136,7 @@ mongo:
     # Application name
     name: foglifter-mongo
     # Chart version
-    version: 0.1.4
+    version: 0.1.5
 
   # Container registry for Mongo workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -296,7 +299,7 @@ view:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.1.6
+    version: 0.1.7
 
   # FogLifter View app configurations
   viewApp:
