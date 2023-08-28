@@ -136,7 +136,7 @@ mongo:
     # Application name
     name: foglifter-mongo
     # Chart version
-    version: 0.1.5
+    version: 0.1.6
 
   # Container registry for Mongo workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -150,6 +150,9 @@ mongo:
 
   # Mongo port
   port: 27017
+
+  # Create Mongo secret
+  createSecret: true
 
   # Mongo database name
   dbName: foglifterDB
@@ -299,7 +302,7 @@ view:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.1.7
+    version: 0.1.8
 
   # FogLifter View app configurations
   viewApp:
@@ -347,6 +350,9 @@ view:
     imageTag: 13
     # ImagePullPolicy for Postgres workloads
     imagePullPolicy: IfNotPresent
+
+    # Create Postgres secret
+    createSecret: true
 
     # Storage to allocate to database PersistentVolume
     storage: 1Gi
