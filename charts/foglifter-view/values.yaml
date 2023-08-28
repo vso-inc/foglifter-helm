@@ -47,6 +47,9 @@ postgres:
   # ImagePullPolicy for Postgres workloads
   imagePullPolicy: IfNotPresent
 
+  # Create Postgres secret
+  createSecret: true
+
   # Storage to allocate to database PersistentVolume
   storage: 1Gi
   # StorageClass name

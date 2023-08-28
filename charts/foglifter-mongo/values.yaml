@@ -13,6 +13,9 @@ imagePullPolicy: IfNotPresent
 # Mongo port
 port: 27017
 
+# Create Mongo secret
+createSecret: true
+
 # Mongo database name
 dbName: foglifterDB
 # Mongo database path
