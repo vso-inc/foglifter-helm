@@ -23,7 +23,7 @@ spec:
           args:
             - node
             {{- if (((.Values.exec).resources).limits).memory }}
-            - "--max-old-space-size={{ (((.Values.exec).resources).limits).memory }}"
+            - "--max-old-space-size={{ regexReplaceAll "[^0-9]+" (((.Values.exec).resources).limits).memory "" }}"
             {{- end }}
             - src/server.js
           envFrom:

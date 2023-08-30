@@ -27,7 +27,7 @@ spec:
           args:
             - node
             {{- if (((.Values.core).resources).limits).memory }}
-            - "--max-old-space-size={{ (((.Values.core).resources).limits).memory }}"
+            - "--max-old-space-size={{ regexReplaceAll "[^0-9]+" (((.Values.core).resources).limits).memory "" }}"
             {{- end }}
             - src/server.js
           volumeMounts:
