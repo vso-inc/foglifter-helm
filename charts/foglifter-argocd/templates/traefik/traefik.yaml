@@ -13,6 +13,8 @@ spec:
     targetRevision: {{ ((.Values.traefik).application).traefikVersion | semver }}
     helm:
       values: |
+        image:
+          tag: v3.0.0-beta3
         providers:
           kubernetesCRD:
             enabled: true
