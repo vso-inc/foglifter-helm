@@ -7,6 +7,10 @@ kind: Application
 metadata:
   annotations:
     argocd-image-updater.argoproj.io/image-list: "{{ $name }}-apiservice={{ $registry }}foglifter-api-service:{{ default "1.0.1" ((.Values.foglifter).apiservice).tag }}, {{ $name }}-core={{ $registry }}foglifter-core-app:{{ default "2.1.0" ((.Values.foglifter).core).tag }}, {{ $name }}-exec={{ $registry }}foglifter-exec-app:{{ default "2.1.0" ((.Values.foglifter).exec).tag }}, foglifter-module={{ $registry }}foglifter-module-app:{{ default "2.1.0" ((.Values.foglifter).module).tag }}"
+    argocd-image-updater.argoproj.io/{{ $name }}-apiservice.helm.image-tag: foglifter.apiservice.tag
+    argocd-image-updater.argoproj.io/{{ $name }}-core.helm.image-tag: foglifter.core.tag
+    argocd-image-updater.argoproj.io/{{ $name }}-exec.helm.image-tag: foglifter.exec.tag
+    argocd-image-updater.argoproj.io/{{ $name }}-module.helm.image-tag: foglifter.module.tag
     argocd-image-updater.argoproj.io/update-strategy: digest
     argocd-image-updater.argoproj.io/pull-secret: pullsecret:{{ .Release.Namespace }}/{{ default "foglifter-pullsecret" (.Values.foglifter).imagePullSecret }}
   name: {{ $name }}
