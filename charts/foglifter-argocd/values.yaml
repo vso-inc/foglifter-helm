@@ -76,7 +76,7 @@ foglifter:
     # Core deployment image repository
     repository: foglifter-core-app
     # Core deployment image tag
-    tag: 2.1.0
+    tag: 2.1.1
     # Core deployment podAntiAffinity towards exec app
     execAntiAffinity: true
     # Core deployment resources
@@ -95,7 +95,7 @@ foglifter:
     # Exec deployment image repository
     repository: foglifter-exec-app
     # Exec deployment image tag
-    tag: 2.1.0
+    tag: 2.1.1
     # Exec deployment podAntiAffinity towards core app
     coreAntiAffinity: true
     # Exec deployment resources
@@ -116,7 +116,7 @@ foglifter:
     # Module deployment image repository
     repository: foglifter-module-app
     # Module deployment image tag
-    tag: 2.1.0
+    tag: 2.1.1
     # Module deployment resources
     resources: {}
       # requests:
