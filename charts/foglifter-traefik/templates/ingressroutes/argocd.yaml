@@ -1,0 +1,27 @@
+{{- if (ne (.Values.argocd).enabled false) }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-argocd
+spec:
+  entryPoints:
+    - web
+    - websecure
+  {{- $host := "" }}
+  {{- if .Values.host }}
+    {{- $host = default "" (printf "Host(`%s`) && " .Values.host) }}
+  {{- else }}
+    {{- $host = "" }}
+  {{- end }}
+  routes:
+    - match: {{ $host }}PathPrefix(`{{ default "/argo-cd" (.Values.argocd).prefix }}`)
+      kind: Rule
+      services:
+        - name: {{ default "foglifter-argocd-server" (.Values.argocd).name }}
+          namespace: {{ default "foglifter-argocd" (.Values.argocd).namespace }}
+          port: {{ default "80" (.Values.argocd).port | int }}
+  {{- if (eq (.Values.certificate).useExisting true ) }}
+  tls:
+    secretName: {{ default "foglifter-traefik-cert" (.Values.certificate).name }}
+  {{- end }}
+{{- end }}
