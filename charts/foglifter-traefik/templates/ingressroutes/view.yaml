@@ -1,0 +1,27 @@
+{{- if (ne (.Values.view).enabled false) }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-view
+spec:
+  entryPoints:
+    - web
+    - websecure
+  {{- $host := "" }}
+  {{- if .Values.host }}
+    {{- $host = default "" (printf "Host(`%s`) && " .Values.host) }}
+  {{- else }}
+    {{- $host = "" }}
+  {{- end }}
+  routes:
+    - match: {{ $host }}PathPrefix(`{{ default "/dashboard" (.Values.view).prefix }}`)
+      kind: Rule
+      services:
+        - name: {{ default "foglifter-view-svc" (.Values.view).name }}
+          namespace: {{ default "foglifter-view" (.Values.view).namespace }}
+          port: {{ default "3000" (.Values.view).port | int }}
+  {{- if (eq (.Values.certificate).useExisting true ) }}
+  tls:
+    secretName: {{ default "foglifter-traefik-cert" (.Values.certificate).name }}
+  {{- end }}
+{{- end }}

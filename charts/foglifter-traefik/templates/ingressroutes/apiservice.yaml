@@ -1,0 +1,25 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-apiservice
+spec:
+  entryPoints:
+    - web
+    - websecure
+  {{- $host := "" }}
+  {{- if .Values.host }}
+    {{- $host = default "" (printf "Host(`%s`) && " .Values.host) }}
+  {{- else }}
+    {{- $host = "" }}
+  {{- end }}
+  routes:
+    - match: {{ $host }}PathPrefix(`{{ default "/api/auth" (.Values.apiservice).prefix }}`)
+      kind: Rule
+      services:
+        - name: {{ default "foglifter-apiservice-svc" (.Values.apiservice).name }}
+          namespace: {{ default "foglifter" .Values.foglifterNamespace }}
+          port: {{ default "8080" (.Values.apiservice).port | int }}
+  {{- if (eq (.Values.certificate).useExisting true ) }}
+  tls:
+    secretName: {{ default "foglifter-traefik-cert" (.Values.certificate).name }}
+  {{- end }}

@@ -1,8 +1,10 @@
 # Recommended default FogLifter Traefik configurations
 
+# FQDN used to access FogLifter UI
+host: ""
+
 # Namespace for FogLifter services
 foglifterNamespace: foglifter
-
 
 # # TLS certificate configurations
 certificate:
