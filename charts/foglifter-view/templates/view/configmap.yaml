@@ -15,7 +15,7 @@ data:
   REDIS_PORT: "{{ default "6379" (.Values.redis).port | int }}"
   REDIS_USER: default
   SUB_PATH: "{{ default "/dashboard/" (.Values.viewApp).prefix }}"
-  TOOLJET_HOST: "{{ (.Values.viewApp).host }}{{ default "/dashboard/" (.Values.viewApp).prefix }}"
+  TOOLJET_HOST: "{{ (.Values.viewApp).host }}"
   {{- if (eq ((.Values.viewApp).enterprise).enabled true) }}
   WHITE_LABEL_FAVICON: "{{ (.Values.viewApp).host }}/favicon.ico"
   WHITE_LABEL_LOGO: "{{ (.Values.viewApp).host }}/assets/images/FogLifter.png"

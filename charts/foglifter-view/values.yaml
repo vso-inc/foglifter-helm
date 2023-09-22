@@ -9,7 +9,7 @@ viewApp:
   # Image repository for View app workloads
   repository: tooljet-ce
   # Image tag for View app workloads
-  imageTag: v2.10.2
+  imageTag: v2.17.4
   # ImagePullPolicy for View app workloads
   imagePullPolicy: IfNotPresent
 
