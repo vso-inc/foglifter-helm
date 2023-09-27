@@ -29,7 +29,7 @@ spec:
           {{- $port := default "8080" (.Values.apiservice).port | int }}
           env:
             {{- if (.Values.apiservice).trustToken }}
-            - name: TRUST_TOKEN
+            - name: TRUST_TOKEN_HASH_KEY
               value: "{{ (.Values.apiservice).trustToken }}"
             {{- end }}
             - name: PORT
