@@ -41,6 +41,14 @@ backups:
   retain: 3
   # Storage to allocate to backups PersistentVolume
   storage: 10Gi
+  # Resources for Mongo backup jobs
+  resources: {}
+    # requests:
+    #   cpu: 500m
+    #   memory: 2048Mi
+    # limits:
+    #   cpu: 2000m
+    #   memory: 4096Mi
 
 # Mongo replication configurations
 replication:

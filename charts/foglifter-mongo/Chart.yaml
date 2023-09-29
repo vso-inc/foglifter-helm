@@ -4,6 +4,6 @@ description: Helm chart for FogLifter® MongoDB backend
 
 type: application
 
-version: 0.1.6
+version: 0.1.7
 
-appVersion: "5.0.6"
+appVersion: "5.0.20"
