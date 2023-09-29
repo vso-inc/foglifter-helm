@@ -6,7 +6,7 @@ registry: ""
 # Image repository for Mongo workloads
 repository: mongo
 # Image tag for Mongo workloads
-imageTag: 5.0.6
+imageTag: 5.0.20
 # ImagePullPolicy for Mongo resources
 imagePullPolicy: IfNotPresent
 
@@ -51,11 +51,16 @@ replication:
   # Replication set key path
   keyPath: /data/key
 
+# Mongo WiredTiger engine configurations
+wiredTigerConfig: {}
+  # engineConfig:
+  #   cacheSizeGB: 4
+
 # Resources for Mongo workloads
 resources: {}
   # requests:
-  #   cpu: 100m
-  #   memory: 1024Mi
-  # limits:
   #   cpu: 1000m
   #   memory: 4096Mi
+  # limits:
+  #   cpu: 4000m
+  #   memory: 8192Mi
