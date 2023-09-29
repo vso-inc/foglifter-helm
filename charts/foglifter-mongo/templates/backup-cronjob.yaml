@@ -46,7 +46,7 @@ spec:
                       name: {{ .Release.Name }}-secret
                       key: MONGO_URI
               resources:
-                {{- default dict .Values.resources | toYaml | nindent 16 }}
+                {{- default dict (.Values.backups).resources | toYaml | nindent 16 }}
               volumeMounts:
                 - name: mongo-pvc
                   mountPath: {{ $path }}
