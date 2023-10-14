@@ -13,12 +13,8 @@ data:
       if [ "$HOSTNAME" = "{{ .Release.Name }}-0" ]; then
         mongo admin -eval 'db.auth("root", "'"$MONGO_INITDB_ROOT_PASSWORD"'"); db.createUser({user:"'"$MONGO_APP_USER"'", pwd:"'"$MONGO_APP_PSWD"'", roles: [{role:"read", db:"admin"}, {role:"dbOwner", db:"'"$MONGO_INITDB_DATABASE"'"}]});'
       {{- if (eq (.Values.replication).enabled true) }}
-        echo "Configuring $HOSTNAME as a primary node"
+        echo "Configuring $HOSTNAME as a primary node in the replica set"
         mongo admin -eval 'rs.initiate({ _id: "'"$MONGO_REPLICA_SET"'", version: 1, members: [{ _id: 0, host: "{{ .Release.Name }}-0.{{ .Release.Name }}-svc:{{ $port }}" }]})'
-        mongo admin -eval 'db.auth("root", "'"$MONGO_INITDB_ROOT_PASSWORD"'"); rs.add("{{ .Release.Name }}-1.{{ .Release.Name }}-svc:{{ $port }}")'
-        mongo admin -eval 'db.auth("root", "'"$MONGO_INITDB_ROOT_PASSWORD"'"); rs.add("{{ .Release.Name }}-2.{{ .Release.Name }}-svc:{{ $port }}")'
-      else
-        echo "Configuring $HOSTNAME as a secondary node"
       {{- end }}
       fi
       echo "mongo-init.sh ran" > {{ $path }}/mongo-init.txt
