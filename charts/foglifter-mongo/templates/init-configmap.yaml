@@ -9,6 +9,13 @@ data:
   {{- $port := default "27017" .Values.port | int }}
   mongo-init.sh: |
     #!/bin/sh
+    {{- if (eq (.Values.replication).enabled true) }}
+    if [ ! -f "{{ $path }}/mongod.key" ]; then
+      echo "$MONGO_REPLICA_SET_KEY" > {{ $path }}/mongod.key
+      chmod 0400 {{ $path }}/mongod.key
+      chown 999:999 {{ $path }}/mongod.key
+    fi
+    {{- end }}
     if [ ! -f "{{ $path }}/mongo-init.txt" ]; then
       if [ "$HOSTNAME" = "{{ .Release.Name }}-0" ]; then
         mongo admin -eval 'db.auth("root", "'"$MONGO_INITDB_ROOT_PASSWORD"'"); db.createUser({user:"'"$MONGO_APP_USER"'", pwd:"'"$MONGO_APP_PSWD"'", roles: [{role:"read", db:"admin"}, {role:"dbOwner", db:"'"$MONGO_INITDB_DATABASE"'"}]});'

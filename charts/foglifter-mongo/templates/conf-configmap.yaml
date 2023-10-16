@@ -29,5 +29,5 @@ data:
     security:
       authorization: enabled
       {{- if (eq (.Values.replication).enabled true) }}
-      keyFile: {{ default "/data/key" (.Values.replication).keyPath }}/mongod.key
+      keyFile: {{ default "/data/db" .Values.dbPath }}/mongod.key
       {{- end }}

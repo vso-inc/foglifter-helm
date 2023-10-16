@@ -20,13 +20,12 @@ spec:
       terminationGracePeriodSeconds: 10
       {{- $dbPath := default "/data/db" .Values.dbPath }}
       {{- $configPath := default "/data/conf" .Values.configPath }}
-      {{- $replSetKeyPath := default "/data/key" (.Values.replication).keyPath }}
       containers:
         - name: mongo
           args:
             - --config
             - "{{ $configPath }}/mongod.conf"
-          image: "{{ default "" .Values.registry }}{{ default "mongo" .Values.repository }}:{{ default "5.0.6" .Values.imageTag }}"
+          image: "{{ default "" .Values.registry }}{{ default "mongo" .Values.repository }}:{{ default "5.0.20" .Values.imageTag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           env:
             - name: MONGO_INITDB_ROOT_USERNAME
@@ -65,10 +64,6 @@ spec:
               mountPath: "/docker-entrypoint-initdb.d"
             - name: mongod-conf
               mountPath: "{{ $configPath }}"
-            {{- if (eq (.Values.replication).enabled true) }}
-            - name: mongod-key
-              mountPath: "{{ $replSetKeyPath }}"
-            {{- end }}
       volumes:
         - name: mongo-init
           configMap:
@@ -86,16 +81,6 @@ spec:
               - key: mongod.conf
                 path: mongod.conf
                 mode: 0777
-        {{- if (eq (.Values.replication).enabled true) }}
-        - name: mongod-key
-          secret:
-            secretName: {{ .Release.Name }}-secret
-            defaultMode: 0400
-            items:
-            - key: MONGO_REPLICA_SET_KEY
-              path: mongod.key
-              mode: 0400
-        {{- end }}
   volumeClaimTemplates:
     - metadata:
         name: {{ .Release.Name }}-pvc
