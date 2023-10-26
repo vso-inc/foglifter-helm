@@ -6,13 +6,15 @@ spec:
   entryPoints:
     - web
     - websecure
-  {{- $host := "" }}
-  {{- if .Values.host }}
-    {{- $host = default "" (printf "Host(`%s`) && " .Values.host) }}
-  {{- else }}
-    {{- $host = "" }}
-  {{- end }}
   routes:
+    {{- $host := "" }}
+    {{- if .Values.host }}
+      {{- if .Values.secondaryHost }}
+        {{- $host = (printf "(Host(`%s`) || Host(`%s`)) && " .Values.host .Values.secondaryHost) }}
+      {{- else }}
+        {{- $host = (printf "Host(`%s`) && " .Values.host) }}
+      {{- end }}
+    {{- end }}
     - match: {{ $host }}PathPrefix(`/`)
       kind: Rule
       services:

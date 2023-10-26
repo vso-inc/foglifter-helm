@@ -7,7 +7,17 @@ spec:
   entryPoints:
     - mongo
   routes:
-    - match: HostSNI(`*`)
+    {{- $host := "" }}
+    {{- if .Values.host }}
+      {{- if .Values.secondaryHost }}
+        {{- $host = (printf "HostSNI(`%s`) || HostSNI(`%s`)" .Values.host .Values.secondaryHost) }}
+      {{- else }}
+        {{- $host = (printf "HostSNI(`%s`)" .Values.host) }}
+      {{- end }}
+    {{- else }}
+      {{- $host = "HostSNI(`*`)" }}
+    {{- end }}
+    - match: {{ $host }}
       services:
         - name: {{ default "foglifter-mongo-svc" (.Values.mongo).name }}
           namespace: {{ default "foglifter" (.Values.mongo).namespace }}

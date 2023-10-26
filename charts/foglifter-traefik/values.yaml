@@ -3,6 +3,9 @@
 # FQDN used to access FogLifter UI
 host: ""
 
+# Secondary FQDN or IP used to access FogLifter UI
+secondaryHost: ""
+
 # Namespace for FogLifter services
 foglifterNamespace: foglifter
 
