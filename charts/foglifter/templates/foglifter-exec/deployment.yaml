@@ -65,6 +65,12 @@ spec:
                   {{- end }}
                   name: {{ $mongoSecret }}
                   key: MONGO_URI
+            {{- if (.Values.exec).env }}
+            {{- range $key, $val := .Values.exec.env }}
+            - name: {{ $key }}
+              value: {{ $val }}
+            {{- end }}
+            {{- end }}
           resources:
             {{- default dict (.Values.exec).resources | toYaml | nindent 12 }}
       {{- if (ne (.Values.exec).coreAntiAffinity false) }}

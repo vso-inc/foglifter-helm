@@ -1,3 +1,4 @@
+{{- if (ne (.Values.postgres).deploy false) }}
 kind: Service
 apiVersion: v1
 metadata:
@@ -10,3 +11,4 @@ spec:
     - port: {{ default "5432" (.Values.postgres).port | int }}
   selector:
     app: {{ .Release.Name }}-postgres
+{{- end }}

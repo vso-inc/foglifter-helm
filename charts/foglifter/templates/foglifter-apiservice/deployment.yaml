@@ -52,6 +52,12 @@ spec:
                   {{- end }}
                   name: {{ $mongoSecret }}
                   key: MONGO_URI
+            {{- if (.Values.apiservice).env }}
+            {{- range $key, $val := .Values.apiservice.env }}
+            - name: {{ $key }}
+              value: {{ $val }}
+            {{- end }}
+            {{- end }}
           ports:
             - containerPort: {{ $port }}
           resources:
