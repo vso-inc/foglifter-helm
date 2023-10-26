@@ -9,7 +9,7 @@ viewApp:
   # Image repository for View app workloads
   repository: tooljet-ce
   # Image tag for View app workloads
-  imageTag: v2.17.4
+  imageTag: v2.19.2
   # ImagePullPolicy for View app workloads
   imagePullPolicy: IfNotPresent
 
@@ -37,6 +37,9 @@ viewApp:
 
 # FogLifter View Postgres backend configurations
 postgres:
+  # Deploy custom Postgres StatefulSet
+  deploy: true
+
   # Container registry for Postgres workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
   registry: ""
@@ -69,6 +72,8 @@ postgres:
 
 # FogLifter View Redis backend configurations
 redis:
+  # Deploy custom Redis Deployment
+  deploy: true
 
   # Container registry for Redis workloads
   # Should end with forward-slash if set (e.g. "quay.io/")

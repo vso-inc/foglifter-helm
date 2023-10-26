@@ -1,3 +1,4 @@
+{{- if (ne (.Values.postgres).deploy false) }}
 kind: StatefulSet
 apiVersion: apps/v1
 metadata:
@@ -53,3 +54,4 @@ spec:
           requests:
             storage: {{ default "1Gi" (.Values.postgres).storage }}
         storageClassName: {{ default "default" (.Values.postgres).storageClass }}
+{{- end }}

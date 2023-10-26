@@ -1,3 +1,4 @@
+{{- if (ne (.Values.redis).deploy false) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -51,3 +52,4 @@ spec:
             items:
               - key: redis-config
                 path: redis.conf
+{{- end }}
