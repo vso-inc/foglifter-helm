@@ -2,7 +2,7 @@
 
 # Image registry for all FogLifter deployments
 # Should end with forward-slash if set (e.g. "quay.io/")
-registry: "vsodevops/"
+registry: "ghcr.io/vso-inc/"
 # ImagePullPolicy for all FogLifter deployments
 imagePullPolicy: Always
 # ImagePullSecret name for all FogLifter deployments
@@ -16,7 +16,7 @@ decryptionKeySecret: ""
 cm:
   # Create ConfigMap
   create: true
-  # Environment variables to be passed to FogLifter deployments via ConfigMap
+  # Environment variables to be passed to all FogLifter deployments via ConfigMap
   data: {}
     # FOO: bar
     # LOREM: ipsum
@@ -41,8 +41,12 @@ apiservice:
   repository: foglifter-api-service
   # Apiservice deployment image tag
   tag: 1.0.1
-  # Apiservice trust token
+  # Apiservice trust token hash key (TRUST_TOKEN_HASH_KEY)
   trustToken: ""
+  # Apiservice deployment extra environment variables
+  env: {}
+    # FOO: bar
+    # LOREM: ipsum
   # Apiservice deployment resources
   resources: {}
     # requests:
@@ -61,9 +65,13 @@ core:
   # Core deployment image repository
   repository: foglifter-core-app
   # Core deployment image tag
-  tag: 2.1.0
+  tag: 2.2.0
   # Core deployment podAntiAffinity towards exec app
   execAntiAffinity: true
+  # Core deployment extra environment variables
+  env: {}
+    # FOO: bar
+    # LOREM: ipsum
   # Core deployment resources
   resources: {}
     # requests:
@@ -80,9 +88,13 @@ exec:
   # Exec deployment image repository
   repository: foglifter-exec-app
   # Exec deployment image tag
-  tag: 2.1.0
+  tag: 2.2.0
   # Exec deployment podAntiAffinity towards core app
   coreAntiAffinity: true
+  # Exec deployment extra environment variables
+  env: {}
+    # FOO: bar
+    # LOREM: ipsum
   # Exec deployment resources
   resources: {}
     # requests:
@@ -101,7 +113,11 @@ module:
   # Module deployment image repository
   repository: foglifter-module-app
   # Module deployment image tag
-  tag: 2.1.0
+  tag: 2.2.0
+  # Module deployment extra environment variables
+  env: {}
+    # FOO: bar
+    # LOREM: ipsum
   # Module deployment resources
   resources: {}
     # requests:
