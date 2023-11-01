@@ -1,4 +1,8 @@
+# Argo CD Image Updater version
 imageUpdaterVersion: 0.9.1
+
+# Argo CD Image Updater registries
+imageUpdaterRegistries: []
 
 # Recommended default FogLifter configurations
 foglifter:
