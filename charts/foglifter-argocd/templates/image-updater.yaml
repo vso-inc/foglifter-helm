@@ -18,6 +18,10 @@ spec:
             insecure: true
             serverAddress: {{ .Release.Name }}-server.{{ .Release.Namespace }}.cluster.local
           logLevel: debug
+          {{- if .Values.imageUpdaterRegistries }}
+          registries:
+            {{- default list .Values.imageUpdaterRegistries | toYaml | nindent 12 }}
+          {{- end }}
   destination:
     server: "https://kubernetes.default.svc"
     namespace: {{ .Release.Namespace }}
