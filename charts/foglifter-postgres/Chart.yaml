@@ -1,6 +1,6 @@
 apiVersion: v2
-name: foglifter-view
-description: Helm chart for FogLifter® View app installation
+name: foglifter-postgres
+description: Helm chart for FogLifter® Postgres installation
 
 type: application
 
