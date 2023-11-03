@@ -18,7 +18,7 @@ foglifter:
     # Application Argo CD project
     project: foglifter
     # Chart version
-    version: 0.1.3
+    version: 0.1.6
 
   # Image registry for all FogLifter deployments
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -140,7 +140,7 @@ mongo:
     # Application name
     name: foglifter-mongo
     # Chart version
-    version: 0.1.6
+    version: 0.1.11
 
   # Container registry for Mongo workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -216,7 +216,7 @@ traefik:
     # Application Argo CD project
     project: traefik
     # FogLifter Traefik ingress chart version
-    version: 0.1.4
+    version: 0.1.7
     # Traefik chart version
     traefikVersion: 24.0.0
 
@@ -306,7 +306,7 @@ view:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.1.11
+    version: 0.2.0
 
   # Container registry for View app workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -368,6 +368,19 @@ view:
 
 # Recommended default configurations for FogLifter Postgres
 postgres:
+
+  # Argo CD application configurations
+  application:
+    # Install application
+    install: false
+    # Application destination namespace
+    namespace: foglifter-postgres
+    # Application name
+    name: foglifter-postgres
+    # Application Argo CD project
+    project: view
+    # Chart version
+    version: 0.1.0
 
   # Container registry for Postgres workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -437,6 +450,19 @@ postgres:
 
 # Recommended default configurations for FogLifter Redis
 redis:
+
+  # Argo CD application configurations
+  application:
+    # Install application
+    install: false
+    # Application destination namespace
+    namespace: foglifter-redis
+    # Application name
+    name: foglifter-redis
+    # Application Argo CD project
+    project: view
+    # Chart version
+    version: 0.1.0
 
   # Container registry for Redis workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
