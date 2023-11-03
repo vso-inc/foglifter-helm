@@ -2,6 +2,10 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ .Release.Name }}-init-cm
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-1"
+    "helm.sh/hook-delete-policy": hook-failed
   labels:
     app: {{ .Release.Name }}
 data:
@@ -13,12 +17,8 @@ data:
       if [ "$HOSTNAME" = "{{ .Release.Name }}-0" ]; then
         mongo admin -eval 'db.auth("root", "'"$MONGO_INITDB_ROOT_PASSWORD"'"); db.createUser({user:"'"$MONGO_APP_USER"'", pwd:"'"$MONGO_APP_PSWD"'", roles: [{role:"read", db:"admin"}, {role:"dbOwner", db:"'"$MONGO_INITDB_DATABASE"'"}]});'
       {{- if (eq (.Values.replication).enabled true) }}
-        echo "Configuring $HOSTNAME as a primary node"
-        mongo admin -eval 'rs.initiate({ _id: "'"$MONGO_REPLICA_SET"'", version: 1, members: [{ _id: 0, host: "{{ .Release.Name }}-0.{{ .Release.Name }}-svc:{{ $port }}" }]})'
-        mongo admin -eval 'db.auth("root", "'"$MONGO_INITDB_ROOT_PASSWORD"'"); rs.add("{{ .Release.Name }}-1.{{ .Release.Name }}-svc:{{ $port }}")'
-        mongo admin -eval 'db.auth("root", "'"$MONGO_INITDB_ROOT_PASSWORD"'"); rs.add("{{ .Release.Name }}-2.{{ .Release.Name }}-svc:{{ $port }}")'
-      else
-        echo "Configuring $HOSTNAME as a secondary node"
+        echo "Configuring $HOSTNAME as a primary node in the replica set"
+        mongo admin -eval 'db.auth("root", "'"$MONGO_INITDB_ROOT_PASSWORD"'"); rs.initiate({ _id: "'"$MONGO_REPLICA_SET"'", version: 1, members: [{ _id: 0, host: "{{ .Release.Name }}-0.{{ .Release.Name }}-svc:{{ $port }}" }]})'
       {{- end }}
       fi
       echo "mongo-init.sh ran" > {{ $path }}/mongo-init.txt

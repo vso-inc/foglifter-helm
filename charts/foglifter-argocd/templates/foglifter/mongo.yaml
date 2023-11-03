@@ -7,6 +7,14 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      jsonPointers:
+        - /data/MONGO_APP_PSWD
+        - /data/MONGO_ROOT_PSWD
+        - /data/MONGO_URI
+        - /data/MONGO_REPLICA_SET_KEY
   project: {{ default "foglifter" ((.Values.mongo).application).project }}
   source:
     chart: foglifter-mongo

@@ -1,0 +1,55 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  serviceName: {{ .Release.Name }}-svc
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-sa
+      containers:
+        - name: postgres
+          image: "{{ default "" .Values.registry }}{{ default "postgres" .Values.repository }}:{{ default "13" .Values.imageTag }}"
+          imagePullPolicy: "{{ default "IfNotPresent" .Values.imagePullPolicy }}"
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: {{ default "5432" .Values.port | int }}
+          resources:
+            {{- default dict .Values.resources | toYaml | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: true
+            runAsUser: 999
+          volumeMounts:
+            - name: {{ .Release.Name }}-pvc
+              mountPath: "/var/lib/postgresql/data"
+              subPath: pgdata
+      securityContext:
+        fsGroup: 999
+        runAsGroup: 999
+        runAsUser: 999
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Release.Name }}-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ default "5Gi" .Values.storage }}
+        storageClassName: {{ default "default" .Values.storageClass }}

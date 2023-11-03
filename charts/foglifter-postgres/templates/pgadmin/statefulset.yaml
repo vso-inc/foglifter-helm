@@ -1,0 +1,49 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-pgadmin
+  labels:
+    app: {{ .Release.Name }}-pgadmin
+spec:
+  serviceName: {{ .Release.Name }}-pgadmin-svc
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-pgadmin
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-pgadmin
+    spec:
+      serviceAccountName: {{ .Release.Name }}-pgadmin-sa
+      containers:
+        - name: postgres
+          image: "{{ default "" (.Values.pgadmin).registry }}{{ default "dbpage/pgadmin4" (.Values.pgadmin).repository }}{{ if (.Values.pgadmin).imageTag }}:{{ (.Values.pgadmin).imageTag }}{{ end }}"
+          imagePullPolicy: "{{ default "IfNotPresent" (.Values.pgadmin).imagePullPolicy }}"
+          env:
+            - name: PGADMIN_DEFAULT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-pgadmin-secret
+                  key: PGADMIN_DEFAULT_PASSWORD
+            - name: PGADMIN_DEFAULT_EMAIL
+              value: {{ default "foglifter@vso-inc.com" (.Values.pgadmin).email }}
+            - name: PGADMIN_LISTEN_PORT
+              value: {{ default "5432" (.Values.pgadmin).port | quote }}
+          ports:
+            - containerPort: {{ default "5432" (.Values.pgadmin).port | int }}
+          resources:
+            {{- default dict (.Values.pgadmin).resources | toYaml | nindent 12 }}
+          volumeMounts:
+            - name: {{ .Release.Name }}-pgadmin-pvc
+              mountPath: "/var/lib/pgadmin"
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Release.Name }}-pgadmin-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ default "1Gi" (.Values.pgadmin).storage }}
+        storageClassName: {{ default "default" (.Values.pgadmin).storageClass }}

@@ -8,5 +8,5 @@ spec:
     app: {{ .Release.Name }}
   ports:
   - protocol: TCP
-    port: {{ default "3000" (.Values.viewApp).port | int }}
-    targetPort: {{ default "3000" (.Values.viewApp).port | int }}
+    port: {{ default "3000" .Values.port | int }}
+    targetPort: {{ default "3000" .Values.port | int }}

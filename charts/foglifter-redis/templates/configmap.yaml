@@ -1,4 +1,3 @@
-{{- if (ne (.Values.redis).deploy false) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,4 +6,3 @@ data:
   redis-config: |
     maxmemory 2mb
     maxmemory-policy allkeys-lru
-{{- end }}
