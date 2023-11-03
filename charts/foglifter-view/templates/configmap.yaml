@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-cm
+data:
+  CHECK_FOR_UPDATES: "0"
+  DEPLOYMENT_PLATFORM: k8s:helm
+  ENABLE_TRACKING: "0"
+  LISTEN_ADDR: 0.0.0.0
+  PG_DB: {{ default .Release.Name (.Values.postgres).dbName }}
+  PG_HOST: {{ required "Postgres host is required" (.Values.postgres).host }}
+  PG_PORT: "{{ required "Postgres port is required" ((.Values.postgres).port | int) }}"
+  PG_USER: {{ required "Postgres username is required" (.Values.postgres).username }}
+  REDIS_HOST: {{ required "Redis host is required" (.Values.redis).host }}
+  REDIS_PORT: "{{ required "Redis port is required" ((.Values.redis).port | int) }}"
+  REDIS_USER: {{ required "Redis username is required" (.Values.redis).username }}
+  SUB_PATH: "{{ default "/dashboard/" .Values.prefix }}"
+  TOOLJET_HOST: "{{ default (printf "%s-svc" .Release.Name) .Values.host }}"
+  {{- if (eq (.Values.enterprise).enabled true) }}
+  WHITE_LABEL_FAVICON: "{{ .Values.host }}/favicon.ico"
+  WHITE_LABEL_LOGO: "{{ .Values.host }}/assets/images/FogLifter.png"
+  WHITE_LABEL_TEXT: FogLifter View
+  {{- end }}

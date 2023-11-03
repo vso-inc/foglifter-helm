@@ -1,0 +1,67 @@
+# Recommended default configurations for FogLifter Postgres
+
+# Container registry for Postgres workloads
+# Should end with forward-slash if set (e.g. "quay.io/")
+registry: ""
+# Image repository for Postgres workloads
+repository: postgres
+# Image tag for Postgres workloads
+imageTag: 13
+# ImagePullPolicy for Postgres workloads
+imagePullPolicy: IfNotPresent
+
+# Create Postgres secret
+createSecret: true
+
+# Storage to allocate to database PersistentVolume
+storage: 5Gi
+# StorageClass name
+storageClass: default
+
+# Resources to allocate to Postgres workloads
+resources: {}
+  # requests:
+  #   cpu: 250m
+  #   memory: 250Mi
+  # limits:
+  #   cpu: 500m
+  #   memory: 500Mi
+
+# PGAdmin configurations
+pgadmin:
+
+  # Enable PGAdmin
+  enabled: true
+
+  # Container registry for PGAdmin workloads
+  # Should end with forward-slash if set (e.g. "quay.io/")
+  registry: ""
+  # Image repository for PGAdmin workloads
+  repository: dpage/pgadmin4
+  # Image tag for PGAdmin workloads
+  imageTag: ""
+  # ImagePullPolicy for PGAdmin workloads
+  imagePullPolicy: IfNotPresent
+
+  # Create PGAdmin secret
+  createSecret: true
+
+  # PGAdmin port
+  port: 5432
+
+  # PGAdmin default email
+  email: foglifter@vso-inc.com
+
+  # Storage to allocate to PGAdmin PersistentVolume
+  storage: 1Gi
+  # StorageClass name
+  storageClass: default
+
+  # Resources to allocate to PGAdmin workloads
+  resources: {}
+    # requests:
+    #   cpu: 250m
+    #   memory: 250Mi
+    # limits:
+    #   cpu: 500m
+    #   memory: 500Mi

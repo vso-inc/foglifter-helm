@@ -1,0 +1,19 @@
+# Recommended default configurations for FogLifter Redis
+
+# Container registry for Redis workloads
+# Should end with forward-slash if set (e.g. "quay.io/")
+registry: ""
+# Image repository for Redis workloads
+repository: redis
+# Image tag for Redis workloads
+imageTag: 6
+# ImagePullPolicy for Redis workloads
+imagePullPolicy: IfNotPresent
+
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 100Mi
+  # limits:
+  #   cpu: 200m
+  #   memory: 200Mi

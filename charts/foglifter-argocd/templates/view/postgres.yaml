@@ -1,0 +1,34 @@
+{{- if (eq ((.Values.postgres).application).install true) }}
+{{- $values := (omit .Values.postgres "application") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ default "foglifter-postgres" ((.Values.postgres).application).name }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ default "postgres" ((.Values.postgres).application).project }}
+  source:
+    chart: foglifter-postgres
+    repoURL: https://vso-inc.github.io/foglifter-helm
+    targetRevision: {{ ((.Values.postgres).application).version | semver }}
+    helm:
+      values: |
+        {{- default dict $values | toYaml | nindent 8 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ default "foglifter-postgres" ((.Values.postgres).application).namespace }}
+  ignoreDifferences:
+    - group: ''
+      kind: Secret
+      jsonPointers:
+        - /data/POSTGRES_PASSWORD
+        - /data/PGADMIN_DEFAULT_PASSWORD
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+    automated:
+      selfHeal: true
+      prune: true
+{{- end }}

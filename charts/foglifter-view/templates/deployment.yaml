@@ -17,19 +17,19 @@ spec:
       serviceAccountName: {{ .Release.Name }}-sa
       containers:
         - name: view-app
-          image: "{{ default "tooljet/" (.Values.viewApp).registry }}{{ default "tooljet-ce" (.Values.viewApp).repository }}:{{ default "v2.10.2" (.Values.viewApp).imageTag }}"
-          imagePullPolicy: "{{ default "IfNotPresent" (.Values.viewApp).imagePullPolicy }}"
+          image: "{{ default "tooljet/" .Values.registry }}{{ default "tooljet-ce" .Values.repository }}:{{ default "v2.10.2" .Values.imageTag }}"
+          imagePullPolicy: "{{ default "IfNotPresent" .Values.imagePullPolicy }}"
           args: 
             - npm
             - run
             - start:prod
           resources:
-            {{- default dict (.Values.viewApp).resources | toYaml | nindent 12 }}
+            {{- default dict .Values.resources | toYaml | nindent 12 }}
           ports:
-            - containerPort: {{ default "3000" (.Values.viewApp).port | int }}
+            - containerPort: {{ default "3000" .Values.port | int }}
           readinessProbe:
             httpGet:
-              port: {{ default "3000" (.Values.viewApp).port | int }}
+              port: {{ default "3000" .Values.port | int }}
               path: /api/health
             successThreshold: 1
             initialDelaySeconds: 10
@@ -42,12 +42,12 @@ spec:
             - name: PG_PASS
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-postgres-secret
+                  name: {{ required "Postgres secret name is required" (.Values.postgres).secretName }}
                   key: POSTGRES_PASSWORD
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-redis-secret
+                  name: {{ required "Redis secret name is required" (.Values.redis).secretName }}
                   key: REDIS_PASSWORD
             - name: LOCKBOX_MASTER_KEY
               valueFrom:

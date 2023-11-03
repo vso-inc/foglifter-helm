@@ -67,6 +67,19 @@ view:
   # View app ingress prefix
   prefix: /dashboard
 
+# FogLifter PGAdmin ingress configurations
+pgadmin:
+  # Enable PGAdmin ingress
+  enabled: true
+  # PGAdmin ingress port
+  port: 5432
+  # PGAdmin service name
+  name: foglifter-view-svc
+  # PGAdmin service namespace
+  namespace: foglifter-view
+  # PGAdmin ingress prefix
+  prefix: /pgadmin
+
 # MongoDB ingress configurations
 mongo:
   # Enable Mongo ingress

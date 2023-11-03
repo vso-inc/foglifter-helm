@@ -1,0 +1,33 @@
+{{- if (eq ((.Values.redis).application).install true) }}
+{{- $values := (omit .Values.redis "application") }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ default "foglifter-redis" ((.Values.redis).application).name }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ default "redis" ((.Values.redis).application).project }}
+  source:
+    chart: foglifter-redis
+    repoURL: https://vso-inc.github.io/foglifter-helm
+    targetRevision: {{ ((.Values.redis).application).version | semver }}
+    helm:
+      values: |
+        {{- default dict $values | toYaml | nindent 8 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ default "foglifter-redis" ((.Values.redis).application).namespace }}
+  ignoreDifferences:
+    - group: ''
+      kind: Secret
+      jsonPointers:
+        - /data/REDIS_PASSWORD
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+    automated:
+      selfHeal: true
+      prune: true
+{{- end }}
