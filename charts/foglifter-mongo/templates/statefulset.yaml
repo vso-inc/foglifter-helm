@@ -25,7 +25,7 @@ spec:
           args:
             - --config
             - "{{ $configPath }}/mongod.conf"
-          image: "{{ default "" .Values.registry }}{{ default "mongo" .Values.repository }}:{{ default "5.0.6" .Values.imageTag }}"
+          image: "{{ default "" .Values.registry }}{{ default "mongo" .Values.repository }}:{{ default "5.0.20" .Values.imageTag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           env:
             - name: MONGO_INITDB_ROOT_USERNAME
@@ -44,6 +44,15 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-secret
                   key: MONGO_APP_PSWD
+            {{- if (eq (.Values.replication).enabled true) }}
+            - name: MONGO_REPLICA_SET
+              value: {{ default "foglifterRS" (.Values.replication).name }}
+            - name: MONGO_REPLICA_SET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secret
+                  key: MONGO_REPLICA_SET_KEY
+            {{- end }}
           ports:
             - containerPort: {{ default "27017" .Values.port | int }}
           resources:

@@ -21,7 +21,7 @@ spec:
         spec:
           containers:
             - name: mongo-backup
-              image: "{{ default "" .Values.registry }}{{ default "mongo" .Values.repository }}:{{ default "5.0.6" .Values.imageTag }}"
+              image: "{{ default "" .Values.registry }}{{ default "mongo" .Values.repository }}:{{ default "5.0.20" .Values.imageTag }}"
               imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
               {{- $path := default "/data/backups" (.Values.backups).path }}
               command:

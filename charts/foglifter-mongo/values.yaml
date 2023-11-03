@@ -56,8 +56,6 @@ replication:
   enabled: false
   # Replication set name
   name: foglifterRS
-  # Replication set key path
-  keyPath: /data/key
 
 # Mongo WiredTiger engine configurations
 wiredTigerConfig: {}
