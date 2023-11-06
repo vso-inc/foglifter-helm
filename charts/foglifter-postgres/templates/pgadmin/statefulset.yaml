@@ -30,6 +30,12 @@ spec:
               value: {{ default "foglifter@vso-inc.com" (.Values.pgadmin).email }}
             - name: PGADMIN_LISTEN_PORT
               value: {{ default "5432" (.Values.pgadmin).port | quote }}
+            {{- if (.Values.pgadmin).env }}
+            {{- range $key, $val := .Values.pgadmin.env }}
+            - name: {{ $key }}
+              value: {{ $val }}
+            {{- end }}
+            {{- end }}
           ports:
             - containerPort: {{ default "5432" (.Values.pgadmin).port | int }}
           resources:

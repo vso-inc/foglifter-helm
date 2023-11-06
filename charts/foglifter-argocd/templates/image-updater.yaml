@@ -1,3 +1,4 @@
+{{- if (ne (.Values.imageUpdater).enabled false) }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -9,7 +10,7 @@ spec:
   source:
     chart: argocd-image-updater
     repoURL: https://argoproj.github.io/argo-helm
-    targetRevision: {{ .Values.imageUpdaterVersion | semver }}
+    targetRevision: {{ default "0.9.1" (.Values.imageUpdater).version | semver }}
     helm:
       values: |
         config:
@@ -18,9 +19,9 @@ spec:
             insecure: true
             serverAddress: {{ .Release.Name }}-server.{{ .Release.Namespace }}.cluster.local
           logLevel: debug
-          {{- if .Values.imageUpdaterRegistries }}
+          {{- if (.Values.imageUpdater).registries }}
           registries:
-            {{- default list .Values.imageUpdaterRegistries | toYaml | nindent 12 }}
+            {{- default list .Values.imageUpdater.registries | toYaml | nindent 12 }}
           {{- end }}
   destination:
     server: "https://kubernetes.default.svc"
@@ -32,3 +33,4 @@ spec:
     automated:
       selfHeal: true
       prune: true
+{{- end }}
