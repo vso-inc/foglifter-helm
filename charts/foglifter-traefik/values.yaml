@@ -74,9 +74,9 @@ pgadmin:
   # PGAdmin ingress port
   port: 5432
   # PGAdmin service name
-  name: foglifter-view-svc
+  name: foglifter-postgres-pgadmin-svc
   # PGAdmin service namespace
-  namespace: foglifter-view
+  namespace: foglifter-postgres
   # PGAdmin ingress prefix
   prefix: /pgadmin
 

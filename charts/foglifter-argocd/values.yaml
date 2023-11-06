@@ -1,8 +1,12 @@
-# Argo CD Image Updater version
-imageUpdaterVersion: 0.9.1
+# Argo CD Image Updater
+imageUpdater:
 
-# Argo CD Image Updater registries
-imageUpdaterRegistries: []
+  # Enable Argo CD Image Updater
+  enabled: true
+  # Argo CD Image Updater version
+  version: 0.9.1
+  # Argo CD Image Updater registry configurations
+  registries: []
 
 # Recommended default FogLifter configurations
 foglifter:
@@ -140,7 +144,7 @@ mongo:
     # Application name
     name: foglifter-mongo
     # Chart version
-    version: 0.1.11
+    version: 0.1.12
 
   # Container registry for Mongo workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -216,7 +220,7 @@ traefik:
     # Application Argo CD project
     project: traefik
     # FogLifter Traefik ingress chart version
-    version: 0.1.7
+    version: 0.1.9
     # Traefik chart version
     traefikVersion: 24.0.0
 
@@ -279,7 +283,20 @@ traefik:
     # View app service namespace
     namespace: foglifter-view
     # View app ingress prefix
-    prefix: /dashboard
+    prefix: /dashboard/
+
+  # FogLifter PGAdmin ingress configurations
+  pgadmin:
+    # Enable PGAdmin ingress
+    enabled: true
+    # PGAdmin ingress port
+    port: 5432
+    # PGAdmin service name
+    name: foglifter-postgres-pgamdmin-svc
+    # PGAdmin service namespace
+    namespace: foglifter-postgres
+    # PGAdmin ingress prefix
+    prefix: /pgadmin
 
   # MongoDB ingress configurations
   mongo:
@@ -306,7 +323,7 @@ view:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.2.0
+    version: 0.2.1
 
   # Container registry for View app workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -438,6 +455,10 @@ postgres:
     storage: 1Gi
     # StorageClass name
     storageClass: default
+
+    # PGAdmin environment variables
+    env:
+      SCRIPT_NAME: /pgadmin
 
     # Resources to allocate to PGAdmin workloads
     resources: {}

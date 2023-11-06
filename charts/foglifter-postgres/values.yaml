@@ -57,6 +57,10 @@ pgadmin:
   # StorageClass name
   storageClass: default
 
+  # PGAdmin environment variables
+  env:
+    SCRIPT_NAME: /pgadmin
+
   # Resources to allocate to PGAdmin workloads
   resources: {}
     # requests:
