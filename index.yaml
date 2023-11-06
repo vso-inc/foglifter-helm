@@ -366,6 +366,16 @@ entries:
   foglifter-postgres:
   - apiVersion: v2
     appVersion: "13"
+    created: "2023-11-06T21:56:47.655766684Z"
+    description: Helm chart for FogLifter® Postgres installation
+    digest: 5533b762c2800459a7fac332dc10ce4dc46d464e628eedc5870bbaa96d92a997
+    name: foglifter-postgres
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-postgres-0.1.1/foglifter-postgres-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: "13"
     created: "2023-11-03T14:51:33.785009997Z"
     description: Helm chart for FogLifter® Postgres installation
     digest: a330d7bb30deed00b2a41796f877fdc8d0c8f65854a80f7173d55b6ee37091e3
@@ -587,4 +597,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-03T14:55:23.056211847Z"
+generated: "2023-11-06T21:56:47.655944486Z"
