@@ -4,6 +4,9 @@ on:
     branches:
       - main
       - develop
+    paths:
+      - 'charts/**'
+
 jobs:
   helm_lint:
     runs-on: ubuntu-latest

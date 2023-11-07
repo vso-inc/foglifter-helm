@@ -2,21 +2,21 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: {{ .Release.Name }}-redis
-  name: {{ .Release.Name }}-redis
+    app: {{ .Release.Name }}
+  name: {{ .Release.Name }}
 spec:
   replicas: {{ default "1" .Values.replicas | int }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-redis
+      app: {{ .Release.Name }}
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-redis
+        app: {{ .Release.Name }}
     spec:
-      serviceAccountName: {{ .Release.Name }}-redis-sa
+      serviceAccountName: {{ .Release.Name }}-sa
       containers:
         - name: redis
           image: "{{ default "" .Values.registry }}{{ default "redis" .Values.repository }}:{{ default "6" .Values.imageTag }}"
@@ -31,7 +31,7 @@ spec:
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-redis-secret
+                  name: {{ .Release.Name }}-secret
                   key: REDIS_PASSWORD
           ports:
             - containerPort: {{ default "6379" .Values.port | int }}
@@ -47,7 +47,7 @@ spec:
           emptyDir: {}
         - name: config
           configMap:
-            name: {{ .Release.Name }}-redis-cm
+            name: {{ .Release.Name }}-cm
             items:
               - key: redis-config
                 path: redis.conf
