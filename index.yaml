@@ -397,6 +397,16 @@ entries:
   foglifter-redis:
   - apiVersion: v2
     appVersion: "6"
+    created: "2023-11-07T14:35:05.684276942Z"
+    description: Helm chart for FogLifter® Redis installation
+    digest: 9050dedc9f89005b278506a9bda56792aea020e8c40c4565f72596f3d3813540
+    name: foglifter-redis
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-redis-0.1.1/foglifter-redis-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: "6"
     created: "2023-11-03T14:51:33.95551724Z"
     description: Helm chart for FogLifter® Redis installation
     digest: 46b939a8239721cf416b9a101ac4a353978b93a14b6d54287518d058af4dfade
@@ -617,4 +627,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-06T22:12:45.167187134Z"
+generated: "2023-11-07T14:35:05.684618252Z"
