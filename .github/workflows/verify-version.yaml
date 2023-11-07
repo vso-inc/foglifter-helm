@@ -35,7 +35,7 @@ jobs:
               echo "Please update the chart version to a newer version before merging."
               fail=true
             fi
-            if [[ fail == true ]]; then
+            if [[ $fail == true ]]; then
               exit 1
             fi
           done
