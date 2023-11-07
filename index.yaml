@@ -265,6 +265,16 @@ entries:
   foglifter-mongo:
   - apiVersion: v2
     appVersion: 5.0.20
+    created: "2023-11-07T17:11:59.520895396Z"
+    description: Helm chart for FogLifter® MongoDB backend
+    digest: abac9fa01da40aaeaec9e8664b7e3ab4274223cc9a21ccc8888be8ce4d4ac208
+    name: foglifter-mongo
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-mongo-0.1.13/foglifter-mongo-0.1.13.tgz
+    version: 0.1.13
+  - apiVersion: v2
+    appVersion: 5.0.20
     created: "2023-11-03T14:55:22.821216948Z"
     description: Helm chart for FogLifter® MongoDB backend
     digest: 16063c5b620a80b53f560df8ef096603d9dc046388903d1833316aadde6010eb
@@ -384,6 +394,16 @@ entries:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-mongo-0.1.0/foglifter-mongo-0.1.0.tgz
     version: 0.1.0
   foglifter-postgres:
+  - apiVersion: v2
+    appVersion: "13"
+    created: "2023-11-07T17:11:59.759592422Z"
+    description: Helm chart for FogLifter® Postgres installation
+    digest: a498ae136f2452282eb9f801d9e8db3a2d8dcce314629c43362abb98aca36668
+    name: foglifter-postgres
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-postgres-0.1.2/foglifter-postgres-0.1.2.tgz
+    version: 0.1.2
   - apiVersion: v2
     appVersion: "13"
     created: "2023-11-06T21:56:47.655766684Z"
@@ -647,4 +667,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-07T15:45:29.260441276Z"
+generated: "2023-11-07T17:12:00.242284875Z"
