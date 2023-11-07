@@ -16,4 +16,5 @@ spec:
     - namespace: {{ default "foglifter-redis" ((.Values.redis).application).namespace }}
       server: https://kubernetes.default.svc
   clusterResourceWhitelist:
-    - kind: Namespace
+    - group: ''
+      kind: Namespace
