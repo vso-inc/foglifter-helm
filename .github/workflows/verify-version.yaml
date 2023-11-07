@@ -30,7 +30,7 @@ jobs:
             diff=$(git --no-pager diff origin/${{ github.base_ref }}...origin/${{ github.head_ref }} "$chart")
             helm_version=$(helm show chart "$chart" | yq '.version' -)
             if [[ -n $diff ]] && [[ ! $(echo $diff | grep "version: $version") ]]; then
-              echo "Chart $chart has not been updated to a newer version."
+              echo "Chart $(helm show chart "$chart" | yq '.name' -) has not been updated to a newer version."
               echo "Current version: $helm_version"
               echo "Please update the chart version to a newer version before merging."
               fail=true
