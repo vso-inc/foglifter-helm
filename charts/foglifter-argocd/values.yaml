@@ -26,7 +26,7 @@ foglifter:
 
   # Image registry for all FogLifter deployments
   # Should end with forward-slash if set (e.g. "quay.io/")
-  registry: "vsodevops/"
+  registry: "ghcr.io/vso-inc/"
   # ImagePullPolicy for all FogLifter deployments
   imagePullPolicy: Always
   # ImagePullSecret name for all FogLifter deployments
@@ -84,7 +84,7 @@ foglifter:
     # Core deployment image repository
     repository: foglifter-core-app
     # Core deployment image tag
-    tag: 2.1.1
+    tag: 2.2.0
     # Core deployment podAntiAffinity towards exec app
     execAntiAffinity: true
     # Core deployment resources
@@ -103,7 +103,7 @@ foglifter:
     # Exec deployment image repository
     repository: foglifter-exec-app
     # Exec deployment image tag
-    tag: 2.1.1
+    tag: 2.2.0
     # Exec deployment podAntiAffinity towards core app
     coreAntiAffinity: true
     # Exec deployment resources
@@ -124,7 +124,7 @@ foglifter:
     # Module deployment image repository
     repository: foglifter-module-app
     # Module deployment image tag
-    tag: 2.1.1
+    tag: 2.2.0
     # Module deployment resources
     resources: {}
       # requests:
@@ -152,7 +152,7 @@ mongo:
   # Image repository for Mongo workloads
   repository: mongo
   # Image tag for Mongo workloads
-  imageTag: 5.0.6
+  imageTag: 5.0.20
   # ImagePullPolicy for Mongo resources
   imagePullPolicy: IfNotPresent
 
@@ -331,7 +331,7 @@ view:
   # Image repository for View app workloads
   repository: tooljet-ce
   # Image tag for View app workloads
-  imageTag: v2.19.2
+  imageTag: v2.23.2
   # ImagePullPolicy for View app workloads
   imagePullPolicy: IfNotPresent
 
@@ -397,7 +397,7 @@ postgres:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.1.0
+    version: 0.1.1
 
   # Container registry for Postgres workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -483,7 +483,7 @@ redis:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.1.0
+    version: 0.1.1
 
   # Container registry for Redis workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
