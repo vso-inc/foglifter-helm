@@ -19,8 +19,7 @@ spec:
     server: https://kubernetes.default.svc
     namespace: {{ default "foglifter-redis" ((.Values.redis).application).namespace }}
   ignoreDifferences:
-    - group: ''
-      kind: Secret
+    - kind: Secret
       jsonPointers:
         - /data/REDIS_PASSWORD
   syncPolicy:

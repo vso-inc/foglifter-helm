@@ -6,7 +6,7 @@ registry: tooljet/
 # Image repository for View app workloads
 repository: tooljet-ce
 # Image tag for View app workloads
-imageTag: v2.19.2
+imageTag: v2.23.2
 # ImagePullPolicy for View app workloads
 imagePullPolicy: IfNotPresent
 
