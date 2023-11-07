@@ -12,6 +12,7 @@ spec:
     - namespace: {{ default "foglifter" ((.Values.foglifter).application).namespace }}
       server: https://kubernetes.default.svc
   clusterResourceWhitelist:
-    - kind: Namespace
+    - group: ''
+      kind: Namespace
     - group: scheduling.k8s.io
       kind: PriorityClass
