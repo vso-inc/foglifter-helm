@@ -10,6 +10,10 @@ imageTag: 6
 # ImagePullPolicy for Redis workloads
 imagePullPolicy: IfNotPresent
 
+# Create Redis secret
+createSecret: true
+
+# Resources for Redis workloads
 resources: {}
   # requests:
   #   cpu: 100m

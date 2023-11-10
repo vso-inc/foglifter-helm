@@ -70,7 +70,7 @@ view:
 # FogLifter PGAdmin ingress configurations
 pgadmin:
   # Enable PGAdmin ingress
-  enabled: true
+  enabled: false
   # PGAdmin ingress port
   port: 5432
   # PGAdmin service name
@@ -83,10 +83,21 @@ pgadmin:
 # MongoDB ingress configurations
 mongo:
   # Enable Mongo ingress
-  enabled: true
+  enabled: false
   # Mongo ingress port
   port: 27017
   # Mongo service name
   name: foglifter-mongo-svc
   # Mongo service namespace
   namespace: foglifter
+
+# Postgres ingress configurations
+postgres:
+  # Enable Postgres ingress
+  enabled: false
+  # Postgres ingress port
+  port: 5432
+  # Postgres service name
+  name: foglifter-postgres-svc
+  # Postgres service namespace
+  namespace: foglifter-postgres
