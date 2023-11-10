@@ -73,6 +73,16 @@ entries:
     version: 0.1.0
   foglifter-argocd:
   - apiVersion: v2
+    appVersion: 2.2.1
+    created: "2023-11-10T14:29:12.680251976Z"
+    description: Helm chart for FogLifter® installation with Argo CD
+    digest: 326297fa8ae6f48781cb2a809d1f09088865f537062742fdaf8b28416287a322
+    name: foglifter-argocd
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-argocd-0.1.21/foglifter-argocd-0.1.21.tgz
+    version: 0.1.21
+  - apiVersion: v2
     appVersion: 2.2.0
     created: "2023-11-07T15:45:29.022278328Z"
     description: Helm chart for FogLifter® installation with Argo CD
@@ -427,6 +437,16 @@ entries:
   foglifter-redis:
   - apiVersion: v2
     appVersion: "6"
+    created: "2023-11-10T14:29:12.824615445Z"
+    description: Helm chart for FogLifter® Redis installation
+    digest: 1a02185dd4cc200e774b98bfd5a915aa78bf6cc1b30a1187bc033a9b065c700e
+    name: foglifter-redis
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-redis-0.1.2/foglifter-redis-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: "6"
     created: "2023-11-07T14:35:05.684276942Z"
     description: Helm chart for FogLifter® Redis installation
     digest: 9050dedc9f89005b278506a9bda56792aea020e8c40c4565f72596f3d3813540
@@ -446,6 +466,16 @@ entries:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-redis-0.1.0/foglifter-redis-0.1.0.tgz
     version: 0.1.0
   foglifter-traefik:
+  - apiVersion: v2
+    appVersion: 2.2.1
+    created: "2023-11-10T14:29:12.97844041Z"
+    description: Helm chart for FogLifter® Traefik ingress configurations
+    digest: b44b965a9ebd727ce86b47266c9a79637047cc3c2c5be15c82b391ad7282c335
+    name: foglifter-traefik
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-traefik-0.1.10/foglifter-traefik-0.1.10.tgz
+    version: 0.1.10
   - apiVersion: v2
     appVersion: 2.2.0
     created: "2023-11-06T22:12:45.166951835Z"
@@ -667,4 +697,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-07T17:12:00.242284875Z"
+generated: "2023-11-10T14:29:12.978658895Z"
