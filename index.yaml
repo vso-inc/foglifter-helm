@@ -468,6 +468,16 @@ entries:
   foglifter-traefik:
   - apiVersion: v2
     appVersion: 2.2.1
+    created: "2023-11-10T15:40:14.658435839Z"
+    description: Helm chart for FogLifter® Traefik ingress configurations
+    digest: 426d35b0022593470845856e7704ec0167e07d4869d2075eeed45d46c01b6794
+    name: foglifter-traefik
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-traefik-0.1.11/foglifter-traefik-0.1.11.tgz
+    version: 0.1.11
+  - apiVersion: v2
+    appVersion: 2.2.1
     created: "2023-11-10T14:29:12.97844041Z"
     description: Helm chart for FogLifter® Traefik ingress configurations
     digest: b44b965a9ebd727ce86b47266c9a79637047cc3c2c5be15c82b391ad7282c335
@@ -697,4 +707,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-10T14:29:12.978658895Z"
+generated: "2023-11-10T15:40:14.65857224Z"
