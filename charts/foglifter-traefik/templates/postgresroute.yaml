@@ -7,17 +7,7 @@ spec:
   entryPoints:
     - postgres
   routes:
-    {{- $host := "" }}
-    {{- if .Values.host }}
-      {{- if .Values.secondaryHost }}
-        {{- $host = (printf "HostSNI(`%s`) || HostSNI(`%s`)" .Values.host .Values.secondaryHost) }}
-      {{- else }}
-        {{- $host = (printf "HostSNI(`%s`)" .Values.host) }}
-      {{- end }}
-    {{- else }}
-      {{- $host = "HostSNI(`*`)" }}
-    {{- end }}
-    - match: {{ $host }}
+    - match: HostSNI(`*`)
       services:
         - name: {{ default "foglifter-postgres-svc" (.Values.postgres).name }}
           namespace: {{ default "foglifter-postgres" (.Values.postgres).namespace }}
