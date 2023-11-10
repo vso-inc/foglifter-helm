@@ -84,7 +84,7 @@ foglifter:
     # Core deployment image repository
     repository: foglifter-core-app
     # Core deployment image tag
-    tag: 2.2.0
+    tag: 2.2.1
     # Core deployment podAntiAffinity towards exec app
     execAntiAffinity: true
     # Core deployment resources
@@ -103,7 +103,7 @@ foglifter:
     # Exec deployment image repository
     repository: foglifter-exec-app
     # Exec deployment image tag
-    tag: 2.2.0
+    tag: 2.2.1
     # Exec deployment podAntiAffinity towards core app
     coreAntiAffinity: true
     # Exec deployment resources
@@ -124,7 +124,7 @@ foglifter:
     # Module deployment image repository
     repository: foglifter-module-app
     # Module deployment image tag
-    tag: 2.2.0
+    tag: 2.2.1
     # Module deployment resources
     resources: {}
       # requests:
@@ -144,7 +144,7 @@ mongo:
     # Application name
     name: foglifter-mongo
     # Chart version
-    version: 0.1.12
+    version: 0.1.13
 
   # Container registry for Mongo workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -194,8 +194,11 @@ mongo:
     enabled: false
     # Replication set name
     name: foglifterRS
-    # Replication set key path
-    keyPath: /data/key
+
+  # Mongo WiredTiger engine configurations
+  wiredTigerConfig: {}
+    # engineConfig:
+    #   cacheSizeGB: 4
 
   # Resources for Mongo workloads
   resources: {}
@@ -220,9 +223,15 @@ traefik:
     # Application Argo CD project
     project: traefik
     # FogLifter Traefik ingress chart version
-    version: 0.1.9
+    version: 0.1.10
     # Traefik chart version
     traefikVersion: 24.0.0
+
+  # FQDN used to access FogLifter UI
+  host: ""
+
+  # Secondary FQDN or IP used to access FogLifter UI
+  secondaryHost: ""
 
   # Namespace for FogLifter services
   foglifterNamespace: foglifter
@@ -288,7 +297,7 @@ traefik:
   # FogLifter PGAdmin ingress configurations
   pgadmin:
     # Enable PGAdmin ingress
-    enabled: true
+    enabled: false
     # PGAdmin ingress port
     port: 5432
     # PGAdmin service name
@@ -301,13 +310,24 @@ traefik:
   # MongoDB ingress configurations
   mongo:
     # Enable Mongo ingress
-    enabled: true
+    enabled: false
     # Mongo ingress port
     port: 27017
     # Mongo service name
     name: foglifter-mongo-svc
     # Mongo service namespace
     namespace: foglifter
+
+  # Postgres ingress configurations
+  postgres:
+    # Enable Postgres ingress
+    enabled: false
+    # Postgres ingress port
+    port: 5432
+    # Postgres service name
+    name: foglifter-postgres-svc
+    # Postgres service namespace
+    namespace: foglifter-postgres
 
 # Recommended default configurations for FogLifter View
 view:
@@ -323,7 +343,7 @@ view:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.2.1
+    version: 0.2.2
 
   # Container registry for View app workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -331,7 +351,7 @@ view:
   # Image repository for View app workloads
   repository: tooljet-ce
   # Image tag for View app workloads
-  imageTag: v2.23.2
+  imageTag: v2.22.3
   # ImagePullPolicy for View app workloads
   imagePullPolicy: IfNotPresent
 
@@ -397,7 +417,7 @@ postgres:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.1.1
+    version: 0.1.2
 
   # Container registry for Postgres workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -483,7 +503,7 @@ redis:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.1.1
+    version: 0.1.2
 
   # Container registry for Redis workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -495,6 +515,10 @@ redis:
   # ImagePullPolicy for Redis workloads
   imagePullPolicy: IfNotPresent
 
+  # Create Redis secret
+  createSecret: true
+
+  # Resources for Redis workloads
   resources: {}
     # requests:
     #   cpu: 100m
