@@ -275,6 +275,16 @@ entries:
   foglifter-mongo:
   - apiVersion: v2
     appVersion: 5.0.20
+    created: "2023-11-11T02:51:24.698374667Z"
+    description: Helm chart for FogLifter® MongoDB backend
+    digest: 7931e1f67d54dd074777b4c54e4f5cc03bd176feefc7ab85f4e64e22c4c49899
+    name: foglifter-mongo
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-mongo-0.1.14/foglifter-mongo-0.1.14.tgz
+    version: 0.1.14
+  - apiVersion: v2
+    appVersion: 5.0.20
     created: "2023-11-07T17:11:59.520895396Z"
     description: Helm chart for FogLifter® MongoDB backend
     digest: abac9fa01da40aaeaec9e8664b7e3ab4274223cc9a21ccc8888be8ce4d4ac208
@@ -707,4 +717,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2023-11-10T15:40:14.65857224Z"
+generated: "2023-11-11T02:51:24.698680265Z"
