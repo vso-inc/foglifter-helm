@@ -1,0 +1,44 @@
+{{- if (eq (.Values.replication).enabled true) }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-init-rs
+  labels:
+    app: {{ .Release.Name }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ .Release.Name }}-init-rs
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      {{- $dbPath := default "/data/db" .Values.dbPath }}
+      {{- $port := default "27017" .Values.port | int }}
+      serviceAccountName: {{ .Release.Name }}-sa
+      containers:
+        - name: {{ .Release.Name }}-init-rs
+          image: "{{ default "" .Values.registry }}{{ default "mongo" .Values.repository }}:{{ default "5.0.20" .Values.imageTag }}"
+          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              if [ ! -f {{ $dbPath }}/mongo-rs-init.txt ]; then
+                  echo "Configuring $HOSTNAME as a primary node in the replica set"
+                  mongo --host "mongodb://root:$MONGO_ROOT_PSWD@{{ .Release.Name }}-svc:{{ $port }}/admin?authSource=admin&ssl=false" -eval 'rs.initiate({ _id: "{{ default "foglifterRS" (.Values.replication).name }}", version: 1, members: [{ _id: 0, host: "{{ .Release.Name }}-0.{{ .Release.Name }}-svc:{{ $port }}" }]})'
+                  echo "Mongo RS init script ran" > {{ $dbPath }}/mongo-rs-init.txt
+              fi
+          envFrom:
+          - secretRef:
+              name: {{ .Release.Name }}-secret
+          volumeMounts:
+            - name: {{ .Release.Name }}-pvc
+              mountPath: "{{ $dbPath }}"
+      restartPolicy: Never
+      volumes:
+        - name: {{ .Release.Name }}-pvc
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc-{{ .Release.Name }}-0
+{{- end }}
