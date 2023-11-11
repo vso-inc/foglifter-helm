@@ -28,7 +28,10 @@ spec:
             - |
               if [ ! -f {{ $dbPath }}/mongo-rs-init.txt ]; then
                   echo "Configuring $HOSTNAME as a primary node in the replica set"
-                  mongo --host "mongodb://root:$MONGO_ROOT_PSWD@{{ .Release.Name }}-svc:{{ $port }}/admin?authSource=admin&ssl=false" -eval 'rs.initiate({ _id: "{{ default "foglifterRS" (.Values.replication).name }}", version: 1, members: [{ _id: 0, host: "{{ .Release.Name }}-0.{{ .Release.Name }}-svc:{{ $port }}" }]})'
+                  while ! mongo --host "mongodb://root:$MONGO_ROOT_PSWD@{{ .Release.Name }}-svc:{{ $port }}/admin?authSource=admin&ssl=false" -eval 'rs.initiate({ _id: "{{ default "foglifterRS" (.Values.replication).name }}", version: 1, members: [{ _id: 0, host: "{{ .Release.Name }}-0.{{ .Release.Name }}-svc:{{ $port }}" }]})' | grep '"ok" : 1'; do
+                      echo "Waiting for MongoDB to start..."
+                      sleep 5
+                  done
                   echo "Mongo RS init script ran" > {{ $dbPath }}/mongo-rs-init.txt
               fi
           envFrom:
