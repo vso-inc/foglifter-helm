@@ -23,6 +23,10 @@ spec:
       containers:
         - name: mongo
           args:
+            {{- if (eq (.Values.replication).enabled true) }}
+            - --replSet
+            - {{ default "foglifterRS" (.Values.replication).name }}
+            {{- end }}
             - --config
             - "{{ $configPath }}/mongod.conf"
           image: "{{ default "" .Values.registry }}{{ default "mongo" .Values.repository }}:{{ default "5.0.20" .Values.imageTag }}"
