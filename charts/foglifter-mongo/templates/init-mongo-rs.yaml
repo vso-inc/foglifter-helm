@@ -6,8 +6,9 @@ metadata:
   labels:
     app: {{ .Release.Name }}
   annotations:
-    "helm.sh/hook": post-install
-    "helm.sh/hook-delete-policy": hook-succeeded
+    helm.sh/hook: post-install
+    helm.sh/hook-delete-policy: hook-succeeded
+    helm.sh/hook-weight: "-1"
 spec:
   template:
     metadata:
