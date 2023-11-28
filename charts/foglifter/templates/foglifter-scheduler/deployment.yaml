@@ -1,0 +1,49 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-scheduler
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ default "1" (.Values.scheduler).replicas | int }}
+  selector:
+    matchLabels:
+      name: {{ .Release.Name }}-scheduler
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-scheduler
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-sa
+      containers:
+        - name: scheduler
+          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-scheduler" (.Values.scheduler).repository }}:{{ default "latest" (.Values.scheduler).tag }}"
+          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-cm
+          {{- $port := default "8011" (.Values.scheduler).port | int }}
+          env:
+            - name: PORT
+              value: "{{ $port }}"
+            {{- if (.Values.scheduler).existingSecretName }}
+            - name: FOGLIFTER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ (.Values.scheduler).existingSecretName }}
+                  key: password
+            {{- end }}
+            {{- if (.Values.scheduler).env }}
+            {{- range $key, $val := .Values.scheduler.env }}
+            - name: {{ $key }}
+              value: {{ $val }}
+            {{- end }}
+            {{- end }}
+          ports:
+            - containerPort: {{ $port }}
+          resources:
+            {{- default dict (.Values.scheduler).resources | toYaml | nindent 12 }}
+      {{- if (ne (.Values.priorityClass).create false) }}
+      priorityClassName: {{ .Release.Name }}
+      {{- end }}

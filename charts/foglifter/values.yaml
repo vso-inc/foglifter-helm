@@ -126,3 +126,36 @@ module:
     # limits:
     #   cpu: 500m
     #   memory: 2048Mi
+
+# FogLifter scheduler deployment parameters
+scheduler:
+  # Enable scheduler deployment
+  enabled: true
+  # Scheduler deployment port
+  port: 8080
+  # Scheduler deployment replicas
+  replicas: 1
+  # Scheduler deployment image repository
+  repository: foglifter-scheduler
+  # Scheduler deployment image tag
+  tag: 1.0.0
+  # Scheduler deployment extra environment variables
+  env: 
+    FOGLIFTER_URL: "http://foglifter-core-svc:8080"
+    FOGLIFTER_USERNAME: admin
+    EXPRESS_JSON_SIZE_LIMIT: 10mb
+    LOG_LEVEL: info
+    SCHEDULER_HEARTBEAT_INTERVAL: 60000
+    SCHEDULER_AUTH_INTERVAL: 10000
+    SCHEDULER_SETTINGS_INTERVAL: 15000
+  # Existing scheduler secret name - CREATE PRIOR TO INSTALL
+  # Should contain the "password" key with the scheduler password
+  existingSecret: foglifter-scheduler-secret
+  # Scheduler deployment resources
+  resources: {}
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # limits:
+    #   cpu: 500m
+    #   memory: 2048Mi
