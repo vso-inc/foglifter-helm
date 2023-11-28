@@ -1,7 +1,7 @@
 {{- if (eq ((.Values.foglifter).application).install true) }}
 {{- $values := (omit .Values.foglifter "application") }}
 {{- $name := ((.Values.foglifter).application).name }}
-{{- $registry := (default "vsodevops/" (.Values.foglifter).registry) }}
+{{- $registry := (default "ghcr.io/vso-inc/" (.Values.foglifter).registry) }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
