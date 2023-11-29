@@ -54,7 +54,7 @@ spec:
             {{- if (.Values.module).env }}
             {{- range $key, $val := .Values.module.env }}
             - name: {{ $key }}
-              value: {{ $val }}
+              value: {{ $val | quote }}
             {{- end }}
             {{- end }}
           ports:

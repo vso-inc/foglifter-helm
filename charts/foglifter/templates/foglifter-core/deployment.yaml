@@ -62,7 +62,7 @@ spec:
             {{- if (.Values.core).env }}
             {{- range $key, $val := .Values.core.env }}
             - name: {{ $key }}
-              value: {{ $val }}
+              value: {{ $val | quote }}
             {{- end }}
             {{- end }}
           ports:
