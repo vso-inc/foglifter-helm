@@ -68,7 +68,7 @@ spec:
             {{- if (.Values.exec).env }}
             {{- range $key, $val := .Values.exec.env }}
             - name: {{ $key }}
-              value: {{ $val }}
+              value: {{ $val | quote }}
             {{- end }}
             {{- end }}
           resources:

@@ -37,7 +37,7 @@ spec:
             {{- if (.Values.scheduler).env }}
             {{- range $key, $val := .Values.scheduler.env }}
             - name: {{ $key }}
-              value: {{ $val }}
+              value: {{ $val | quote }}
             {{- end }}
             {{- end }}
           ports:
