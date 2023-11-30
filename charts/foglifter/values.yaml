@@ -106,6 +106,8 @@ exec:
 
 # FogLifter module deployment parameters
 module:
+  # Enable module deployment
+  enabled: true
   # Module deployment port
   port: 8080
   # Module deployment replicas
