@@ -1,3 +1,4 @@
+{{- if (ne (.Values.module).enabled false) }}
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -64,3 +65,4 @@ spec:
       {{- if (ne (.Values.priorityClass).create false) }}
       priorityClassName: {{ .Release.Name }}
       {{- end }}
+{{- end }}
