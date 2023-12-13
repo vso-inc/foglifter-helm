@@ -29,17 +29,24 @@ apiservice:
   port: 8080
   # Apiservice service name
   name: foglifter-apiservice-svc
-  # Apiservice ingress prefix
-  prefix: /api/auth
 
 # FogLifter module app ingress configurations
 module:
+  # Enable module app ingress
+  enabled: true
   # Module app ingress port
   port: 8080
   # Module app service name
   name: foglifter-module-svc
-  # Module app ingress prefix
-  prefix: /api/module
+
+# FogLifter scheduler ingress configurations
+scheduler:
+  # Enable scheduler ingress
+  enabled: true
+  # Scheduler ingress port
+  port: 8080
+  # Scheduler service name
+  name: foglifter-scheduler-svc
 
 # Argo CD ingress configurations
 argocd:
