@@ -10,6 +10,13 @@ imageTag: v2.23.2
 # ImagePullPolicy for View app workloads
 imagePullPolicy: IfNotPresent
 
+# View app ConfigMap configurations
+cm:
+  # View app ConfigMap data
+  data: {}
+  # FOO: bar
+  # LOREM: ipsum
+
 # Postgres database configurations
 postgres:
   # Postgres database host
