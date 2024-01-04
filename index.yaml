@@ -679,6 +679,16 @@ entries:
   foglifter-view:
   - apiVersion: v2
     appVersion: 2.23.2
+    created: "2024-01-04T20:25:18.887248153Z"
+    description: Helm chart for FogLifter® View app installation
+    digest: 6d98a961154403407e3cc0cf309e9a823eb713a61da1cd4a61a8f7a6dec2a7fc
+    name: foglifter-view
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.2.3/foglifter-view-0.2.3.tgz
+    version: 0.2.3
+  - apiVersion: v2
+    appVersion: 2.23.2
     created: "2023-11-07T15:45:29.260013178Z"
     description: Helm chart for FogLifter® View app installation
     digest: 9682dbb331b4eafc78e4e84defdaab861a957e4e4af034201a9af87ca467c6e6
@@ -807,4 +817,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2023-12-13T16:45:21.673449164Z"
+generated: "2024-01-04T20:25:18.887395059Z"
