@@ -40,7 +40,7 @@ apiservice:
   # Apiservice deployment image repository
   repository: foglifter-api-service
   # Apiservice deployment image tag
-  tag: 1.0.1
+  tag: 1.0.4
   # Apiservice trust token hash key (TRUST_TOKEN_HASH_KEY)
   trustToken: ""
   # Apiservice deployment extra environment variables
@@ -65,7 +65,7 @@ core:
   # Core deployment image repository
   repository: foglifter-core-app
   # Core deployment image tag
-  tag: 2.2.0
+  tag: 2.2.2
   # Core deployment podAntiAffinity towards exec app
   execAntiAffinity: true
   # Core deployment extra environment variables
@@ -88,7 +88,7 @@ exec:
   # Exec deployment image repository
   repository: foglifter-exec-app
   # Exec deployment image tag
-  tag: 2.2.0
+  tag: 2.2.2
   # Exec deployment podAntiAffinity towards core app
   coreAntiAffinity: true
   # Exec deployment extra environment variables
@@ -115,7 +115,7 @@ module:
   # Module deployment image repository
   repository: foglifter-module-app
   # Module deployment image tag
-  tag: 2.2.0
+  tag: 2.2.2
   # Module deployment extra environment variables
   env: {}
     # FOO: bar
@@ -140,7 +140,7 @@ scheduler:
   # Scheduler deployment image repository
   repository: foglifter-scheduler
   # Scheduler deployment image tag
-  tag: 1.0.0
+  tag: 1.0.2
   # Scheduler deployment extra environment variables
   env: 
     FOGLIFTER_URL: "http://foglifter-core-svc:8080"

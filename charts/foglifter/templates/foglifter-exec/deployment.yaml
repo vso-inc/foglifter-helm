@@ -18,7 +18,11 @@ spec:
       serviceAccountName: {{ .Release.Name }}-sa
       containers:
         - name: exec-app
-          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-exec-app" (.Values.exec).repository }}:{{ default "latest" (.Values.exec).tag }}"
+          {{- $imageTagDelimiter := ":" }}
+          {{- if (contains "sha256:" (.Values.exec).tag) }}
+            {{- $imageTagDelimiter = "@" }}
+          {{- end }}
+          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-exec-app" (.Values.exec).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.exec).tag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           args:
             - node
