@@ -22,7 +22,11 @@ spec:
             name: {{ .Release.Name }}-cm
       containers:
         - name: core-app
-          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-core-app" (.Values.core).repository }}:{{ default "latest" (.Values.core).tag }}"
+          {{- $imageTagDelimiter := ":" }}
+          {{- if (contains "sha256:" (.Values.core).tag) }}
+            {{- $imageTagDelimiter = "@" }}
+          {{- end }}
+          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-core-app" (.Values.core).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.core).tag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           args:
             - node
