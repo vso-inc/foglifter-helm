@@ -19,7 +19,7 @@ spec:
       containers:
         - name: apiservice-app
           {{- $imageTagDelimiter := ":" }}
-          {{- if (contains "sha256:" (.Values.apiservice).tag) }}
+          {{- if (hasPrefix "sha256:" (.Values.apiservice).tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
           image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-api-service" (.Values.apiservice).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.apiservice).tag }}"

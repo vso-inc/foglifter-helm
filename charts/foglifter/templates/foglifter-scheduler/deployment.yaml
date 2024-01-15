@@ -20,7 +20,7 @@ spec:
       containers:
         - name: scheduler
           {{- $imageTagDelimiter := ":" }}
-          {{- if (contains "sha256:" (.Values.scheduler).tag) }}
+          {{- if (hasPrefix "sha256:" (.Values.scheduler).tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
           image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-scheduler" (.Values.scheduler).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.scheduler).tag }}"

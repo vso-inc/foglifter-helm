@@ -19,7 +19,7 @@ spec:
       containers:
         - name: exec-app
           {{- $imageTagDelimiter := ":" }}
-          {{- if (contains "sha256:" (.Values.exec).tag) }}
+          {{- if (hasPrefix "sha256:" (.Values.exec).tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
           image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-exec-app" (.Values.exec).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.exec).tag }}"
