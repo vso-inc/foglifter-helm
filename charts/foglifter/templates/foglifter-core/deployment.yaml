@@ -23,7 +23,7 @@ spec:
       containers:
         - name: core-app
           {{- $imageTagDelimiter := ":" }}
-          {{- if (contains "sha256:" (.Values.core).tag) }}
+          {{- if (hasPrefix "sha256:" (.Values.core).tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
           image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-core-app" (.Values.core).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.core).tag }}"
