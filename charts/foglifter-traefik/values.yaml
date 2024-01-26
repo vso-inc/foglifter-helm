@@ -72,7 +72,7 @@ view:
   # View app service namespace
   namespace: foglifter-view
   # View app ingress prefix
-  prefix: /dashboard
+  prefix: /dashboard/
 
 # FogLifter PGAdmin ingress configurations
 pgadmin:
