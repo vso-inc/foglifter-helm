@@ -16,7 +16,7 @@ data:
   REDIS_USER: {{ required "Redis username is required" (.Values.redis).username }}
   SUB_PATH: "{{ default "/dashboard/" .Values.prefix }}"
   TOOLJET_HOST: "{{ default (printf "%s-svc" .Release.Name) .Values.host }}"
-  {{- if .Values.env }}
+  {{- if (.Values.cm).data }}
   {{- default dict (.Values.cm).data | toYaml | nindent 2 }}
   {{- end }}
   {{- if (eq (.Values.enterprise).enabled true) }}
