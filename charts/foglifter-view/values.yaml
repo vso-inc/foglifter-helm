@@ -10,6 +10,9 @@ imageTag: v2.23.2
 # ImagePullPolicy for View app workloads
 imagePullPolicy: IfNotPresent
 
+# Generate secret encryption data for View app
+createSecret: true
+
 # View app ConfigMap configurations
 cm:
   # View app ConfigMap data

@@ -1,0 +1,18 @@
+{{- if (.Values.enterprise).enabled }}
+{{- $secret := printf "%s-license" .Release.Name }}
+apiVersion: v1
+kind: Secret
+metadata:
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-delete-policy: hook-failed
+  name: {{ $secret }}
+  labels:
+    app: {{ .Release.Name }}
+type: Opaque
+data:
+  {{- $secretObj := (lookup "v1" "Secret" .Release.Namespace $secret) | default dict }}
+  {{- $secretData := (get $secretObj "data") | default dict }}
+  {{- $licenseKey := (get $secretData "license_key") | default "" }}
+  license_key: {{ default $licenseKey ((.Values.enterprise).license | b64enc) | quote }}
+{{- end }}
