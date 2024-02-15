@@ -40,9 +40,16 @@ spec:
             - containerPort: {{ default "5432" (.Values.pgadmin).port | int }}
           resources:
             {{- default dict (.Values.pgadmin).resources | toYaml | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: true
+            runAsUser: 5050
           volumeMounts:
             - name: {{ .Release.Name }}-pgadmin-pvc
               mountPath: "/var/lib/pgadmin"
+      securityContext:
+        fsGroup: 5050
+        runAsGroup: 5050
+        runAsUser: 5050
   volumeClaimTemplates:
     - metadata:
         name: {{ .Release.Name }}-pgadmin-pvc
