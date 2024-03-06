@@ -22,7 +22,7 @@ foglifter:
     # Application Argo CD project
     project: foglifter
     # Chart version
-    version: 0.1.6
+    version: 0.1.12
 
   # Image registry for all FogLifter deployments
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -30,7 +30,13 @@ foglifter:
   # ImagePullPolicy for all FogLifter deployments
   imagePullPolicy: Always
   # ImagePullSecret name for all FogLifter deployments
-  imagePullSecret: ""
+  # Must be created separately from helm install/upgrade
+  imagePullSecret: "foglifter-pullsecret"
+
+  # FogLifter API user password secret name
+  # Should contain the "password" key with the API user password
+  # Must be created separately from helm install/upgrade
+  apiPasswordSecret: ""
 
   # FogLifter decryption key secret name
   decryptionKeySecret: ""
@@ -39,8 +45,17 @@ foglifter:
   cm:
     # Create ConfigMap
     create: true
-    # Environment variables to be passed to FogLifter deployments via ConfigMap
-    data: {}
+    # Environment variables to be passed to all FogLifter deployments via ConfigMap
+    data:
+      # FOO: bar
+      # LOREM: ipsum
+
+  # FogLifter Secret parameters
+  secret:
+    # Create Secret
+    create: false
+    # Environment variables to be passed to all FogLifter deployments via Secret
+    data:
       # FOO: bar
       # LOREM: ipsum
 
@@ -63,11 +78,16 @@ foglifter:
     # Apiservice deployment image repository
     repository: foglifter-api-service
     # Apiservice deployment image tag
-    tag: 1.0.1
-    # Apiservice trust token
+    tag: 1.0.7
+    # Apiservice trust token hash key (TRUST_TOKEN_HASH_KEY)
     trustToken: ""
+    # Apiservice deployment extra environment variables
+    env:
+      API_PREFIX: "api"
+      # FOO: bar
+      # LOREM: ipsum
     # Apiservice deployment resources
-    resources: {}
+    resources:
       # requests:
       #   cpu: 100m
       #   memory: 128Mi
@@ -84,11 +104,16 @@ foglifter:
     # Core deployment image repository
     repository: foglifter-core-app
     # Core deployment image tag
-    tag: 2.2.2
+    tag: 2.4.0
     # Core deployment podAntiAffinity towards exec app
     execAntiAffinity: true
+    # Core deployment extra environment variables
+    env:
+      API_USERNAME: executor
+      # FOO: bar
+      # LOREM: ipsum
     # Core deployment resources
-    resources: {}
+    resources:
       # requests:
       #   cpu: 1000m
       #   memory: 2048Mi
@@ -103,11 +128,16 @@ foglifter:
     # Exec deployment image repository
     repository: foglifter-exec-app
     # Exec deployment image tag
-    tag: 2.2.2
+    tag: 2.4.0
     # Exec deployment podAntiAffinity towards core app
     coreAntiAffinity: true
+    # Exec deployment extra environment variables
+    env:
+      API_USERNAME: executor
+      # FOO: bar
+      # LOREM: ipsum
     # Exec deployment resources
-    resources: {}
+    resources:
       # requests:
       #   cpu: 1000m
       #   memory: 2048Mi
@@ -117,6 +147,8 @@ foglifter:
 
   # FogLifter module deployment parameters
   module:
+    # Enable module deployment
+    enabled: true
     # Module deployment port
     port: 8080
     # Module deployment replicas
@@ -124,9 +156,13 @@ foglifter:
     # Module deployment image repository
     repository: foglifter-module-app
     # Module deployment image tag
-    tag: 2.2.2
+    tag: 2.4.0
+    # Module deployment extra environment variables
+    env:
+      # FOO: bar
+      # LOREM: ipsum
     # Module deployment resources
-    resources: {}
+    resources:
       # requests:
       #   cpu: 100m
       #   memory: 128Mi
@@ -145,28 +181,23 @@ foglifter:
     # Scheduler deployment image repository
     repository: foglifter-scheduler
     # Scheduler deployment image tag
-    tag: 1.0.0
+    tag: 1.0.3
     # Scheduler deployment extra environment variables
-    env: 
-      FOGLIFTER_URL: "http://foglifter-core-svc:8080"
-      FOGLIFTER_USERNAME: admin
+    env:
+      FOGLIFTER_USERNAME: executor
       EXPRESS_JSON_SIZE_LIMIT: 10mb
       LOG_LEVEL: info
       SCHEDULER_HEARTBEAT_INTERVAL: 60000
       SCHEDULER_AUTH_INTERVAL: 10000
       SCHEDULER_SETTINGS_INTERVAL: 15000
-    # Existing scheduler secret name - CREATE PRIOR TO INSTALL
-    # Should contain the "password" key with the scheduler password
-    existingSecret: foglifter-scheduler-secret
     # Scheduler deployment resources
-    resources: {}
+    resources:
       # requests:
       #   cpu: 100m
       #   memory: 128Mi
       # limits:
       #   cpu: 500m
       #   memory: 2048Mi
-
 
 # Recommended default FogLifter MongoDB backend configurations
 mongo:
@@ -178,7 +209,7 @@ mongo:
     # Application name
     name: foglifter-mongo
     # Chart version
-    version: 0.1.13
+    version: 0.1.18
 
   # Container registry for Mongo workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -257,7 +288,7 @@ traefik:
     # Application Argo CD project
     project: traefik
     # FogLifter Traefik ingress chart version
-    version: 0.1.10
+    version: 0.1.13
     # Traefik chart version
     traefikVersion: 24.0.0
 
@@ -290,17 +321,24 @@ traefik:
     port: 8080
     # Apiservice service name
     name: foglifter-apiservice-svc
-    # Apiservice ingress prefix
-    prefix: /api/auth
 
   # FogLifter module app ingress configurations
   module:
+    # Enable module app ingress
+    enabled: true
     # Module app ingress port
     port: 8080
     # Module app service name
     name: foglifter-module-svc
-    # Module app ingress prefix
-    prefix: /api/module
+
+  # FogLifter scheduler ingress configurations
+  scheduler:
+    # Enable scheduler ingress
+    enabled: true
+    # Scheduler ingress port
+    port: 8080
+    # Scheduler service name
+    name: foglifter-scheduler-svc
 
   # Argo CD ingress configurations
   argocd:
@@ -335,7 +373,7 @@ traefik:
     # PGAdmin ingress port
     port: 5432
     # PGAdmin service name
-    name: foglifter-postgres-pgamdmin-svc
+    name: foglifter-postgres-pgadmin-svc
     # PGAdmin service namespace
     namespace: foglifter-postgres
     # PGAdmin ingress prefix
@@ -377,7 +415,7 @@ view:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.2.2
+    version: 0.2.5
 
   # Container registry for View app workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
@@ -385,9 +423,19 @@ view:
   # Image repository for View app workloads
   repository: tooljet-ce
   # Image tag for View app workloads
-  imageTag: v2.22.3
+  imageTag: v2.23.2
   # ImagePullPolicy for View app workloads
   imagePullPolicy: IfNotPresent
+
+  # Generate secret encryption data for View app
+  createSecret: true
+
+  # View app ConfigMap configurations
+  cm:
+    # View app ConfigMap data
+    data: {}
+    # FOO: bar
+    # LOREM: ipsum
 
   # Postgres database configurations
   postgres:
@@ -428,7 +476,6 @@ view:
   # View app URL prefix
   prefix: /dashboard/
 
-
   resources: {}
     # requests:
     #   memory: 500Mi
@@ -451,7 +498,7 @@ postgres:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.1.2
+    version: 0.1.3
 
   # Container registry for Postgres workloads
   # Should end with forward-slash if set (e.g. "quay.io/")
