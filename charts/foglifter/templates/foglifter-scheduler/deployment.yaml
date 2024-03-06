@@ -28,16 +28,28 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm
+            {{- if and (ne (.Values.secret).create false) (.Values.secret).data }}
+            - secretRef:
+                name: {{ .Release.Name }}-secret
+            {{- end }}
           {{- $port := default "8011" (.Values.scheduler).port | int }}
           env:
             - name: PORT
               value: "{{ $port }}"
-            {{- if (.Values.scheduler).existingSecretName }}
+            {{- if .Values.apiPasswordSecret }}
             - name: FOGLIFTER_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ (.Values.scheduler).existingSecretName }}
+                  name: {{ .Values.apiPasswordSecret }}
                   key: password
+            {{- end }}
+            {{- if not ((.Values.scheduler).env).FOGLIFTER_CORE_URL }}
+            - name: FOGLIFTER_CORE_URL
+              value: {{ printf "http://%s-core-svc:%s" .Release.Name (default "8080" (.Values.core).port | toString) | quote }}
+            {{- end }}
+            {{- if not ((.Values.scheduler).env).FOGLIFTER_CORE_URL }}
+            - name: FOGLIFTER_API_URL
+              value: {{ printf "http://%s-apiservice-svc:%s/api/v1" .Release.Name (default "8080" (.Values.apiservice).port | toString) | quote }}
             {{- end }}
             {{- if (.Values.scheduler).env }}
             {{- range $key, $val := .Values.scheduler.env }}

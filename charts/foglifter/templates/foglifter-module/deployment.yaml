@@ -34,6 +34,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm
+            {{- if and (ne (.Values.secret).create false) (.Values.secret).data }}
+            - secretRef:
+                name: {{ .Release.Name }}-secret
+            {{- end }}
           {{- $port := default "8080" (.Values.module).port | int }}
           env:
             - name: PORT

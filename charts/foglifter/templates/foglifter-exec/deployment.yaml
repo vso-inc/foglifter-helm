@@ -33,6 +33,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm
+            {{- if and (ne (.Values.secret).create false) (.Values.secret).data }}
+            - secretRef:
+                name: {{ .Release.Name }}-secret
+            {{- end }}
           env:
             {{- $decryptionKeySecret := "" }}
             {{- if .Values.decryptionKeySecret }}
@@ -50,6 +54,13 @@ spec:
                 secretKeyRef:
                   name: {{ $decryptionKeySecret }}
                   key: DECRYPTION_KEY
+            {{- end }}
+            {{- if .Values.apiPasswordSecret }}
+            - name: API_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.apiPasswordSecret }}
+                  key: password
             {{- end }}
             - name: MONGO_URI
               valueFrom:
