@@ -10,8 +10,11 @@ imagePullPolicy: Always
 imagePullSecret: "foglifter-pullsecret"
 
 # FogLifter API user password secret name
-# Should contain the "password" key with the API user password
 # Must be created separately from helm install/upgrade
+# Should contain the following keys:
+# CORE_PASSWORD: "<password>"
+# EXECUTOR_PASSWORD: "<password>"
+# SCHEDULER_PASSWORD: "<password>"
 apiPasswordSecret: ""
 
 # FogLifter decryption key secret name
@@ -54,7 +57,7 @@ apiservice:
   # Apiservice deployment image repository
   repository: foglifter-api-service
   # Apiservice deployment image tag
-  tag: 1.0.7
+  tag: 1.1.2
   # Apiservice trust token hash key (TRUST_TOKEN_HASH_KEY)
   trustToken: ""
   # Apiservice deployment extra environment variables
@@ -80,7 +83,7 @@ core:
   # Core deployment image repository
   repository: foglifter-core-app
   # Core deployment image tag
-  tag: 2.4.0
+  tag: 2.4.4
   # Core deployment podAntiAffinity towards exec app
   execAntiAffinity: true
   # Core deployment extra environment variables
@@ -104,7 +107,7 @@ exec:
   # Exec deployment image repository
   repository: foglifter-exec-app
   # Exec deployment image tag
-  tag: 2.4.0
+  tag: 2.4.4
   # Exec deployment podAntiAffinity towards core app
   coreAntiAffinity: true
   # Exec deployment extra environment variables
@@ -132,7 +135,7 @@ module:
   # Module deployment image repository
   repository: foglifter-module-app
   # Module deployment image tag
-  tag: 2.4.0
+  tag: 2.4.4
   # Module deployment extra environment variables
   env:
     # FOO: bar
@@ -157,7 +160,7 @@ scheduler:
   # Scheduler deployment image repository
   repository: foglifter-scheduler
   # Scheduler deployment image tag
-  tag: 1.0.3
+  tag: 1.0.4
   # Scheduler deployment extra environment variables
   env:
     FOGLIFTER_USERNAME: executor
