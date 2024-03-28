@@ -49,12 +49,14 @@ spec:
           env:
             - name: PORT
               value: "{{ $port }}"
+            - name: API_USERNAME
+              value: core
             {{- if .Values.apiPasswordSecret }}
             - name: API_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.apiPasswordSecret }}
-                  key: password
+                  key: CORE_PASSWORD
             {{- end }}
             - name: MONGO_URI
               valueFrom:
