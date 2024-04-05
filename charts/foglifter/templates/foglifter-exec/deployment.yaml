@@ -88,6 +88,17 @@ spec:
               value: {{ $val | quote }}
             {{- end }}
             {{- end }}
+            {{- if (.Values.exec).secretRef }}
+            {{- with .Values.exec.secretRef }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.name }}
+                  key: {{ $val.key }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
           resources:
             {{- default dict (.Values.exec).resources | toYaml | nindent 12 }}
       {{- if (ne (.Values.exec).coreAntiAffinity false) }}

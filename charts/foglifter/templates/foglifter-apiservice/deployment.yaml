@@ -70,6 +70,17 @@ spec:
               value: {{ $val | quote }}
             {{- end }}
             {{- end }}
+            {{- if (.Values.apiservice).secretRef }}
+            {{- with .Values.apiservice.secretRef }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.name }}
+                  key: {{ $val.key }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
           ports:
             - containerPort: {{ $port }}
           resources:

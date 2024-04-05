@@ -65,6 +65,11 @@ apiservice:
     API_PREFIX: "api"
     # FOO: bar
     # LOREM: ipsum
+  # Apiservice deployment extra environment variables from existing secret
+  secretRef:
+    # ENV_VAR_NAME:
+    #   name: secret-name
+    #   key: secret_key
   # Apiservice deployment resources
   resources:
     # requests:
@@ -91,6 +96,11 @@ core:
     API_USERNAME: executor
     # FOO: bar
     # LOREM: ipsum
+  # Core deployment extra environment variables from existing secret
+  secretRef:
+    # ENV_VAR_NAME:
+    #   name: secret-name
+    #   key: secret_key
   # Core deployment resources
   resources:
     # requests:
@@ -115,6 +125,11 @@ exec:
     API_USERNAME: executor
     # FOO: bar
     # LOREM: ipsum
+  # Exec deployment extra environment variables from existing secret
+  secretRef:
+    # ENV_VAR_NAME:
+    #   name: secret-name
+    #   key: secret_key
   # Exec deployment resources
   resources:
     # requests:
@@ -140,6 +155,11 @@ module:
   env:
     # FOO: bar
     # LOREM: ipsum
+  # Module deployment extra environment variables from existing secret
+  secretRef:
+    # ENV_VAR_NAME:
+    #   name: secret-name
+    #   key: secret_key
   # Module deployment resources
   resources:
     # requests:
@@ -160,15 +180,23 @@ scheduler:
   # Scheduler deployment image repository
   repository: foglifter-scheduler
   # Scheduler deployment image tag
-  tag: 1.0.4
+  tag: 1.0.3
   # Scheduler deployment extra environment variables
   env:
-    FOGLIFTER_USERNAME: executor
+    FOGLIFTER_USERNAME: scheduler
     EXPRESS_JSON_SIZE_LIMIT: 10mb
     LOG_LEVEL: info
     SCHEDULER_HEARTBEAT_INTERVAL: 60000
     SCHEDULER_AUTH_INTERVAL: 10000
     SCHEDULER_SETTINGS_INTERVAL: 15000
+  # Scheduler deployment extra environment variables from existing secret
+  secretRef:
+    FOGLIFTER_PASSWORD:
+      name: foglifter-api-secret
+      key: SCHEDULER_PASSWORD
+    # ENV_VAR_NAME:
+    #   name: secret-name
+    #   key: secret_key
   # Scheduler deployment resources
   resources:
     # requests:

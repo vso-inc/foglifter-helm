@@ -47,7 +47,7 @@ spec:
             {{- end }}
             {{- if not ((.Values.scheduler).env).FOGLIFTER_CORE_URL }}
             - name: FOGLIFTER_CORE_URL
-              value: {{ printf "http://%s-core-svc:%s" .Release.Name (default "8080" (.Values.core).port | toString) | quote }}
+              value: {{ printf "http://%s-core-svc:%s/api" .Release.Name (default "8080" (.Values.core).port | toString) | quote }}
             {{- end }}
             {{- if not ((.Values.scheduler).env).FOGLIFTER_API_URL }}
             - name: FOGLIFTER_API_URL
@@ -57,6 +57,17 @@ spec:
             {{- range $key, $val := .Values.scheduler.env }}
             - name: {{ $key }}
               value: {{ $val | quote }}
+            {{- end }}
+            {{- end }}
+            {{- if (.Values.scheduler).secretRef }}
+            {{- with .Values.scheduler.secretRef }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.name }}
+                  key: {{ $val.key }}
+            {{- end }}
             {{- end }}
             {{- end }}
           ports:
