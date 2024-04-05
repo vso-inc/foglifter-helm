@@ -82,6 +82,17 @@ spec:
               value: {{ $val | quote }}
             {{- end }}
             {{- end }}
+            {{- if (.Values.core).secretRef }}
+            {{- with .Values.core.secretRef }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.name }}
+                  key: {{ $val.key }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
           ports:
             - containerPort: {{ $port }}
           resources:
