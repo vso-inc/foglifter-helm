@@ -79,6 +79,36 @@ apiservice:
     #   cpu: 500m
     #   memory: 2048Mi
 
+# FogLifter UI client deployment parameters
+client:
+  # Enable client deployment
+  enabled: true
+  # Client deployment port
+  port: 8080
+  # Client deployment replicas
+  replicas: 1
+  # Client deployment image repository
+  repository: foglifter-client
+  # Client deployment image tag
+  tag: 1.0.1
+  # Client deployment extra environment variables
+  env:
+    # FOO: bar
+    # LOREM: ipsum
+  # Client deployment extra environment variables from existing secret
+  secretRef:
+    # ENV_VAR_NAME:
+    #   name: secret-name
+    #   key: secret_key
+  # Client deployment resources
+  resources:
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # limits:
+    #   cpu: 500m
+    #   memory: 2048Mi
+
 # FogLifter core deployment parameters
 core:
   # Core deployment port
@@ -88,7 +118,7 @@ core:
   # Core deployment image repository
   repository: foglifter-core-app
   # Core deployment image tag
-  tag: 2.4.4
+  tag: 2.4.6
   # Core deployment podAntiAffinity towards exec app
   execAntiAffinity: true
   # Core deployment extra environment variables
@@ -117,7 +147,7 @@ exec:
   # Exec deployment image repository
   repository: foglifter-exec-app
   # Exec deployment image tag
-  tag: 2.4.4
+  tag: 2.4.6
   # Exec deployment podAntiAffinity towards core app
   coreAntiAffinity: true
   # Exec deployment extra environment variables
@@ -150,7 +180,7 @@ module:
   # Module deployment image repository
   repository: foglifter-module-app
   # Module deployment image tag
-  tag: 2.4.4
+  tag: 2.4.6
   # Module deployment extra environment variables
   env:
     # FOO: bar
