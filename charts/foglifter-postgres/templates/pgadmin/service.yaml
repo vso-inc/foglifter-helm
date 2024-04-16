@@ -1,3 +1,4 @@
+{{- if (.Values.pgadmin).enabled }}
 kind: Service
 apiVersion: v1
 metadata:
@@ -10,3 +11,4 @@ spec:
     - port: {{ default "5432" .Values.port | int }}
   selector:
     app: {{ .Release.Name }}-pgadmin
+{{- end }}
