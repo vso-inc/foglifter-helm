@@ -18,23 +18,32 @@ certificate:
 
 # FogLifter core app ingress configurations
 core:
-  # Core app ingress port
+  # Core app service port
   port: 8080
   # Core app service name
   name: foglifter-core-svc
 
 # FogLifter apiservice ingress configurations
 apiservice:
-  # Apiservice ingress port
+  # Apiservice service port
   port: 8080
   # Apiservice service name
   name: foglifter-apiservice-svc
+
+# FogLifter UI client ingress configurations
+client:
+  # Enable client ingress
+  enabled: true
+  # Client service port
+  port: 8080
+  # Client service name
+  name: foglifter-client-svc
 
 # FogLifter module app ingress configurations
 module:
   # Enable module app ingress
   enabled: true
-  # Module app ingress port
+  # Module app service port
   port: 8080
   # Module app service name
   name: foglifter-module-svc
@@ -43,7 +52,7 @@ module:
 scheduler:
   # Enable scheduler ingress
   enabled: true
-  # Scheduler ingress port
+  # Scheduler service port
   port: 8080
   # Scheduler service name
   name: foglifter-scheduler-svc
@@ -52,7 +61,7 @@ scheduler:
 argocd:
   # Enable Argo CD ingress
   enabled: true
-  # Argo CD ingress port
+  # Argo CD service port
   port: 80
   # Argo CD server service name
   name: foglifter-argocd-server
@@ -65,7 +74,7 @@ argocd:
 view:
   # Enable View ingress
   enabled: true
-  # View ingress port
+  # View service port
   port: 3000
   # View app service name
   name: foglifter-view-svc
@@ -78,7 +87,7 @@ view:
 pgadmin:
   # Enable PGAdmin ingress
   enabled: false
-  # PGAdmin ingress port
+  # PGAdmin service port
   port: 5432
   # PGAdmin service name
   name: foglifter-postgres-pgadmin-svc
@@ -91,7 +100,7 @@ pgadmin:
 mongo:
   # Enable Mongo ingress
   enabled: false
-  # Mongo ingress port
+  # Mongo service port
   port: 27017
   # Mongo service name
   name: foglifter-mongo-svc
@@ -102,7 +111,7 @@ mongo:
 postgres:
   # Enable Postgres ingress
   enabled: false
-  # Postgres ingress port
+  # Postgres service port
   port: 5432
   # Postgres service name
   name: foglifter-postgres-svc
