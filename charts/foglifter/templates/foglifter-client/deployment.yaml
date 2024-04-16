@@ -1,0 +1,63 @@
+{{- if (ne (.Values.client).enabled false) }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-client
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ default "1" (.Values.client).replicas | int }}
+  selector:
+    matchLabels:
+      name: {{ .Release.Name }}-client
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-client
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-sa
+      containers:
+        - name: client
+          {{- $imageTagDelimiter := ":" }}
+          {{- if (hasPrefix "sha256:" (.Values.client).tag) }}
+            {{- $imageTagDelimiter = "@" }}
+          {{- end }}
+          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-client" (.Values.client).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.client).tag }}"
+          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-cm
+            {{- if and (ne (.Values.secret).create false) (.Values.secret).data }}
+            - secretRef:
+                name: {{ .Release.Name }}-secret
+            {{- end }}
+          {{- $port := default "8080" (.Values.client).port | int }}
+          env:
+            - name: PORT
+              value: "{{ $port }}"
+            {{- if (.Values.client).env }}
+            {{- range $key, $val := .Values.client.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+            {{- end }}
+            {{- if (.Values.client).secretRef }}
+            {{- with .Values.client.secretRef }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.name }}
+                  key: {{ $val.key }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          ports:
+            - containerPort: {{ $port }}
+          resources:
+            {{- default dict (.Values.client).resources | toYaml | nindent 12 }}
+      {{- if (ne (.Values.priorityClass).create false) }}
+      priorityClassName: {{ .Release.Name }}
+      {{- end }}
+{{- end }}
