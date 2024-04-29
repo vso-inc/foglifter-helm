@@ -377,6 +377,14 @@ traefik:
     # Existing tls secret name
     name: ""
 
+  # Extra ports to expose via Traefik
+  extraPorts: {}
+    # foo:
+    #   port: 1234
+    #   expose: true (defaults to true)
+    #   exposedPort: 1234 (defaults to value of port)
+    #   protocol: TCP (defaults to TCP)
+
   # FogLifter core app ingress configurations
   core:
     # Core app service port
