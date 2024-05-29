@@ -23,6 +23,13 @@ core:
   # Core app service name
   name: foglifter-core-svc
 
+# FogLifter main UI ingress configurations
+mainUI:
+  # main UI service port
+  port: 80
+  # main UI service name
+  name: foglifter-main-ui-svc
+
 # FogLifter apiservice ingress configurations
 apiservice:
   # Apiservice service port

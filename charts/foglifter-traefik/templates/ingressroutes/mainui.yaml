@@ -1,7 +1,7 @@
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: {{ .Release.Name }}-core
+  name: {{ .Release.Name }}-main-ui
 spec:
   entryPoints:
     - web
@@ -15,12 +15,12 @@ spec:
         {{- $host = (printf "Host(`%s`) && " .Values.host) }}
       {{- end }}
     {{- end }}
-    - match: {{ $host }}PathPrefix(`/api`)
+    - match: {{ $host }}PathPrefix(`/`)
       kind: Rule
       services:
-        - name: {{ default "foglifter-core-svc" (.Values.core).name }}
+        - name: {{ default "foglifter-main-ui-svc" (.Values.mainUI).name }}
           namespace: {{ default "foglifter" .Values.foglifterNamespace }}
-          port: {{ default "8080" (.Values.core).port | int }}
+          port: {{ default "80" (.Values.mainUI).port | int }}
   {{- if (eq (.Values.certificate).useExisting true ) }}
   tls:
     secretName: {{ default "foglifter-traefik-cert" (.Values.certificate).name }}

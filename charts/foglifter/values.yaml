@@ -57,7 +57,7 @@ apiservice:
   # Apiservice deployment image repository
   repository: foglifter-api-service
   # Apiservice deployment image tag
-  tag: 1.1.2
+  tag: 1.2.4
   # Apiservice trust token hash key (TRUST_TOKEN_HASH_KEY)
   trustToken: ""
   # Apiservice deployment extra environment variables
@@ -90,7 +90,7 @@ client:
   # Client deployment image repository
   repository: foglifter-client
   # Client deployment image tag
-  tag: 1.0.1
+  tag: 1.0.4
   # Client deployment extra environment variables
   env:
     # FOO: bar
@@ -118,12 +118,11 @@ core:
   # Core deployment image repository
   repository: foglifter-core-app
   # Core deployment image tag
-  tag: 2.4.6
+  tag: 2.5.4
   # Core deployment podAntiAffinity towards exec app
   execAntiAffinity: true
   # Core deployment extra environment variables
   env:
-    API_USERNAME: executor
     # FOO: bar
     # LOREM: ipsum
   # Core deployment extra environment variables from existing secret
@@ -147,12 +146,11 @@ exec:
   # Exec deployment image repository
   repository: foglifter-exec-app
   # Exec deployment image tag
-  tag: 2.4.6
+  tag: 2.5.4
   # Exec deployment podAntiAffinity towards core app
   coreAntiAffinity: true
   # Exec deployment extra environment variables
   env:
-    API_USERNAME: executor
     # FOO: bar
     # LOREM: ipsum
   # Exec deployment extra environment variables from existing secret
@@ -170,6 +168,34 @@ exec:
     #   memory: 8192Mi
 
 # FogLifter module deployment parameters
+mainUI:
+  # Enable main UI deployment
+  enabled: true
+  # Main UI deployment port
+  port: 80
+  # Main UI deployment replicas
+  replicas: 1
+  # Main UI deployment image repository
+  repository: foglifter-main-ui
+  # Main UI deployment image tag
+  tag: 2.5.4
+  # Main UI deployment extra environment variables
+  env:
+    # FOO: bar
+    # LOREM: ipsum
+  # Main UI deployment extra environment variables from existing secret
+  secretRef:
+    # ENV_VAR_NAME:
+    #   name: secret-name
+    #   key: secret_key
+  # Main UI deployment resources
+  resources:
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # limits:
+    #   cpu: 500m
+    #   memory: 2048Mi
 module:
   # Enable module deployment
   enabled: true
@@ -180,7 +206,7 @@ module:
   # Module deployment image repository
   repository: foglifter-module-app
   # Module deployment image tag
-  tag: 2.4.6
+  tag: 2.5.4
   # Module deployment extra environment variables
   env:
     # FOO: bar
@@ -210,7 +236,7 @@ scheduler:
   # Scheduler deployment image repository
   repository: foglifter-scheduler
   # Scheduler deployment image tag
-  tag: 1.0.3
+  tag: 1.0.10
   # Scheduler deployment extra environment variables
   env:
     FOGLIFTER_USERNAME: scheduler
