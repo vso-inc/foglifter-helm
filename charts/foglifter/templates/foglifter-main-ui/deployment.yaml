@@ -1,0 +1,58 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-main-ui
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ default "1" (.Values.mainUI).replicas | int }}
+  selector:
+    matchLabels:
+      name: {{ .Release.Name }}-main-ui
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-main-ui
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-sa
+      containers:
+        - name: main-ui
+          {{- $imageTagDelimiter := ":" }}
+          {{- if (hasPrefix "sha256:" (.Values.mainUI).tag) }}
+            {{- $imageTagDelimiter = "@" }}
+          {{- end }}
+          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-main-ui" (.Values.mainUI).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.mainUI).tag }}"
+          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-cm
+            {{- if and (ne (.Values.secret).create false) (.Values.secret).data }}
+            - secretRef:
+                name: {{ .Release.Name }}-secret
+            {{- end }}
+          env:
+            {{- if (.Values.mainUI).env }}
+            {{- range $key, $val := .Values.mainUI.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+            {{- end }}
+            {{- if (.Values.mainUI).secretRef }}
+            {{- with .Values.mainUI.secretRef }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.name }}
+                  key: {{ $val.key }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          ports:
+            - containerPort: 80
+          resources:
+            {{- default dict (.Values.mainUI).resources | toYaml | nindent 12 }}
+      {{- if (ne (.Values.priorityClass).create false) }}
+      priorityClassName: {{ .Release.Name }}
+      {{- end }}

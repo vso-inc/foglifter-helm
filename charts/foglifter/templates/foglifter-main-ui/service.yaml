@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-main-ui-svc
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ default "80" (.Values.mainUI).port | int }}
+    targetPort: 80
+  selector:
+    name: {{ .Release.Name }}-main-ui
