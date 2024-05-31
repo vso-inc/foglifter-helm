@@ -6,11 +6,12 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   annotations:
-    argocd-image-updater.argoproj.io/image-list: "{{ $name }}-apiservice={{ $registry }}foglifter-api-service:{{ ((.Values.foglifter).apiservice).tag }}, {{ $name }}-client={{ $registry }}foglifter-client:{{ ((.Values.foglifter).client).tag }}, {{ $name }}-core={{ $registry }}foglifter-core-app:{{ ((.Values.foglifter).core).tag }}, {{ $name }}-exec={{ $registry }}foglifter-exec-app:{{ ((.Values.foglifter).exec).tag }}, foglifter-module={{ $registry }}foglifter-module-app:{{ ((.Values.foglifter).module).tag }}, {{ $name }}-scheduler={{ $registry }}foglifter-scheduler:{{ ((.Values.foglifter).scheduler).tag }}"
+    argocd-image-updater.argoproj.io/image-list: "{{ $name }}-apiservice={{ $registry }}foglifter-api-service:{{ ((.Values.foglifter).apiservice).tag }}, {{ $name }}-client={{ $registry }}foglifter-client:{{ ((.Values.foglifter).client).tag }}, {{ $name }}-core={{ $registry }}foglifter-core-app:{{ ((.Values.foglifter).core).tag }}, {{ $name }}-exec={{ $registry }}foglifter-exec-app:{{ ((.Values.foglifter).exec).tag }}, {{ $name }}-mainUI={{ $registry }}foglifter-main-ui:{{ ((.Values.foglifter).mainUI).tag }}, foglifter-module={{ $registry }}foglifter-module-app:{{ ((.Values.foglifter).module).tag }}, {{ $name }}-scheduler={{ $registry }}foglifter-scheduler:{{ ((.Values.foglifter).scheduler).tag }}"
     argocd-image-updater.argoproj.io/{{ $name }}-apiservice.helm.image-tag: apiservice.tag
     argocd-image-updater.argoproj.io/{{ $name }}-client.helm.image-tag: client.tag
     argocd-image-updater.argoproj.io/{{ $name }}-core.helm.image-tag: core.tag
     argocd-image-updater.argoproj.io/{{ $name }}-exec.helm.image-tag: exec.tag
+    argocd-image-updater.argoproj.io/{{ $name }}-mainUI.helm.image-tag: mainUI.tag
     argocd-image-updater.argoproj.io/{{ $name }}-module.helm.image-tag: module.tag
     argocd-image-updater.argoproj.io/{{ $name }}-scheduler.helm.image-tag: scheduler.tag
     argocd-image-updater.argoproj.io/update-strategy: digest
