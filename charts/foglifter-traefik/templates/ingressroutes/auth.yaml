@@ -15,7 +15,7 @@ spec:
         {{- $host = (printf "Host(`%s`) && " .Values.host) }}
       {{- end }}
     {{- end }}
-    - match: {{ $host }}PathPrefix(`/api/v1`)
+    - match: {{ $host }}PathPrefix(`/api/auth`)
       kind: Rule
       services:
         - name: {{ default "foglifter-auth-svc" (.Values.auth).name }}
