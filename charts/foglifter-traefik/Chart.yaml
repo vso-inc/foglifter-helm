@@ -4,6 +4,6 @@ description: Helm chart for FogLifter® Traefik ingress configurations
 
 type: application
 
-version: 0.1.16
+version: 0.1.17
 
 appVersion: "3.0.0"
