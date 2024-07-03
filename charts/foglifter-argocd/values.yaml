@@ -103,6 +103,34 @@ foglifter:
       #   cpu: 500m
       #   memory: 2048Mi
 
+  # FogLifter auth deployment parameters
+  auth:
+    # Auth deployment port
+    port: 8080
+    # Auth deployment replicas
+    replicas: 1
+    # Auth deployment image repository
+    repository: foglifter-auth-service
+    # Auth deployment image tag
+    tag: 1.0.0
+    # Auth deployment extra environment variables
+    env:
+      # FOO: bar
+      # LOREM: ipsum
+    # Auth deployment extra environment variables from existing secret
+    secretRef:
+      # ENV_VAR_NAME:
+      #   name: secret-name
+      #   key: secret_key
+    # Auth deployment resources
+    resources:
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+      # limits:
+      #   cpu: 500m
+      #   memory: 2048Mi
+
   # FogLifter UI client deployment parameters
   client:
     # Enable client deployment
@@ -398,6 +426,13 @@ traefik:
     port: 8080
     # Apiservice service name
     name: foglifter-apiservice-svc
+
+  # FogLifter auth service ingress configurations
+  auth:
+    # auth service port
+    port: 8080
+    # auth service name
+    name: foglifter-auth-svc
 
   # FogLifter UI client ingress configurations
   client:

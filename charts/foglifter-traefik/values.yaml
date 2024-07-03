@@ -37,6 +37,13 @@ apiservice:
   # Apiservice service name
   name: foglifter-apiservice-svc
 
+# FogLifter auth service ingress configurations
+auth:
+  # auth service port
+  port: 8080
+  # auth service name
+  name: foglifter-auth-svc
+
 # FogLifter UI client ingress configurations
 client:
   # Enable client ingress
