@@ -11,6 +11,10 @@ spec:
   destinations:
     - namespace: {{ default "foglifter" ((.Values.foglifter).application).namespace }}
       server: https://kubernetes.default.svc
+    {{- if ((.Values.mongo).application).namespace}}
+    - namespace: {{ default "mongodb" ((.Values.mongo).application).namespace }}
+      server: https://kubernetes.default.svc
+    {{- end }}
   clusterResourceWhitelist:
     - group: ''
       kind: Namespace
