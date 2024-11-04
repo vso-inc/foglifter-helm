@@ -1,0 +1,1 @@
+Thank you for installing FogLifter® using the {{ .Chart.Name }} chart.

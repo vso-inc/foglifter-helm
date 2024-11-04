@@ -1,0 +1,90 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-apiservice
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ default "1" (.Values.apiservice).replicas | int }}
+  selector:
+    matchLabels:
+      name: {{ .Release.Name }}-apiservice
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-apiservice
+        app: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-sa
+      containers:
+        - name: apiservice-app
+          {{- $imageTagDelimiter := ":" }}
+          {{- if (hasPrefix "sha256:" (.Values.apiservice).tag) }}
+            {{- $imageTagDelimiter = "@" }}
+          {{- end }}
+          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-api-service" (.Values.apiservice).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.apiservice).tag }}"
+          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          args:
+            - node
+            - dist/main.js
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-cm
+            {{- if and (ne (.Values.secret).create false) (.Values.secret).data }}
+            - secretRef:
+                name: {{ .Release.Name }}-secret
+            {{- end }}
+            {{- if .Values.apiPasswordSecret }}
+            - secretRef:
+                name: {{ .Values.apiPasswordSecret }}
+            {{- end }}
+          {{- $port := default "8080" (.Values.apiservice).port | int }}
+          env:
+            {{- if (.Values.apiservice).trustToken }}
+            - name: TRUST_TOKEN_HASH_KEY
+              value: "{{ (.Values.apiservice).trustToken }}"
+            {{- end }}
+            - name: PORT
+              value: "{{ $port }}"
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  {{- $mongoSecret := "" }}
+                  {{- if .Values.mongoSecret }}
+                    {{- $mongoSecret = .Values.mongoSecret }}
+                  {{- else }}
+                    {{- range $i, $secret := (lookup "v1" "Secret" .Release.Namespace "").items }}
+                      {{- if (get (get $secret "data" | default dict) "MONGO_URI") }}
+                        {{- $mongoSecret = $secret.metadata.name }}
+                      {{- end }}
+                    {{- end }}
+                    {{- if not $mongoSecret }}
+                      {{- $mongoSecret = "foglifter-mongo-secret" }}
+                    {{- end }}
+                  {{- end }}
+                  name: {{ $mongoSecret }}
+                  key: MONGO_URI
+            {{- if (.Values.apiservice).env }}
+            {{- range $key, $val := .Values.apiservice.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+            {{- end }}
+            {{- if (.Values.apiservice).secretRef }}
+            {{- with .Values.apiservice.secretRef }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.name }}
+                  key: {{ $val.key }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          ports:
+            - containerPort: {{ $port }}
+          resources:
+            {{- default dict (.Values.apiservice).resources | toYaml | nindent 12 }}
+      {{- if (ne (.Values.priorityClass).create false) }}
+      priorityClassName: {{ .Release.Name }}
+      {{- end }}

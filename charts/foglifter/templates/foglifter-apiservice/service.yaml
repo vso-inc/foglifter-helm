@@ -1,14 +1,18 @@
-kind: Service
+{{- $fullname := (include "foglifter.fullname" .) }}
 apiVersion: v1
+kind: Service
 metadata:
-  name: {{ .Release.Name }}-apiservice-svc
+  name: {{ $fullname }}-api
+  annotations:
+    {{- include "foglifter.annotations" . | nindent 4 }}
   labels:
-    app: {{ .Release.Name }}
+    {{- include "foglifter.labels" . | nindent 4 }}
 spec:
-  type: ClusterIP
-  {{- $port := default "8080" (.Values.apiservice).port | int }}
+  type: {{ .Values.api.service.type }}
   ports:
-  - port: {{ $port }}
-    targetPort: {{ $port }}
+    - port: {{ .Values.api.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
   selector:
-    name: {{ .Release.Name }}-apiservice
+    {{- include "foglifter.selectorLabels" (dict "context" . "component" "api") | nindent 4 }}

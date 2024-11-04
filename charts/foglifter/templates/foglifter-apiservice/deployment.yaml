@@ -1,77 +1,71 @@
-kind: Deployment
+{{- $fullname := (include "foglifter.fullname" .) }}
 apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-apiservice
+  name: {{ $fullname }}-api
+  annotations:
+    {{- include "foglifter.annotations" . | nindent 4 }}
   labels:
-    app: {{ .Release.Name }}
+    {{- include "foglifter.labels" . | nindent 4 }}
+    {{- include "foglifter.selectorLabels" (dict "context" . "component" "api") | nindent 4 }}
+    {{- if .Values.api.labels }}
+    {{- toYaml .Values.api.labels | nindent 4 }}
+    {{- end }}
 spec:
-  replicas: {{ default "1" (.Values.apiservice).replicas | int }}
+  replicas: {{ .Values.api.replicas }}
   selector:
     matchLabels:
-      name: {{ .Release.Name }}-apiservice
+      {{- include "foglifter.selectorLabels" (dict "context" . "component" "api") | nindent 6 }}
   template:
     metadata:
+      annotations:
+        {{- include "foglifter.annotations" . | nindent 8 }}
       labels:
-        name: {{ .Release.Name }}-apiservice
-        app: {{ .Release.Name }}
+        {{- include "foglifter.labels" . | nindent 8 }}
+        {{- include "foglifter.selectorLabels" (dict "context" . "component" "api") | nindent 8 }}
     spec:
-      serviceAccountName: {{ .Release.Name }}-sa
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ include "foglifter.serviceAccountName" . }}
+      {{- end }}
+      {{- if .Values.api.podSecurityContext }}
+      securityContext:
+        {{- toYaml .Values.api.podSecurityContext | nindent 8 }}
+      {{- end }}
       containers:
-        - name: apiservice-app
-          {{- $imageTagDelimiter := ":" }}
-          {{- if (hasPrefix "sha256:" (.Values.apiservice).tag) }}
-            {{- $imageTagDelimiter = "@" }}
+        - name: api
+          {{- if .Values.api.securityContext}}
+          securityContext:
+            {{- toYaml .Values.api.securityContext | nindent 12 }}
           {{- end }}
-          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-api-service" (.Values.apiservice).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.apiservice).tag }}"
-          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          {{- $tag := .Values.api.image.tag | default .Chart.AppVersion }}
+          image: "{{ .Values.api.image.repository }}{{ include "foglifter.tagDelimeter" $tag }}{{ $tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy | default .Values.global.imagePullPolicy }}
           args:
             - node
             - dist/main.js
           envFrom:
+            {{- if .Values.apiKeySecret.create }}
+            - secretRef:
+                name: {{ $fullname }}-api-keys
+            {{- end }}
+            {{- if and .Values.cm.create .Values.cm.data }}
             - configMapRef:
-                name: {{ .Release.Name }}-cm
-            {{- if and (ne (.Values.secret).create false) (.Values.secret).data }}
-            - secretRef:
-                name: {{ .Release.Name }}-secret
+                name: {{ $fullname }}
             {{- end }}
-            {{- if .Values.apiPasswordSecret }}
+            {{- if and .Values.secret.create .Values.secret.data }}
             - secretRef:
-                name: {{ .Values.apiPasswordSecret }}
+                name: {{ $fullname }}
             {{- end }}
-          {{- $port := default "8080" (.Values.apiservice).port | int }}
+          {{- if or (or .Values.api.env .Values.api.envSecretRef) .Values.global.envSecretRef }}
           env:
-            {{- if (.Values.apiservice).trustToken }}
-            - name: TRUST_TOKEN_HASH_KEY
-              value: "{{ (.Values.apiservice).trustToken }}"
-            {{- end }}
-            - name: PORT
-              value: "{{ $port }}"
-            - name: MONGO_URI
-              valueFrom:
-                secretKeyRef:
-                  {{- $mongoSecret := "" }}
-                  {{- if .Values.mongoSecret }}
-                    {{- $mongoSecret = .Values.mongoSecret }}
-                  {{- else }}
-                    {{- range $i, $secret := (lookup "v1" "Secret" .Release.Namespace "").items }}
-                      {{- if (get (get $secret "data" | default dict) "MONGO_URI") }}
-                        {{- $mongoSecret = $secret.metadata.name }}
-                      {{- end }}
-                    {{- end }}
-                    {{- if not $mongoSecret }}
-                      {{- $mongoSecret = "foglifter-mongo-secret" }}
-                    {{- end }}
-                  {{- end }}
-                  name: {{ $mongoSecret }}
-                  key: MONGO_URI
-            {{- if (.Values.apiservice).env }}
-            {{- range $key, $val := .Values.apiservice.env }}
+            {{- if .Values.api.env }}
+            {{- range $key, $val := .Values.api.env }}
             - name: {{ $key }}
               value: {{ $val | quote }}
             {{- end }}
             {{- end }}
-            {{- if (.Values.apiservice).secretRef }}
-            {{- with .Values.apiservice.secretRef }}
+            {{- if .Values.api.envSecretRef }}
+            {{- with .Values.api.envSecretRef }}
             {{- range $key, $val := . }}
             - name: {{ $key }}
               valueFrom:
@@ -81,10 +75,50 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
+            {{- if .Values.global.envSecretRef }}
+            {{- with .Values.global.envSecretRef }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.name }}
+                  key: {{ $val.key }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
           ports:
-            - containerPort: {{ $port }}
+            - name: http
+              containerPort: {{ .Values.api.service.port }}
+              protocol: TCP
+          {{- if .Values.api.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.api.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.api.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.api.readinessProbe | nindent 12 }}
+          {{- end }}
           resources:
-            {{- default dict (.Values.apiservice).resources | toYaml | nindent 12 }}
-      {{- if (ne (.Values.priorityClass).create false) }}
-      priorityClassName: {{ .Release.Name }}
+            {{- default dict .Values.api.resources | toYaml | nindent 12 }}
+      {{- if .Values.priorityClass.create }}
+      priorityClassName: {{ $fullname }}
+      {{- end }}
+      {{- if or .Values.api.nodeSelector .Values.global.nodeSelector}}
+      {{- with .Values.api.nodeSelector | default .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      {{- if or .Values.api.affinity .Values.global.affinity}}
+      {{- with .Values.api.affinity | default .Values.global.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      {{- if or .Values.api.tolerations .Values.global.tolerations}}
+      {{- with .Values.api.tolerations | default .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- end }}
