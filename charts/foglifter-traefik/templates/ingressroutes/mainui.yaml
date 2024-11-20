@@ -7,15 +7,7 @@ spec:
     - web
     - websecure
   routes:
-    {{- $host := "" }}
-    {{- if .Values.host }}
-      {{- if .Values.secondaryHost }}
-        {{- $host = (printf "(Host(`%s`) || Host(`%s`)) && " .Values.host .Values.secondaryHost) }}
-      {{- else }}
-        {{- $host = (printf "Host(`%s`) && " .Values.host) }}
-      {{- end }}
-    {{- end }}
-    - match: {{ $host }}PathPrefix(`/`)
+    - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.mainUI }}
       kind: Rule
       services:
         - name: {{ default "foglifter-main-ui-svc" (.Values.mainUI).name }}

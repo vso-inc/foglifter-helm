@@ -1,15 +1,15 @@
 # Recommended default FogLifter Traefik configurations
 
-# FQDN used to access FogLifter UI
-host: ""
-
-# Secondary FQDN or IP used to access FogLifter UI
-secondaryHost: ""
+# FQDNs used to access FogLifter UI
+hosts: []
 
 # Namespace for FogLifter services
 foglifterNamespace: foglifter
 
-# # TLS certificate configurations
+# Internal Traefik service FQDN
+traefikService: traefik.traefik-system.svc.cluster.local
+
+# TLS certificate configurations
 certificate:
   # Use existing tls secret
   useExisting: false
@@ -22,6 +22,8 @@ core:
   port: 8080
   # Core app service name
   name: foglifter-core-svc
+  # Core app service route path
+  path: /api
 
 # FogLifter main UI ingress configurations
 mainUI:
@@ -29,6 +31,8 @@ mainUI:
   port: 80
   # main UI service name
   name: foglifter-main-ui-svc
+  # main UI service route path
+  path: /
 
 # FogLifter apiservice ingress configurations
 apiservice:
@@ -36,6 +40,8 @@ apiservice:
   port: 8080
   # Apiservice service name
   name: foglifter-apiservice-svc
+  # Apiservice service route path
+  path: /api/v1
 
 # FogLifter auth service ingress configurations
 auth:
@@ -43,15 +49,17 @@ auth:
   port: 8080
   # auth service name
   name: foglifter-auth-svc
+  # auth service route path
+  path: /api/auth
 
 # FogLifter UI client ingress configurations
 client:
-  # Enable client ingress
-  enabled: true
   # Client service port
   port: 8080
   # Client service name
   name: foglifter-client-svc
+  # Client service route path
+  path: /ui
 
 # FogLifter module app ingress configurations
 module:
@@ -61,6 +69,8 @@ module:
   port: 8080
   # Module app service name
   name: foglifter-module-svc
+  # Module app service route path
+  path: /api/module
 
 # FogLifter scheduler ingress configurations
 scheduler:
@@ -70,6 +80,8 @@ scheduler:
   port: 8080
   # Scheduler service name
   name: foglifter-scheduler-svc
+  # Scheduler service route path
+  path: /scheduler
 
 # Argo CD ingress configurations
 argocd:
@@ -81,8 +93,8 @@ argocd:
   name: foglifter-argocd-server
   # Argo CD server service namespace
   namespace: foglifter-argocd
-  # Argo CD ingress prefix
-  prefix: /argo-cd
+  # Argo CD route path
+  path: /argo-cd
 
 # FogLifter View ingress configurations
 view:
@@ -94,8 +106,8 @@ view:
   name: foglifter-view-svc
   # View app service namespace
   namespace: foglifter-view
-  # View app ingress prefix
-  prefix: /dashboard/
+  # View app route path
+  path: /dashboard/
 
 # FogLifter PGAdmin ingress configurations
 pgadmin:
@@ -107,8 +119,8 @@ pgadmin:
   name: foglifter-postgres-pgadmin-svc
   # PGAdmin service namespace
   namespace: foglifter-postgres
-  # PGAdmin ingress prefix
-  prefix: /pgadmin
+  # PGAdmin route path
+  path: /pgadmin
 
 # MongoDB ingress configurations
 mongo:
