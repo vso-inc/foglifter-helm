@@ -34,9 +34,14 @@ spec:
             - secretRef:
                 name: {{ .Release.Name }}-secret
             {{- end }}
-            {{- if .Values.apiPasswordSecret }}
+            {{- if (.Values.apiSecret).create }}
             - secretRef:
-                name: {{ .Values.apiPasswordSecret }}
+                name: {{ .Release.Name }}-api-secret
+            {{- else if (.Values.apiSecret).name }}
+            - secretRef:
+                name: {{ .Values.apiSecret.name }}
+            {{- else }}
+            {{- fail "apiSecret.name must be set if apiSecret.create is false" }}
             {{- end }}
           {{- $port := default "8080" (.Values.apiservice).port | int }}
           env:
