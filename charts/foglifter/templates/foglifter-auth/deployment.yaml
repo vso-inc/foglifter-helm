@@ -34,10 +34,6 @@ spec:
             - secretRef:
                 name: {{ .Release.Name }}-secret
             {{- end }}
-            {{- if .Values.apiPasswordSecret }}
-            - secretRef:
-                name: {{ .Values.apiPasswordSecret }}
-            {{- end }}
           {{- $port := default "8080" (.Values.auth).port | int }}
           env:
             {{- if or (.Values.apiservice).trustToken (.Values.auth).trustToken }}
@@ -46,6 +42,15 @@ spec:
             {{- end }}
             - name: PORT
               value: "{{ $port }}"
+            - name: APIKEY
+              valueFrom:
+                secretKeyRef:
+                  {{- if (.Values.apiSecret).create }}
+                  name: {{ .Release.Name }}-api-secret
+                  {{- else if (.Values.apiSecret).name }}
+                  name: {{ .Values.apiSecret.name }}
+                  {{- end }}
+                  key: AUTH_APIKEY
             - name: MONGO_URI
               valueFrom:
                 secretKeyRef:
