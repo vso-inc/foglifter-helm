@@ -1,0 +1,36 @@
+{{- if (.Values.postgrest).enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-postgrest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-postgrest
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-postgrest
+    spec:
+      containers:
+        - name: postgrest
+          image: "{{ .Values.postgrest.registry }}{{ .Values.postgrest.repository }}:{{ .Values.postgrest.imageTag }}"
+          imagePullPolicy: {{ .Values.postgrest.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.postgrest.port}}
+              protocol: TCP
+          env:
+            - name: PGRST_DB_PRE_CONFIG
+              value: postgrest.pre_config
+            - name: PGRST_LOG_LEVEL
+              value: {{ .Values.postgrest.logLevel | default "info" | quote }}
+            - name: PGRST_SERVER_PORT
+              value: {{ .Values.postgrest.port | quote }}
+          envFrom:
+            - secretRef:
+                name: {{ (.Values.postgrest.secret).name }}
+          resources:
+            {{- toYaml .Values.postgrest.resources | nindent 12 }}
+{{- end }}

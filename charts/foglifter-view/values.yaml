@@ -20,6 +20,45 @@ cm:
   # FOO: bar
   # LOREM: ipsum
 
+# PostgREST configurations
+postgrest:
+  # Enable PostgREST (required for V3)
+  enabled: true
+  # Container registry for PostgREST workloads
+  # Should end with forward-slash if set (e.g. "quay.io/")
+  registry: ""
+  # Image repository for PostgREST workloads
+  repository: postgrest/postgrest
+  # Image tag for PostgREST workloads
+  imageTag: v12.2.0
+  # ImagePullPolicy for PostgREST workloads
+  imagePullPolicy: IfNotPresent
+  # PostgREST database name
+  dbName: ""
+  # PostgREST log level
+  logLevel: info
+  # PostgREST secret
+  secret:
+    # Create PostgREST secret
+    create: false
+    # PostgREST secret name (existing or created)
+    name: postgrest-secret
+    # PostgREST JWT secret
+    jwt: ""
+    # PostgREST database URI
+    dbUri: ""
+  # PostgREST port
+  port: 80
+  # Resources to allocate to PostgREST workloads
+  resources:
+    requests:
+      cpu: 250m
+      memory: 250Mi
+    limits:
+      cpu: 500m
+      memory: 500Mi
+
+
 # Postgres database configurations
 postgres:
   # Postgres database host

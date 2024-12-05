@@ -11,6 +11,12 @@ data:
   PG_HOST: {{ required "Postgres host is required" (.Values.postgres).host }}
   PG_PORT: "{{ required "Postgres port is required" ((.Values.postgres).port | int) }}"
   PG_USER: {{ required "Postgres username is required" (.Values.postgres).username }}
+  {{- if (.Values.postgrest).enabled }}
+  TOOLJET_DB_USER: {{ required "Postgres username is required" (.Values.postgres).username }}
+  TOOLJET_DB_HOST: {{ required "Postgres host is required" (.Values.postgres).host }}
+  TOOLJET_DB: {{ default "tooljet_db" .Values.postgrest.dbName }}
+  PGRST_HOST: {{ printf "%s-postgrest-svc:%s" .Release.Name (int .Values.postgrest.port | toString) }}
+  {{- end }}
   REDIS_HOST: {{ required "Redis host is required" (.Values.redis).host }}
   REDIS_PORT: "{{ required "Redis port is required" ((.Values.redis).port | int) }}"
   REDIS_USER: {{ required "Redis username is required" (.Values.redis).username }}
