@@ -44,6 +44,13 @@ spec:
                 secretKeyRef:
                   name: {{ required "Postgres secret name is required" (.Values.postgres).secretName }}
                   key: POSTGRES_PASSWORD
+            {{- if (.Values.postgrest).enabled }}
+            - name: TOOLJET_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "Postgres secret name is required" (.Values.postgres).secretName }}
+                  key: POSTGRES_PASSWORD
+            {{- end }}
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -59,8 +66,10 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-secret
                   key: secret_key_base
+            {{- if (.Values.enterprise).enabled }}
             - name: LICENSE_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-license
                   key: license_key
+            {{- end }}
