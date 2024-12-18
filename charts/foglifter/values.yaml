@@ -180,10 +180,10 @@ exec:
     exec: true
     # Custom pod anti-affinity rules
     custom:
-    # - key: "app.kubernetes.io/name"
+    # - key: "name"
     #   operator: "In"
     #   values:
-    #   - "mongo"
+    #   - "mongodb"
   # Exec deployment extra environment variables
   env:
     # FOO: bar
