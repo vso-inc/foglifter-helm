@@ -101,19 +101,30 @@ spec:
             {{- end }}
           resources:
             {{- default dict (.Values.exec).resources | toYaml | nindent 12 }}
-      {{- if (ne (.Values.exec).coreAntiAffinity false) }}
+      {{- with (.Values.exec).antiAffinity }}
+      {{- if or .exec .custom }}
       affinity:
         podAntiAffinity:
+          {{- if .exec }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - {{ $.Release.Name }}-exec
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
+          {{- if .custom }}
           preferredDuringSchedulingIgnoredDuringExecution:
             - weight: 100
               podAffinityTerm:
                 labelSelector:
                   matchExpressions:
-                    - key: app.kubernetes.io/name
-                      operator: In
-                      values:
-                        - {{ .Release.Name }}-exec
+                    {{- toYaml .custom | nindent 20 }}
                 topologyKey: kubernetes.io/hostname
+          {{- end }}
+      {{- end }}
       {{- end }}
       {{- if (ne (.Values.priorityClass).create false) }}
       priorityClassName: {{ .Release.Name }}
