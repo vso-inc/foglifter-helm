@@ -1,0 +1,18 @@
+{{- if (ne .Values.compliance.db.enableInitHook false) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-compliance-initdb-pvc
+  labels:
+    app: {{ .Release.Name }}-compliance
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-1"
+    "helm.sh/hook-delete-policy": hook-failed
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Mi
+{{- end }}

@@ -1,0 +1,45 @@
+{{- with (.Values.compliance).db }}
+{{- if (ne .enableInitHook false) }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $.Release.Name }}-compliance-initdb
+  labels:
+    app: {{ $.Release.Name }}-compliance
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-1"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ $.Release.Name }}-compliance-initdb
+      labels:
+        app: {{ $.Release.Name }}-compliance
+    spec:
+      serviceAccountName: {{ $.Release.Name }}-sa
+      containers:
+        - name: {{ $.Chart.Name }}-initdb
+          command: ["/bin/sh", "-c"]
+          {{- $imageTagDelimiter := ":" }}
+          {{- if (hasPrefix "sha256:" .tag) }}
+            {{- $imageTagDelimiter = "@" }}
+          {{- end }}
+          image: "{{ default "ghcr.io/vso-inc/" $.Values.registry }}{{ .repository }}{{ $imageTagDelimiter }}{{ default "latest" .tag }}"
+          imagePullPolicy: "{{ default "Always" $.Values.imagePullPolicy }}"
+          args:
+            - |
+              if [ ! -f /data/db-initialized.txt ]; then
+                  npm run db:init
+                  touch /data/db-initialized.txt
+              fi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      restartPolicy: Never
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ $.Release.Name }}-compliance-initdb-pvc
+{{- end }}
+{{- end }}

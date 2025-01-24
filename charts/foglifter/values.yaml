@@ -58,7 +58,7 @@ apiservice:
   # Apiservice deployment image repository
   repository: foglifter-api-service
   # Apiservice deployment image tag
-  tag: 3.6.2
+  tag: 3.7.0
   # Apiservice trust token hash key (TRUST_TOKEN_HASH_KEY)
   trustToken: ""
   # Apiservice deployment extra environment variables
@@ -89,7 +89,7 @@ auth:
   # Auth deployment image repository
   repository: foglifter-auth-service
   # Auth deployment image tag
-  tag: 3.6.2
+  tag: 3.7.0
   # Auth deployment extra environment variables
   env:
     # FOO: bar
@@ -113,13 +113,13 @@ client:
   # Enable client deployment
   enabled: true
   # Client deployment port
-  port: 8080
+  port: 3000
   # Client deployment replicas
   replicas: 1
   # Client deployment image repository
   repository: foglifter-client
   # Client deployment image tag
-  tag: 3.6.2
+  tag: 3.7.2
   # Client deployment extra environment variables
   env:
     # FOO: bar
@@ -138,6 +138,114 @@ client:
     #   cpu: 500m
     #   memory: 2048Mi
 
+# FogLifter compliance parameters
+compliance:
+
+  # FogLifter compliance DB API parameters
+  db:
+    # Enable compliance DB API
+    enabled: true
+    # DB deployment port
+    port: 3000
+    # DB deployment replicas
+    replicas: 1
+    # DB deployment image repository
+    repository: foglifter-compliance-db
+    # DB deployment image tag
+    tag: dev # Compliance is currently in alpha
+    # Enable DB init Helm hook
+    enableInitHook: true
+    # DB deployment secret parameters
+    secret:
+      # Create Secret
+      create: true
+      # DB_PASSWORD
+      password: ""
+      # DB_URL
+      url: ""
+      # JWT_SECRET_KEY
+      jwt: ""
+      # Existing secret name
+      # Must contain above environment variables
+      name: ""
+    # DB deployment extra environment variables
+    env:
+      BCRYPT_SALT: "10"
+      DB_NAME: FogLifter_Compliance
+      DB_PORT: "1433"
+      DB_USER: foglifter
+      JWT_EXPIRATION: 2d
+    # DB deployment extra environment variables from existing secret
+    secretRef:
+      # ENV_VAR_NAME:
+      #   name: secret-name
+      #   key: secret_key
+    # DB deployment resources
+    resources:
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+      # limits:
+      #   cpu: 500m
+      #   memory: 2048Mi
+
+    # MSSQL parameters
+    mssql:
+      # Deploy an MSSQL instance for compliance
+      enabled: false
+      # Values to be passed to mssql helm chart
+      # https://gitlab.com/xrow-public/helm-mssql/-/blob/1.0.3/chart/README.md
+      # https://gitlab.com/xrow-public/helm-mssql/-/blob/1.0.3/chart/values.yaml
+      auth:
+        database: FogLifter_Compliance
+        rootPassword: ""
+        username: foglifter
+        password: ""
+        existingSecret: ""
+
+  # FogLifter compliance EMS/BigFix API parameters
+  ems:
+    # Enable compliance EMS/BigFix API
+    enabled: true
+    # EMS deployment port
+    port: 8080
+    # EMS deployment replicas
+    replicas: 1
+    # EMS deployment image repository
+    repository: foglifter-compliance-ems
+    # EMS deployment image tag
+    tag: dev # Compliance is currently in alpha
+    # EMS deployment secret parameters
+    secret:
+      # Create Secret
+      create: true
+      # BIGFIX_API_TOKEN
+      token: ""
+      # BIGFIX_PASSWORD
+      password: ""
+      # JWT_SECRET
+      jwt: ""
+      # Existing secret name
+      # Should contain above environment variables
+      name: ""
+    # EMS deployment extra environment variables
+    env:
+      BIGFIX_API_URL: ""
+      BIGFIX_USER: ""
+    # EMS deployment extra environment variables from existing secret
+    secretRef:
+      # ENV_VAR_NAME:
+      #   name: secret-name
+      #   key: secret_key
+    # EMS deployment resources
+    resources:
+      # requests:
+      #   cpu: 100m
+      #   memory: 128Mi
+      # limits:
+      #   cpu: 500m
+      #   memory: 2048Mi
+
 # FogLifter core deployment parameters
 core:
   # Core deployment port
@@ -147,7 +255,7 @@ core:
   # Core deployment image repository
   repository: foglifter-core-app
   # Core deployment image tag
-  tag: 3.6.4
+  tag: 3.7.0
   # Core deployment extra environment variables
   env:
     # FOO: bar
@@ -173,7 +281,7 @@ exec:
   # Exec deployment image repository
   repository: foglifter-exec-app
   # Exec deployment image tag
-  tag: 3.6.4
+  tag: 3.7.0
   # Exec deployment podAntiAffinity
   antiAffinity:
     # Anti-affinity between replicas
@@ -213,7 +321,7 @@ mainUI:
   # Main UI deployment image repository
   repository: foglifter-main-ui
   # Main UI deployment image tag
-  tag: 3.6.2
+  tag: 3.7.0
   # Main UI deployment extra environment variables
   env:
     # FOO: bar
@@ -241,7 +349,7 @@ module:
   # Module deployment image repository
   repository: foglifter-module-app
   # Module deployment image tag
-  tag: 3.6.4
+  tag: 3.7.0
   # Module deployment extra environment variables
   env:
     # FOO: bar
@@ -271,7 +379,7 @@ scheduler:
   # Scheduler deployment image repository
   repository: foglifter-scheduler
   # Scheduler deployment image tag
-  tag: 3.6.0
+  tag: 3.7.0
   # Scheduler deployment extra environment variables
   env:
     EXPRESS_JSON_SIZE_LIMIT: 10mb

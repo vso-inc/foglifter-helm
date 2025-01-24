@@ -1,0 +1,18 @@
+{{- with (.Values.compliance).ems }}
+{{- if .enabled }}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ $.Release.Name }}-compliance-ems-svc
+  labels:
+    app: {{ $.Release.Name }}-compliance
+spec:
+  type: ClusterIP
+  {{- $port := .port | int }}
+  ports:
+  - port: {{ $port }}
+    targetPort: {{ $port }}
+  selector:
+    name: {{ $.Release.Name }}-compliance-ems
+{{- end }}
+{{- end }}
