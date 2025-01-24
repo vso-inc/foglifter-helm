@@ -2,5 +2,5 @@ dependencies:
 - name: mssql
   repository: oci://registry.gitlab.com/xrow-public/helm-mssql/charts
   version: 1.0.3
-digest: sha256:4936015557a4b7a9f31ef053774f035f86062ebdaa7f2f93959d65d80ddeea9c
-generated: "2025-01-24T14:07:46.73293-05:00"
+digest: sha256:b65a4f839b7b7c5207776ddd38f87c792c11242097083a398abf7541e4ed6e2d
+generated: "2025-01-24T15:49:30.96678-05:00"
