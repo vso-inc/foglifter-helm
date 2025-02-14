@@ -1,5 +1,5 @@
-{{- with (.Values.compliance).db }}
-{{- if (ne .enableInitHook false) }}
+{{- with (.Values.compliance).api }}
+{{- if and .enabled (ne .enableInitHook false) }}
 apiVersion: batch/v1
 kind: Job
 metadata:
