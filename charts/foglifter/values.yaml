@@ -186,20 +186,6 @@ compliance:
       #   cpu: 500m
       #   memory: 2048Mi
 
-    # MSSQL parameters
-    mssql:
-      # Deploy an MSSQL instance for compliance
-      enabled: false
-      # Values to be passed to mssql helm chart
-      # https://gitlab.com/xrow-public/helm-mssql/-/blob/1.0.3/chart/README.md
-      # https://gitlab.com/xrow-public/helm-mssql/-/blob/1.0.3/chart/values.yaml
-      auth:
-        database: FogLifter_Compliance
-        rootPassword: ""
-        username: foglifter
-        password: ""
-        existingSecret: ""
-
   # FogLifter compliance EMS/BigFix API parameters
   ems:
     # Enable compliance EMS/BigFix API
@@ -242,6 +228,21 @@ compliance:
       # limits:
       #   cpu: 500m
       #   memory: 2048Mi
+
+# Compliance MSSQL DB parameters
+mssql:
+  # Deploy an MSSQL instance for compliance
+  enabled: false
+  # Values to be passed to mssql helm chart
+  # https://gitlab.com/xrow-public/helm-mssql/-/blob/1.0.3/chart/README.md
+  # https://gitlab.com/xrow-public/helm-mssql/-/blob/1.0.3/chart/values.yaml
+  fullnameOverride: foglifter-compliance-mssql
+  auth:
+    database: FogLifter_Compliance
+    rootPassword: ""
+    username: foglifter
+    password: ""
+    existingSecret: ""
 
 # FogLifter core deployment parameters
 core:
@@ -338,7 +339,7 @@ mainUI:
     #   memory: 2048Mi
 module:
   # Enable module deployment
-  enabled: true
+  enabled: false
   # Module deployment port
   port: 8080
   # Module deployment replicas

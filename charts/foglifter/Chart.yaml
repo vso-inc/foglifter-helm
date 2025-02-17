@@ -4,11 +4,11 @@ description: Helm chart for FogLifter® installation
 
 type: application
 
-version: 0.2.2
+version: 0.2.3
 
 appVersion: "3.9.0"
 dependencies:
   - name: mssql
     repository: "oci://registry.gitlab.com/xrow-public/helm-mssql/charts"
     version: 1.0.3
-    condition: compliance.db.mssql.enabled
+    condition: mssql.enabled
