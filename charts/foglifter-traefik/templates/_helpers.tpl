@@ -9,11 +9,6 @@
       {{- $hostString = (printf "%sHost(`%s`) || " $hostString $host) }}
     {{- end }}
   {{- end }}
-  {{- if .traefikService }}
-    {{- $hostString = (printf "%s || Host(`%s`)" $hostString .traefikService) }}
-  {{- end }}
-{{- else if .traefikService }}
-  {{- $hostString = (printf "Host(`%s`) && " .traefikService) }}
 {{- end }}
 {{- if $hostString }}
   {{- printf "(%s) && " $hostString }}

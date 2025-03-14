@@ -9,10 +9,21 @@ spec:
   routes:
     - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.scheduler }}
       kind: Rule
+      middlewares:
+        - name: https-redirect
+          namespace: {{ .Release.Namespace }}
       services:
         - name: {{ default "foglifter-scheduler-svc" (.Values.scheduler).name }}
           namespace: {{ default "foglifter" .Values.foglifterNamespace }}
           port: {{ default "8080" (.Values.scheduler).port | int }}
+    {{- if .Values.traefikService }}
+    - match: {{ printf "Host(`%s`) && " .Values.traefikService }}{{ include "traefik.path" .Values.scheduler }}
+      kind: Rule
+      services:
+        - name: {{ default "foglifter-scheduler-svc" (.Values.scheduler).name }}
+          namespace: {{ default "foglifter" .Values.foglifterNamespace }}
+          port: {{ default "8080" (.Values.scheduler).port | int }}
+    {{- end }}
   {{- if (eq (.Values.certificate).useExisting true ) }}
   tls:
     secretName: {{ default "foglifter-traefik-cert" (.Values.certificate).name }}
