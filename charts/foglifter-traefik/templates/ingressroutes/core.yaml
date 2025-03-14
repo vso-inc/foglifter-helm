@@ -9,10 +9,21 @@ spec:
   routes:
     - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.core }}
       kind: Rule
+      middlewares:
+        - name: https-redirect
+          namespace: {{ .Release.Namespace }}
       services:
         - name: {{ default "foglifter-core-svc" (.Values.core).name }}
           namespace: {{ default "foglifter" .Values.foglifterNamespace }}
           port: {{ default "8080" (.Values.core).port | int }}
+    {{- if .Values.traefikService }}
+    - match: {{ printf "Host(`%s`) && " .Values.traefikService }}{{ include "traefik.path" .Values.core }}
+      kind: Rule
+      services:
+        - name: {{ default "foglifter-core-svc" (.Values.core).name }}
+          namespace: {{ default "foglifter" .Values.foglifterNamespace }}
+          port: {{ default "8080" (.Values.core).port | int }}
+    {{- end }}
   {{- if (eq (.Values.certificate).useExisting true ) }}
   tls:
     secretName: {{ default "foglifter-traefik-cert" (.Values.certificate).name }}

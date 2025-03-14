@@ -14,15 +14,13 @@ spec:
     helm:
       values: |
         image:
-          tag: v3.0.0-beta3
+          tag: v3.0.0
         providers:
           kubernetesCRD:
             enabled: true
             allowCrossNamespace: true
             allowEmptyServices: true
         ports:
-          web:
-            redirectTo: websecure
           {{- if (ne ((.Values.traefik).mongo).enabled false) }}
           mongo:
             port: {{ default "27017" ((.Values.traefik).mongo).port | int }}
