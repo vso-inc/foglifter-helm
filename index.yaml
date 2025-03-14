@@ -258,6 +258,16 @@ entries:
     version: 0.1.0
   foglifter-argocd:
   - apiVersion: v2
+    appVersion: 3.9.4
+    created: "2025-03-14T21:00:59.246926622Z"
+    description: Helm chart for FogLifter® installation with Argo CD
+    digest: 57f2d71a51bb48de93f6fa461243504f55debd30b8751a2c201a23868d355ed8
+    name: foglifter-argocd
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-argocd-0.1.32/foglifter-argocd-0.1.32.tgz
+    version: 0.1.32
+  - apiVersion: v2
     appVersion: 3.9.0
     created: "2025-02-13T17:58:00.296392858Z"
     description: Helm chart for FogLifter® installation with Argo CD
@@ -832,6 +842,16 @@ entries:
     version: 0.1.0
   foglifter-traefik:
   - apiVersion: v2
+    appVersion: 3.9.4
+    created: "2025-03-14T21:00:59.333776953Z"
+    description: Helm chart for FogLifter® Traefik ingress configurations
+    digest: 057a42600083230a808595985365165aed12b9ffba72cc3f619588c194a8a239
+    name: foglifter-traefik
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-traefik-0.1.19/foglifter-traefik-0.1.19.tgz
+    version: 0.1.19
+  - apiVersion: v2
     appVersion: 3.5.0
     created: "2024-11-20T17:04:51.943769991Z"
     description: Helm chart for FogLifter® Traefik ingress configurations
@@ -1182,4 +1202,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2025-02-17T20:05:01.727093853Z"
+generated: "2025-03-14T21:00:59.334370549Z"
