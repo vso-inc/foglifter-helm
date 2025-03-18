@@ -2,29 +2,17 @@
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: {{ .Release.Name }}-view
+  name: {{ .Release.Name }}-view-https
 spec:
   entryPoints:
-    - web
     - websecure
   routes:
     - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.view }}
       kind: Rule
-      middlewares:
-        - name: https-redirect
-          namespace: {{ .Release.Namespace }}
       services:
         - name: {{ default "foglifter-view-svc" (.Values.view).name }}
           namespace: {{ default "foglifter-view" (.Values.view).namespace }}
           port: {{ default "3000" (.Values.view).port | int }}
-    {{- if .Values.traefikService }}
-    - match: {{ printf "Host(`%s`) && " .Values.traefikService }}{{ include "traefik.path" .Values.view }}
-      kind: Rule
-      services:
-        - name: {{ default "foglifter-view-svc" (.Values.view).name }}
-          namespace: {{ default "foglifter-view" (.Values.view).namespace }}
-          port: {{ default "3000" (.Values.view).port | int }}
-    {{- end }}
   {{- if (eq (.Values.certificate).useExisting true ) }}
   tls:
     secretName: {{ default "foglifter-traefik-cert" (.Values.certificate).name }}
