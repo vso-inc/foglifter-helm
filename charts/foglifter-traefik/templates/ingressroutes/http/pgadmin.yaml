@@ -2,11 +2,10 @@
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: {{ .Release.Name }}-pgadmin
+  name: {{ .Release.Name }}-pgadmin-http
 spec:
   entryPoints:
     - web
-    - websecure
   routes:
     - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.pgadmin }}
       kind: Rule
@@ -25,8 +24,4 @@ spec:
           namespace: {{ default "foglifter-postgres" (.Values.pgadmin).namespace }}
           port: {{ default "5432" (.Values.pgadmin).port | int }}
     {{- end }}
-  {{- if (eq (.Values.certificate).useExisting true ) }}
-  tls:
-    secretName: {{ default "foglifter-traefik-cert" (.Values.certificate).name }}
-  {{- end }}
 {{- end }}

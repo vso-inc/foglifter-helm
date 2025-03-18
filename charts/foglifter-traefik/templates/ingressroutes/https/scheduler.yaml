@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-scheduler-https
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.scheduler }}
+      kind: Rule
+      services:
+        - name: {{ default "foglifter-scheduler-svc" (.Values.scheduler).name }}
+          namespace: {{ default "foglifter" .Values.foglifterNamespace }}
+          port: {{ default "8080" (.Values.scheduler).port | int }}
+  {{- if (eq (.Values.certificate).useExisting true ) }}
+  tls:
+    secretName: {{ default "foglifter-traefik-cert" (.Values.certificate).name }}
+  {{- end }}

@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-client-https
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.client }}
+      kind: Rule
+      services:
+        - name: {{ default "foglifter-client-svc" (.Values.client).name }}
+          namespace: {{ default "foglifter" .Values.foglifterNamespace }}
+          port: {{ default "8080" (.Values.client).port | int }}
+  {{- if (eq (.Values.certificate).useExisting true ) }}
+  tls:
+    secretName: {{ default "foglifter-traefik-cert" (.Values.certificate).name }}
+  {{- end }}
