@@ -47,6 +47,9 @@ spec:
             matchRule: PathPrefix(`/`)
         additionalArguments:
           - "--providers.kubernetescrd.allowCrossNamespace=true"
+        {{- if ((.Values.traefik).extraChartValues) }}
+        {{- toYaml ((.Values.traefik).extraChartValues) | nindent 8 }}
+        {{- end }}
   destination:
     server: https://kubernetes.default.svc
     namespace: {{ default "traefik-system" ((.Values.traefik).application).namespace }}
