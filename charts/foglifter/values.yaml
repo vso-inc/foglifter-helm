@@ -13,13 +13,19 @@ imagePullSecret: "foglifter-pullsecret"
 apiSecret:
   # Create Secret
   create: true
+  # API secret data
+  data:
+    # Values can be any random strings, e.g. `openssl rand -hex 32`
+    SECRET_KEY: ""
+    AUTH_APIKEY: ""
+    CORE_APIKEY: ""
+    EXECUTOR_APIKEY: ""
+    SCHEDULER_APIKEY: ""
   # Existing secret name
+  # Must contain SECRET_KEY
   # Must contain API keys for all required FogLifter deployments
   # AUTH_APIKEY, CORE_APIKEY, EXECUTOR_APIKEY, SCHEDULER_APIKEY
   name: ""
-
-# FogLifter decryption key secret name
-decryptionKeySecret: ""
 
 # FogLifter ConfigMap parameters
 cm:
@@ -58,7 +64,7 @@ apiservice:
   # Apiservice deployment image repository
   repository: foglifter-api-service
   # Apiservice deployment image tag
-  tag: 3.9.0
+  tag: prod
   # Apiservice trust token hash key (TRUST_TOKEN_HASH_KEY)
   trustToken: ""
   # Apiservice deployment extra environment variables
@@ -89,7 +95,7 @@ auth:
   # Auth deployment image repository
   repository: foglifter-auth-service
   # Auth deployment image tag
-  tag: 3.9.0
+  tag: prod
   # Auth deployment extra environment variables
   env:
     # FOO: bar
@@ -119,7 +125,7 @@ client:
   # Client deployment image repository
   repository: foglifter-client
   # Client deployment image tag
-  tag: 3.9.0
+  tag: prod
   # Client deployment extra environment variables
   env:
     # FOO: bar
@@ -253,7 +259,7 @@ core:
   # Core deployment image repository
   repository: foglifter-core-app
   # Core deployment image tag
-  tag: 3.9.0
+  tag: prod
   # Core deployment extra environment variables
   env:
     # FOO: bar
@@ -274,12 +280,13 @@ core:
 
 # FogLifter exec deployment parameters
 exec:
-  # Exec deployment replicas
-  replicas: 1
+  # Enable replication which splits exec app into two deployments: standard and system
+  replication: false
   # Exec deployment image repository
   repository: foglifter-exec-app
   # Exec deployment image tag
-  tag: 3.9.0
+  tag: prod
+  ## If replication is true the following values are ignored
   # Exec deployment podAntiAffinity
   antiAffinity:
     # Anti-affinity between replicas
@@ -307,6 +314,69 @@ exec:
     # limits:
     #   cpu: 4000m
     #   memory: 8192Mi
+  ## If replication is true the following values are used for standard and system deployments
+  # Standard queue exec deployment parameters
+  standard:
+    # Standard exec deployment replicas
+    replicas: 1
+    # Standard exec deployment podAntiAffinity
+    antiAffinity:
+      # Anti-affinity between replicas
+      exec: true
+      # Custom pod anti-affinity rules
+      custom:
+        # - key: "name"
+        #   operator: "In"
+        #   values:
+        #   - "mongodb"
+    # Standard exec deployment extra environment variables
+    env:
+      # FOO: bar
+      # LOREM: ipsum
+    # Standard exec deployment extra environment variables from existing secret
+    secretRef:
+      # ENV_VAR_NAME:
+      #   name: secret-name
+      #   key: secret_key
+    # Standard exec deployment resources
+    resources:
+      # requests:
+      #   cpu: 1000m
+      #   memory: 2048Mi
+      # limits:
+      #   cpu: 4000m
+      #   memory: 8192Mi
+  # System queue exec deployment parameters
+  system:
+    # System exec deployment replicas
+    replicas: 1
+    # System exec deployment podAntiAffinity
+    antiAffinity:
+      # Anti-affinity between replicas
+      exec: true
+      # Custom pod anti-affinity rules
+      custom:
+        # - key: "name"
+        #   operator: "In"
+        #   values:
+        #   - "mongodb"
+    # System exec deployment extra environment variables
+    env:
+      # FOO: bar
+      # LOREM: ipsum
+    # System exec deployment extra environment variables from existing secret
+    secretRef:
+      # ENV_VAR_NAME:
+      #   name: secret-name
+      #   key: secret_key
+    # System exec deployment resources
+    resources:
+      # requests:
+      #   cpu: 1000m
+      #   memory: 2048Mi
+      # limits:
+      #   cpu: 4000m
+      #   memory: 8192Mi
 
 # FogLifter module deployment parameters
 mainUI:
@@ -319,7 +389,7 @@ mainUI:
   # Main UI deployment image repository
   repository: foglifter-main-ui
   # Main UI deployment image tag
-  tag: 3.9.0
+  tag: prod
   # Main UI deployment extra environment variables
   env:
     # FOO: bar
@@ -347,7 +417,7 @@ module:
   # Module deployment image repository
   repository: foglifter-module-app
   # Module deployment image tag
-  tag: 3.9.0
+  tag: prod
   # Module deployment extra environment variables
   env:
     # FOO: bar
@@ -377,7 +447,7 @@ scheduler:
   # Scheduler deployment image repository
   repository: foglifter-scheduler
   # Scheduler deployment image tag
-  tag: 3.9.0
+  tag: prod
   # Scheduler deployment extra environment variables
   env:
     EXPRESS_JSON_SIZE_LIMIT: 10mb
