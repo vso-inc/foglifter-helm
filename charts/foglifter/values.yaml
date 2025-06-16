@@ -33,8 +33,7 @@ cm:
   create: true
   # Environment variables to be passed to all FogLifter deployments via ConfigMap
   data:
-    # FOO: bar
-    # LOREM: ipsum
+  #   ENV_VAR_NAME: value
 
 # FogLifter Secret parameters
 secret:
@@ -42,8 +41,7 @@ secret:
   create: false
   # Environment variables to be passed to all FogLifter deployments via Secret
   data:
-    # FOO: bar
-    # LOREM: ipsum
+  #   ENV_VAR_NAME: value
 
 # FogLifter PriorityClass parameters
 priorityClass:
@@ -70,21 +68,19 @@ apiservice:
   # Apiservice deployment extra environment variables
   env:
     API_PREFIX: "api"
-    # FOO: bar
-    # LOREM: ipsum
   # Apiservice deployment extra environment variables from existing secret
   secretRef:
-    # ENV_VAR_NAME:
-    #   name: secret-name
-    #   key: secret_key
+  #   ENV_VAR_NAME:
+  #     name: secret-name
+  #     key: secret_key
   # Apiservice deployment resources
   resources:
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # limits:
-    #   cpu: 500m
-    #   memory: 2048Mi
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+  #   limits:
+  #     cpu: 500m
+  #     memory: 2048Mi
 
 # FogLifter auth deployment parameters
 auth:
@@ -98,21 +94,20 @@ auth:
   tag: prod
   # Auth deployment extra environment variables
   env:
-    # FOO: bar
-    # LOREM: ipsum
+  #   ENV_VAR_NAME: value
   # Auth deployment extra environment variables from existing secret
   secretRef:
-    # ENV_VAR_NAME:
-    #   name: secret-name
-    #   key: secret_key
+  #   ENV_VAR_NAME:
+  #     name: secret-name
+  #     key: secret_key
   # Auth deployment resources
   resources:
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # limits:
-    #   cpu: 500m
-    #   memory: 2048Mi
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+  #   limits:
+  #     cpu: 500m
+  #     memory: 2048Mi
 
 # FogLifter UI client deployment parameters
 client:
@@ -128,21 +123,20 @@ client:
   tag: prod
   # Client deployment extra environment variables
   env:
-    # FOO: bar
-    # LOREM: ipsum
+  #   ENV_VAR_NAME: value
   # Client deployment extra environment variables from existing secret
   secretRef:
-    # ENV_VAR_NAME:
-    #   name: secret-name
-    #   key: secret_key
+  #   ENV_VAR_NAME:
+  #     name: secret-name
+  #     key: secret_key
   # Client deployment resources
   resources:
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # limits:
-    #   cpu: 500m
-    #   memory: 2048Mi
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+  #   limits:
+  #     cpu: 500m
+  #     memory: 2048Mi
 
 # FogLifter compliance parameters
 compliance:
@@ -180,17 +174,17 @@ compliance:
       JWT_EXPIRATION: 2d
     # DB deployment extra environment variables from existing secret
     secretRef:
-      # ENV_VAR_NAME:
-      #   name: secret-name
-      #   key: secret_key
+    #   ENV_VAR_NAME:
+    #     name: secret-name
+    #     key: secret_key
     # DB deployment resources
     resources:
-      # requests:
-      #   cpu: 100m
-      #   memory: 128Mi
-      # limits:
-      #   cpu: 500m
-      #   memory: 2048Mi
+    #   requests:
+    #     cpu: 100m
+    #     memory: 128Mi
+    #   limits:
+    #     cpu: 500m
+    #     memory: 2048Mi
 
   # FogLifter compliance EMS/BigFix API parameters
   ems:
@@ -223,17 +217,17 @@ compliance:
       BIGFIX_USER: ""
     # EMS deployment extra environment variables from existing secret
     secretRef:
-      # ENV_VAR_NAME:
-      #   name: secret-name
-      #   key: secret_key
+    #   ENV_VAR_NAME:
+    #     name: secret-name
+    #     key: secret_key
     # EMS deployment resources
     resources:
-      # requests:
-      #   cpu: 100m
-      #   memory: 128Mi
-      # limits:
-      #   cpu: 500m
-      #   memory: 2048Mi
+    #   requests:
+    #     cpu: 100m
+    #     memory: 128Mi
+    #   limits:
+    #     cpu: 500m
+    #     memory: 2048Mi
 
 # Compliance MSSQL DB parameters
 mssql:
@@ -262,121 +256,114 @@ core:
   tag: prod
   # Core deployment extra environment variables
   env:
-    # FOO: bar
-    # LOREM: ipsum
+  #   ENV_VAR_NAME: value
   # Core deployment extra environment variables from existing secret
   secretRef:
-    # ENV_VAR_NAME:
-    #   name: secret-name
-    #   key: secret_key
+  #   ENV_VAR_NAME:
+  #     name: secret-name
+  #     key: secret_key
   # Core deployment resources
   resources:
-    # requests:
-    #   cpu: 1000m
-    #   memory: 2048Mi
-    # limits:
-    #   cpu: 4000m
-    #   memory: 8192Mi
+  #   requests:
+  #     cpu: 1000m
+  #     memory: 2048Mi
+  #   limits:
+  #     cpu: 4000m
+  #     memory: 8192Mi
 
 # FogLifter exec deployment parameters
 exec:
   # Enable replication which splits exec app into two deployments: standard and system
   replication: false
+  ## The following values are used for all exec deployments
   # Exec deployment image repository
   repository: foglifter-exec-app
   # Exec deployment image tag
   tag: prod
-  ## If replication is true the following values are ignored
   # Exec deployment podAntiAffinity
   antiAffinity:
     # Anti-affinity between replicas
     exec: true
     # Custom pod anti-affinity rules
     custom:
-    # - key: "name"
-    #   operator: "In"
-    #   values:
-    #   - "mongodb"
+    #   - key: "name"
+    #     operator: "In"
+    #     values:
+    #     - "mongodb"
   # Exec deployment extra environment variables
   env:
-    # FOO: bar
-    # LOREM: ipsum
+    NODE_OPTIONS: "--experimental-vm-modules"
   # Exec deployment extra environment variables from existing secret
   secretRef:
-    # ENV_VAR_NAME:
-    #   name: secret-name
-    #   key: secret_key
-  # Exec deployment resources
+  #   ENV_VAR_NAME:
+  #     name: secret-name
+  #     key: secret_key
+  # Exec deployment resources (ignored if replication is true)
   resources:
-    # requests:
-    #   cpu: 1000m
-    #   memory: 2048Mi
-    # limits:
-    #   cpu: 4000m
-    #   memory: 8192Mi
-  ## If replication is true the following values are used for standard and system deployments
+  #   requests:
+  #     cpu: 1000m
+  #     memory: 2048Mi
+  #   limits:
+  #     cpu: 4000m
+  #     memory: 8192Mi
+  ## If replication is true the following values are used for standard exec deployment
   # Standard queue exec deployment parameters
   standard:
     # Standard exec deployment replicas
     replicas: 1
     # Standard exec deployment podAntiAffinity
     antiAffinity:
-      # Anti-affinity between replicas
-      exec: true
       # Custom pod anti-affinity rules
       custom:
-        # - key: "name"
-        #   operator: "In"
-        #   values:
-        #   - "mongodb"
+      #   - key: "name"
+      #     operator: "In"
+      #     values:
+      #     - "mongodb"
     # Standard exec deployment extra environment variables
     env:
-      # FOO: bar
-      # LOREM: ipsum
+      CONCURRENT_JOBS: 1
     # Standard exec deployment extra environment variables from existing secret
     secretRef:
-      # ENV_VAR_NAME:
-      #   name: secret-name
-      #   key: secret_key
+    #   ENV_VAR_NAME:
+    #     name: secret-name
+    #     key: secret_key
     # Standard exec deployment resources
     resources:
-      # requests:
-      #   cpu: 1000m
-      #   memory: 2048Mi
-      # limits:
-      #   cpu: 4000m
-      #   memory: 8192Mi
+    #   requests:
+    #     cpu: 1000m
+    #     memory: 2048Mi
+    #   limits:
+    #     cpu: 4000m
+    #     memory: 8192Mi
+  ## If replication is true the following values are used for system exec deployment
   # System queue exec deployment parameters
   system:
     # System exec deployment replicas
     replicas: 1
     # System exec deployment podAntiAffinity
     antiAffinity:
-      # Anti-affinity between replicas
-      exec: true
       # Custom pod anti-affinity rules
       custom:
-        # - key: "name"
-        #   operator: "In"
-        #   values:
-        #   - "mongodb"
+      #   - key: "name"
+      #     operator: "In"
+      #     values:
+      #     - "mongodb"
     # System exec deployment extra environment variables
     env:
-      # FOO: bar
-      # LOREM: ipsum
+      CONCURRENT_JOBS: 5
     # System exec deployment extra environment variables from existing secret
     secretRef:
-      # ENV_VAR_NAME:
-      #   name: secret-name
-      #   key: secret_key
+    #   ENV_VAR_NAME:
+    #     name: secret-name
+    #     key: secret_key
     # System exec deployment resources
     resources:
-      # requests:
-      #   cpu: 1000m
-      #   memory: 2048Mi
-      # limits:
-      #   cpu: 4000m
-      #   memory: 8192Mi
+    #   requests:
+    #     cpu: 1000m
+    #     memory: 2048Mi
+    #   limits:
+    #     cpu: 4000m
+    #     memory: 8192Mi
 
 # FogLifter module deployment parameters
 mainUI:
@@ -392,21 +379,20 @@ mainUI:
   tag: prod
   # Main UI deployment extra environment variables
   env:
-    # FOO: bar
-    # LOREM: ipsum
+  #   ENV_VAR_NAME: value
   # Main UI deployment extra environment variables from existing secret
   secretRef:
-    # ENV_VAR_NAME:
-    #   name: secret-name
-    #   key: secret_key
+  #   ENV_VAR_NAME:
+  #     name: secret-name
+  #     key: secret_key
   # Main UI deployment resources
   resources:
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # limits:
-    #   cpu: 500m
-    #   memory: 2048Mi
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+  #   limits:
+  #     cpu: 500m
+  #     memory: 2048Mi
 module:
   # Enable module deployment
   enabled: false
@@ -420,21 +406,21 @@ module:
   tag: prod
   # Module deployment extra environment variables
   env:
-    # FOO: bar
-    # LOREM: ipsum
+  #   ENV_VAR_NAME: value
+  #   LOREM: ipsum
   # Module deployment extra environment variables from existing secret
   secretRef:
-    # ENV_VAR_NAME:
-    #   name: secret-name
-    #   key: secret_key
+  #   ENV_VAR_NAME:
+  #     name: secret-name
+  #     key: secret_key
   # Module deployment resources
   resources:
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # limits:
-    #   cpu: 500m
-    #   memory: 2048Mi
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+  #   limits:
+  #     cpu: 500m
+  #     memory: 2048Mi
 
 # FogLifter scheduler deployment parameters
 scheduler:
@@ -457,14 +443,14 @@ scheduler:
     SCHEDULER_SETTINGS_INTERVAL: 15000
   # Scheduler deployment extra environment variables from existing secret
   secretRef:
-    # ENV_VAR_NAME:
-    #   name: secret-name
-    #   key: secret_key
+  #   ENV_VAR_NAME:
+  #     name: secret-name
+  #     key: secret_key
   # Scheduler deployment resources
   resources:
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # limits:
-    #   cpu: 500m
-    #   memory: 2048Mi
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+  #   limits:
+  #     cpu: 500m
+  #     memory: 2048Mi
