@@ -3,6 +3,21 @@ entries:
   foglifter:
   - apiVersion: v2
     appVersion: "3.11"
+    created: "2025-06-16T15:05:12.985213073Z"
+    dependencies:
+    - condition: mssql.enabled
+      name: mssql
+      repository: oci://registry.gitlab.com/xrow-public/helm-mssql/charts
+      version: 1.0.3
+    description: Helm chart for FogLifter® installation
+    digest: 399b3259a70d2cdddcfeeaf18d080e741c25e476ffc48e78b86939d88b254723
+    name: foglifter
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-0.3.1/foglifter-0.3.1.tgz
+    version: 0.3.1
+  - apiVersion: v2
+    appVersion: "3.11"
     created: "2025-06-13T20:28:21.108270469Z"
     dependencies:
     - condition: mssql.enabled
@@ -1237,4 +1252,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2025-06-13T20:28:21.108656711Z"
+generated: "2025-06-16T15:05:12.985639112Z"
