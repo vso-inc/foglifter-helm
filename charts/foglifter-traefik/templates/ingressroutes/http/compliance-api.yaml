@@ -1,0 +1,25 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Release.Name }}-compliance-api-http
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" (.Values.compliance).api }}
+      kind: Rule
+      middlewares:
+        - name: https-redirect
+          namespace: {{ .Release.Namespace }}
+      services:
+        - name: {{ default "foglifter-compliance-api-svc" ((.Values.compliance).api).name }}
+          namespace: {{ default "foglifter" .Values.foglifterNamespace }}
+          port: {{ default "3000" ((.Values.compliance).api).port | int }}
+    {{- if .Values.traefikService }}
+    - match: {{ printf "Host(`%s`) && " .Values.traefikService }}{{ include "traefik.path" (.Values.compliance).api }}
+      kind: Rule
+      services:
+        - name: {{ default "foglifter-compliance-api-svc" ((.Values.compliance).api).name }}
+          namespace: {{ default "foglifter" .Values.foglifterNamespace }}
+          port: {{ default "3000" ((.Values.compliance).api).port | int }}
+    {{- end }}
