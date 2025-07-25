@@ -83,6 +83,29 @@ scheduler:
   # Scheduler service route path
   path: /scheduler
 
+# FogLifter compliance
+compliance:
+  # Compliance API ingress configurations
+  api:
+    # Enable compliance API ingress
+    enabled: false
+    # Compliance API service port
+    port: 3000
+    # Compliance API service name
+    name: foglifter-compliance-api-svc
+    # Compliance API service route path
+    path: /api/compliance
+  # Compliance EMS API ingress configurations
+  ems:
+    # Enable compliance EMS API ingress
+    enabled: false
+    # Compliance EMS API service port
+    port: 8080
+    # Compliance EMS API service name
+    name: foglifter-compliance-ems-api-svc
+    # Compliance EMS API service route path
+    /path: /api/compliance/ems
+
 # Argo CD ingress configurations
 argocd:
   # Enable Argo CD ingress
