@@ -1,6 +1,9 @@
 dependencies:
+- name: mongodb-kubernetes
+  repository: https://mongodb.github.io/helm-charts
+  version: 1.2.0
 - name: mssql
   repository: oci://registry.gitlab.com/xrow-public/helm-mssql/charts
   version: 1.0.3
-digest: sha256:bc6a04e9d41fb1f6b02ca39a1701ea41519cd194c36c1a257ae80677cf0e37d6
-generated: "2025-02-17T14:55:41.434308-05:00"
+digest: sha256:e0b41c483b2972b6c3b2c4826e93df69bc145bbca7216f19db4b4ac7232332d1
+generated: "2025-08-07T15:24:41.077519-04:00"

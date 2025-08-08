@@ -65,24 +65,7 @@ spec:
                   name: {{ .Values.apiSecret.name }}
                   {{- end }}
                   key: EXECUTOR_APIKEY
-            - name: MONGO_URI
-              valueFrom:
-                secretKeyRef:
-                  {{- $mongoSecret := "" }}
-                  {{- if .Values.mongoSecret }}
-                    {{- $mongoSecret = .Values.mongoSecret }}
-                  {{- else }}
-                    {{- range $i, $secret := (lookup "v1" "Secret" .Release.Namespace "").items }}
-                      {{- if (get (get $secret "data" | default dict) "MONGO_URI") }}
-                        {{- $mongoSecret = $secret.metadata.name }}
-                      {{- end }}
-                    {{- end }}
-                    {{- if not $mongoSecret }}
-                      {{- $mongoSecret = "foglifter-mongo-secret" }}
-                    {{- end }}
-                  {{- end }}
-                  name: {{ $mongoSecret }}
-                  key: MONGO_URI
+            {{- include "foglifter.mongoUri" . | nindent 12 }}
             {{- if (.Values.exec).env }}
             {{- range $key, $val := .Values.exec.env }}
             - name: {{ $key }}

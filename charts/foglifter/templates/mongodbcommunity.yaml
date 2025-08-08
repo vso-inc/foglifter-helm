@@ -1,0 +1,34 @@
+{{- if (index .Values "mongodb-kubernetes").enabled }}
+# Based on https://github.com/mongodb/mongodb-kubernetes/blob/master/helm_chart/templates/mongodbcommunity_cr_with_tls.yaml
+{{- with (index .Values "mongodb-kubernetes").community.resource }}
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: {{ .name }}
+spec:
+  members: {{ .members }}
+  type: ReplicaSet
+  version: {{ .version }}
+  security:
+    tls:
+      enabled: {{ default false (.tls).enabled }}
+      {{- if (.tls).enabled }}
+      certificateKeySecretRef:
+        name: {{ .tls.certificateKeySecretRef }}
+      caCertificateSecretRef:
+        name: {{ .tls.caCertificateSecretRef }}
+      {{- end }}
+    authentication:
+      {{- if (.tls).useX509 }}
+      modes: ["X509"]
+      {{- else }}
+      modes: ["SCRAM"]
+      {{- end }}
+  users:
+  {{- toYaml .users | nindent 4 }}
+  {{- if .statefulSet }}
+  statefulSet:
+  {{- toYaml .statefulSet | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

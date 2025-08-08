@@ -1,0 +1,99 @@
+{
+  "type": "object",
+  "properties": {
+    "mongoSecret": {"type": "string" },
+    "mongodb-kubernetes": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "community": {
+          "type": "object",
+          "properties": {
+            "resource": {
+              "type": "object",
+              "properties": {
+                "users": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "db": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "passwordSecretRef": {
+                        "type": "object",
+                        "properties": {
+                          "name": { "type": "string" },
+                          "key": { "type": "string" }
+                        },
+                        "required": ["name", "key"]
+                      },
+                      "roles": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": { "type": "string" },
+                            "db": { "type": "string" }
+                          },
+                          "required": ["name", "db"]
+                        }
+                      },
+                      "scramCredentialsSecretName": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": ["name", "db", "passwordSecretRef", "roles", "scramCredentialsSecretName"]
+                  },
+                  "minItems": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "mongodb-kubernetes": {
+            "properties": {
+              "enabled": { "const": true }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "mongodb-kubernetes": {
+            "properties": {
+              "community": {
+                "properties": {
+                  "resource": {
+                    "required": ["users"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "mongoSecret": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ]
+}

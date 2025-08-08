@@ -4,7 +4,7 @@
 # Should end with forward-slash if set (e.g. "quay.io/")
 registry: "ghcr.io/vso-inc/"
 # ImagePullPolicy for all FogLifter deployments
-imagePullPolicy: Always
+imagePullPolicy: IfNotPresent
 # ImagePullSecret name for all FogLifter deployments
 # Must be created separately from helm install/upgrade
 imagePullSecret: "foglifter-pullsecret"
@@ -51,7 +51,38 @@ priorityClass:
   value: 1000000
 
 # FogLifter MongoDB secret name
+# Must contain MONGO_URI
+# Ignored if mongob-kubernetes.enabled is true
 mongoSecret: ""
+
+# FogLifter MongoDB backups cronjob parameters
+backups:
+  # Enable MongoDB backups cronjob
+  enabled: false
+  # Cronjob schedule
+  schedule: "0 0 * * *"
+  # Number of backups to retain
+  retain: 3
+  # Backups PersistentVolumeClaim storage size
+  storage: 10Gi
+  # Backups PersistentVolumeClaim storage class
+  storageClass: ""
+  # Cronjob extra environment variables
+  env:
+  #   ENV_VAR_NAME: value
+  # Cronjob extra environment variables from existing secret
+  secretRef:
+  #   ENV_VAR_NAME:
+  #     name: secret-name
+  #     key: secret_key
+  # Cronjob resources
+  resources:
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+  #   limits:
+  #     cpu: 500m
+  #     memory: 2048Mi
 
 # FogLifter apiservice deployment parameters
 apiservice:
@@ -364,8 +395,7 @@ exec:
     #   limits:
     #     cpu: 4000m
     #     memory: 8192Mi
-
-# FogLifter module deployment parameters
+# FogLifter main UI deployment parameters
 mainUI:
   # Enable main UI deployment
   enabled: true
@@ -393,6 +423,7 @@ mainUI:
   #   limits:
   #     cpu: 500m
   #     memory: 2048Mi
+# FogLifter module deployment parameters (DEPRECATED)
 module:
   # Enable module deployment
   enabled: false
@@ -454,3 +485,39 @@ scheduler:
   #   limits:
   #     cpu: 500m
   #     memory: 2048Mi
+
+# MongoDB Kubernetes Operator parameters
+mongodb-kubernetes:
+  # Enable MongoDB Kubernetes Operator
+  # If enabled, the secret defined in passwordSecretRef.name must be created separately, and passwordSecretRef.key must be set to the password key in that secret
+  # See https://github.com/mongodb/mongodb-kubernetes/blob/master/docs/mongodbcommunity/users.md
+  enabled: true
+  # Values to be passed to mongodb-kubernetes helm chart
+  # https://github.com/mongodb/mongodb-kubernetes/blob/master/helm_chart/values.yaml
+  community:
+    resource:
+      name: foglifter-mongodb
+      version: 5.0.31
+      members: 3
+      users:
+        - name: foglifter
+          db: foglifterDB
+          # This secret with password must be created separately, see above
+          passwordSecretRef:
+            name: foglifter-mongodb
+            key: password
+          roles:
+            - name: dbOwner
+              db: foglifterDB
+          scramCredentialsSecretName: foglifter-mongodb
+      # StatefulSet API configurations
+      # https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
+      statefulSet:
+        spec:
+          volumeClaimTemplates:
+            - metadata:
+                name: data-volume
+              spec:
+                resources:
+                  requests:
+                    storage: 10Gi
