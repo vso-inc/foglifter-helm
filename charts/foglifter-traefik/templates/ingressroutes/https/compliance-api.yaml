@@ -1,3 +1,4 @@
+{{- if .Values.compliance.api.enabled }}
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -16,3 +17,4 @@ spec:
   tls:
     secretName: {{ default "foglifter-traefik-cert" (.Values.certificate).name }}
   {{- end }}
+{{- end }}
