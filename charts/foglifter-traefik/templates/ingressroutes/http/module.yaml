@@ -1,3 +1,4 @@
+{{- if .Values.module.enabled }}
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -23,3 +24,4 @@ spec:
           namespace: {{ default "foglifter" .Values.foglifterNamespace }}
           port: {{ default "8080" (.Values.module).port | int }}
     {{- end }}
+{{- end }}

@@ -1,0 +1,58 @@
+{{- if (.Values.backups).enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-backup
+  labels:
+    app: {{ .Release.Name }}-backup
+spec:
+  schedule: {{ default "0 0 * * *" .Values.backups.schedule | quote }}
+  jobTemplate:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-backup
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{ .Release.Name }}-backup
+        spec:
+          containers:
+            - name: mongo-backup
+              {{- with (index .Values "mongodb-kubernetes").community }}
+              image: {{ printf "%s/%s:%s-%s" .mongodb.repo .mongodb.name .resource.version .mongodb.imageType }}
+              {{- end }}
+              imagePullPolicy: {{ default "IfNotPresent" .Values.imagePullPolicy }}
+              {{- $path := "/data/backups" }}
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  ls -1 {{ $path }}
+                  backup_path={{ $path }}/mongodump-$(date +'%Y-%m-%d-%H%M%S').archive.gz
+                  mongodump --gzip --archive=$backup_path --uri "$MONGO_URI"
+                  backups=$(ls -t {{ $path }} | grep mongodump | tail -n +{{ add (default "3" .Values.backups.retain | int) 1 }})
+                  for backup in $backups; do
+                    echo "Removing $backup"
+                    rm -rf "{{ $path }}/$backup"
+                  done
+                  ls -1 {{ $path }}
+              env:
+                {{- include "foglifter.mongoUri" . | nindent 16 }}
+              resources:
+                {{- default dict (.Values.backups).resources | toYaml | nindent 16 }}
+              volumeMounts:
+                - name: mongo-backup-pvc
+                  mountPath: {{ $path }}
+          restartPolicy: OnFailure
+          serviceAccountName: {{ .Release.Name }}-sa
+          terminationGracePeriodSeconds: 10
+          volumes:
+            - name: mongo-backup-pvc
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-backups
+      backoffLimit: 1
+  successfulJobsHistoryLimit: {{ default "3" (.Values.backups).retain | int }}
+  failedJobsHistoryLimit: 1
+{{- end }}
