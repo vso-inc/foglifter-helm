@@ -2,6 +2,25 @@ apiVersion: v1
 entries:
   foglifter:
   - apiVersion: v2
+    appVersion: "4.4"
+    created: "2025-08-20T16:12:29.310963989Z"
+    dependencies:
+    - condition: mongodb-kubernetes.enabled
+      name: mongodb-kubernetes
+      repository: https://mongodb.github.io/helm-charts
+      version: 1.2.0
+    - condition: mssql.enabled
+      name: mssql
+      repository: oci://registry.gitlab.com/xrow-public/helm-mssql/charts
+      version: 1.0.3
+    description: Helm chart for FogLifter® installation
+    digest: 56cd847048c293a2cd7a4d318dfed0ed258c8f17cd3a9e301349b4a9e15845fa
+    name: foglifter
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-0.4.1/foglifter-0.4.1.tgz
+    version: 0.4.1
+  - apiVersion: v2
     appVersion: "4.3"
     created: "2025-08-13T15:24:20.77120883Z"
     dependencies:
@@ -306,6 +325,16 @@ entries:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-0.1.0/foglifter-0.1.0.tgz
     version: 0.1.0
   foglifter-argocd:
+  - apiVersion: v2
+    appVersion: "4.4"
+    created: "2025-08-20T16:12:29.467134743Z"
+    description: Helm chart for FogLifter® installation with Argo CD
+    digest: a3f2cd7442af3e18c89c15ab1549c63c9d6a89b4f85658c976ce6ade512d1d19
+    name: foglifter-argocd
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-argocd-0.1.35/foglifter-argocd-0.1.35.tgz
+    version: 0.1.35
   - apiVersion: v2
     appVersion: 4.1.2
     created: "2025-07-10T17:02:09.261177908Z"
@@ -1132,6 +1161,16 @@ entries:
     version: 0.1.0
   foglifter-view:
   - apiVersion: v2
+    appVersion: "4.4"
+    created: "2025-08-20T16:12:29.619257186Z"
+    description: Helm chart for FogLifter® View app installation
+    digest: b6ace6a114d601b7fc65c88d22e15470665e86f215dd8f4dc0f9f54532b5f871
+    name: foglifter-view
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.2.7/foglifter-view-0.2.7.tgz
+    version: 0.2.7
+  - apiVersion: v2
     appVersion: 3.0.0
     created: "2024-12-05T21:17:55.111816773Z"
     description: Helm chart for FogLifter® View app installation
@@ -1301,4 +1340,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-13T15:24:21.619068462Z"
+generated: "2025-08-20T16:12:29.619821256Z"
