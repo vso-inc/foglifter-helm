@@ -1,0 +1,143 @@
+{{- if (.Values.ingress).enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress
+  {{- if .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.class }}
+  ingressClassName: {{ .Values.ingress.class }}
+  {{- end }}
+  {{- if (.Values.ingress.tls).enabled }}
+  tls:
+    - hosts:
+        - {{ required "ingress.host must be set when ingress.tls is enabled!" .Values.ingress.host }}
+      {{- if .Values.ingress.tls.secret }}
+      secretName: {{ .Values.ingress.tls.secret }}
+      {{- end }}
+  {{- end }}
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/api/v1"
+            backend:
+              service:
+                name: {{ .Release.Name }}-apiservice-svc
+                port:
+                  number: {{ .Values.apiservice.port | int }}
+      {{- if .Values.ingress.host }}
+      host: {{ .Values.ingress.host }}
+      {{- end }}
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/api/auth"
+            backend:
+              service:
+                name: {{ .Release.Name }}-auth-svc
+                port:
+                  number: {{ .Values.auth.port | int }}
+      {{- if .Values.ingress.host }}
+      host: {{ .Values.ingress.host }}
+      {{- end }}
+    {{- if .Values.client.enabled }}
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/ui"
+            backend:
+              service:
+                name: {{ .Release.Name }}-client-svc
+                port:
+                  number: {{ .Values.client.port | int }}
+      {{- if .Values.ingress.host }}
+      host: {{ .Values.ingress.host }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.compliance.api.enabled}}
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/api/compliance"
+            backend:
+              service:
+                name: {{ .Release.Name }}-compliance-api-svc
+                port:
+                  number: {{ .Values.compliance.api.port | int }}
+      {{- if .Values.ingress.host }}
+      host: {{ .Values.ingress.host }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.compliance.ems.enabled}}
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/api/compliance/ems"
+            backend:
+              service:
+                name: {{ .Release.Name }}-compliance-ems-svc
+                port:
+                  number: {{ .Values.compliance.ems.port | int }}
+      {{- if .Values.ingress.host }}
+      host: {{ .Values.ingress.host }}
+      {{- end }}
+    {{- end }}
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/api"
+            backend:
+              service:
+                name: {{ .Release.Name }}-core-svc
+                port:
+                  number: {{ .Values.core.port | int }}
+      {{- if .Values.ingress.host }}
+      host: {{ .Values.ingress.host }}
+      {{- end }}
+  {{- if .Values.mainUI.enabled }}
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: {{ .Release.Name }}-main-ui-svc
+                port:
+                  number: {{ .Values.mainUI.port | int }}
+      {{- if .Values.ingress.host }}
+      host: {{ .Values.ingress.host }}
+      {{- end }}
+  {{- end }}
+  {{- if .Values.module.enabled }}
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/api/module"
+            backend:
+              service:
+                name: {{ .Release.Name }}-module-svc
+                port:
+                  number: {{ .Values.module.port | int }}
+      {{- if .Values.ingress.host }}
+      host: {{ .Values.ingress.host }}
+      {{- end }}
+  {{- end }}
+  {{- if .Values.scheduler.enabled }}
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/scheduler"
+            backend:
+              service:
+                name: {{ .Release.Name }}-scheduler-svc
+                port:
+                  number: {{ .Values.scheduler.port | int }}
+      {{- if .Values.ingress.host }}
+      host: {{ .Values.ingress.host }}
+      {{- end }}
+  {{- end }}
+{{- end }}

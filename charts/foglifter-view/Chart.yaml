@@ -4,6 +4,6 @@ description: Helm chart for FogLifter® View app installation
 
 type: application
 
-version: 0.2.6
+version: 0.2.7
 
-appVersion: "3.0.0"
+appVersion: "4.4"
