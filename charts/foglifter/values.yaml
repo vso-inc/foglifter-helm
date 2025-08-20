@@ -486,6 +486,23 @@ scheduler:
   #     cpu: 500m
   #     memory: 2048Mi
 
+# FogLifter ingress configurations
+ingress:
+  # Enable ingress
+  enabled: false
+  # Ingress class name
+  class: ""
+  # Ingress hostnames
+  host: ""
+  # Ingress TLS configurations
+  tls:
+    # Enable TLS
+    enabled: false
+    # Secret name for TLS certificate
+    secret: ""
+  # Ingress annotations
+  annotations: {}
+
 # MongoDB Kubernetes Operator parameters
 mongodb-kubernetes:
   # Enable MongoDB Kubernetes Operator

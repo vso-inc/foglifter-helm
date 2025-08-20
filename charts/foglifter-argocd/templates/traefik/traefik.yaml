@@ -13,8 +13,10 @@ spec:
     targetRevision: {{ ((.Values.traefik).application).traefikVersion | semver }}
     helm:
       values: |
+        service:
+          type: {{ default "LoadBalancer" ((.Values.traefik).application).serviceType }}
         image:
-          tag: v3.0.0
+          tag: {{ default "v3.0.0" ((.Values.traefik).application).imageTag }}
         providers:
           kubernetesCRD:
             enabled: true

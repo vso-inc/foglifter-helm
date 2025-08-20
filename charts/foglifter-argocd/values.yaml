@@ -53,6 +53,10 @@ traefik:
     version: 0.1.18
     # Traefik chart version
     traefikVersion: 24.0.0
+    # Traefik image tag
+    imageTag: v3.0.0
+    # Service type (ClusterIP, NodePort, LoadBalancer, etc.)
+    serviceType: LoadBalancer
 
 # Recommended default configurations for FogLifter View
 view:

@@ -32,10 +32,9 @@ spec:
             - secretRef:
                 name: {{ .Release.Name }}-secret
             {{- end }}
-          {{- $port := default "8080" (.Values.client).port | int }}
           env:
             - name: PORT
-              value: "{{ $port }}"
+              value: "80"
             {{- if (.Values.client).env }}
             {{- range $key, $val := .Values.client.env }}
             - name: {{ $key }}
@@ -54,7 +53,7 @@ spec:
             {{- end }}
             {{- end }}
           ports:
-            - containerPort: {{ $port }}
+            - containerPort: 80
           resources:
             {{- default dict (.Values.client).resources | toYaml | nindent 12 }}
       {{- if (ne (.Values.priorityClass).create false) }}

@@ -10,7 +10,7 @@ spec:
   {{- $port := default "8080" (.Values.client).port | int }}
   ports:
   - port: {{ $port }}
-    targetPort: {{ $port }}
+    targetPort: 80
   selector:
     name: {{ .Release.Name }}-client
 {{- end }}

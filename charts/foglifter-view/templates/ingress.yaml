@@ -1,0 +1,35 @@
+{{- if (.Values.ingress).enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress
+  {{- if .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.class }}
+  ingressClassName: {{ .Values.ingress.class }}
+  {{- end }}
+  {{- if (.Values.ingress.tls).enabled }}
+  tls:
+    - hosts:
+        - {{ required "ingress.host must be set when ingress.tls is enabled!" .Values.ingress.host }}
+      {{- if .Values.ingress.tls.secret }}
+      secretName: {{ .Values.ingress.tls.secret }}
+      {{- end }}
+  {{- end }}
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/dashboard/"
+            backend:
+              service:
+                name: {{ .Release.Name }}-svc
+                port:
+                  number: {{ default "3000" .Values.port | int }}
+      {{- if .Values.ingress.host }}
+      host: {{ .Values.ingress.host }}
+      {{- end }}
+{{- end }}

@@ -4,9 +4,9 @@
 # Should end with forward-slash if set (e.g. "quay.io/")
 registry: tooljet/
 # Image repository for View app workloads
-repository: tooljet-ce
+repository: tooljet
 # Image tag for View app workloads
-imageTag: v2.23.2
+imageTag: v3.0.30-ee-lts
 # ImagePullPolicy for View app workloads
 imagePullPolicy: IfNotPresent
 
@@ -88,7 +88,7 @@ redis:
 # View app enterprise configurations
 enterprise:
   # Enable View app enterprise mode
-  enabled: false
+  enabled: true
   # View app enterprise license key
   license: ""
 
@@ -98,6 +98,22 @@ host: ""
 # View app URL prefix
 prefix: /dashboard/
 
+# View app ingress configurations
+ingress:
+  # Enable ingress
+  enabled: false
+  # Ingress class name
+  class: ""
+  # Ingress hostnames
+  host: ""
+  # Ingress TLS configurations
+  tls:
+    # Enable TLS
+    enabled: false
+    # Secret name for TLS certificate
+    secret: ""
+  # Ingress annotations
+  annotations: {}
 
 resources: {}
   # requests:
