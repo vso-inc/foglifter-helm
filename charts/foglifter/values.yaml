@@ -503,6 +503,13 @@ ingress:
   # Ingress annotations
   annotations: {}
 
+# FogLifter service configurations
+service:
+  # Service type (ClusterIP, NodePort, LoadBalancer, etc.)
+  type: ClusterIP
+  # Service annotations
+  annotations: {}
+
 # MongoDB Kubernetes Operator parameters
 mongodb-kubernetes:
   # Enable MongoDB Kubernetes Operator

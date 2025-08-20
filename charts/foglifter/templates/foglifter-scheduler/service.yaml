@@ -6,7 +6,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}
 spec:
-  type: ClusterIP
+  type: {{ default "ClusterIP" (.Values.service).type }}
   {{- $port := default "8011" (.Values.scheduler).port | int }}
   ports:
   - port: {{ $port }}
