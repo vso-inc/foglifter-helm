@@ -115,6 +115,13 @@ ingress:
   # Ingress annotations
   annotations: {}
 
+# View app service configurations
+service:
+  # Service type (ClusterIP, NodePort, LoadBalancer, etc.)
+  type: ClusterIP
+  # Service annotations
+  annotations: {}
+
 resources: {}
   # requests:
   #   memory: 500Mi
