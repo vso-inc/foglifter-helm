@@ -55,8 +55,8 @@ traefik:
     traefikVersion: 24.0.0
     # Traefik image tag
     imageTag: v3.0.0
-    # Service type (ClusterIP, NodePort, LoadBalancer, etc.)
-    serviceType: LoadBalancer
+    # Disable external service
+    internal: false
 
 # Recommended default configurations for FogLifter View
 view:
