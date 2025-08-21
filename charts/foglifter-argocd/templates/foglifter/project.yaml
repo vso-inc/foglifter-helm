@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: {{ default "foglifter" ((.Values.foglifter).application).project }}
+  name: foglifter
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
