@@ -14,7 +14,11 @@ spec:
     helm:
       values: |
         service:
-          type: {{ default "LoadBalancer" ((.Values.traefik).application).serviceType }}
+          enabled: {{ ternary "false" "true" ((.Values.traefik).application).internal }}
+          {{- if ((.Values.traefik).application).internal }}
+          internal:
+            type: ClusterIP
+          {{- end }}
         image:
           tag: {{ default "v3.0.0" ((.Values.traefik).application).imageTag }}
         providers:
