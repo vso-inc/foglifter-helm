@@ -25,12 +25,6 @@ spec:
           {{- end }}
           image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-module-app" (.Values.module).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.module).tag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
-          args:
-            - node
-            {{- if (((.Values.module).resources).limits).memory }}
-            - "--max-old-space-size={{ regexReplaceAll "[^0-9]+" (((.Values.module).resources).limits).memory "" }}"
-            {{- end }}
-            - src/app.js
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm
