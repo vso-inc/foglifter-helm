@@ -25,12 +25,6 @@ spec:
           {{- end }}
           image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-exec-app" (.Values.exec).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.exec).tag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
-          args:
-            - node
-            {{- if (((.Values.exec).resources).limits).memory }}
-            - "--max-old-space-size={{ regexReplaceAll "[^0-9]+" (((.Values.exec).resources).limits).memory "" }}"
-            {{- end }}
-            - src/server.js
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm
@@ -65,9 +59,16 @@ spec:
                   name: {{ .Values.apiSecret.name }}
                   {{- end }}
                   key: EXECUTOR_APIKEY
+            - name: NODE_OPTIONS
+              {{- if (((.Values.exec).resources).limits).memory }}
+              {{- $moss := regexReplaceAll "[^0-9]+" (((.Values.exec).resources).limits).memory "" }}
+              value: {{ printf "--max-old-space-size=%s %s" $moss ((.Values.exec).env).NODE_OPTIONS | trim }}
+              {{- else }}
+              value: {{ ((.Values.exec).env).NODE_OPTIONS | default "" | quote }}
+              {{- end }}
             {{- include "foglifter.mongoUri" . | nindent 12 }}
             {{- if (.Values.exec).env }}
-            {{- range $key, $val := .Values.exec.env }}
+            {{- range $key, $val := omit .Values.exec.env "NODE_OPTIONS" }}
             - name: {{ $key }}
               value: {{ $val | quote }}
             {{- end }}

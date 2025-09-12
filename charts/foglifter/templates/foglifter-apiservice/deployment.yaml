@@ -24,9 +24,6 @@ spec:
           {{- end }}
           image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-api-service" (.Values.apiservice).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.apiservice).tag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
-          args:
-            - node
-            - dist/main.js
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm
