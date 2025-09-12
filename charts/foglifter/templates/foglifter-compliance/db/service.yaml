@@ -7,7 +7,7 @@ metadata:
   labels:
     app: {{ $.Release.Name }}-compliance
 spec:
-  type: {{ default "ClusterIP" (.Values.service).type }}
+  type: {{ default "ClusterIP" (.service).type }}
   {{- $port := .port | int }}
   ports:
   - port: {{ $port }}
