@@ -4,6 +4,6 @@ description: Helm chart for FogLifter® installation with Argo CD
 
 type: application
 
-version: 0.1.37
+version: 0.1.38
 
 appVersion: "4.4"
