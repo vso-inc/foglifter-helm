@@ -3,6 +3,25 @@ entries:
   foglifter:
   - apiVersion: v2
     appVersion: "4.4"
+    created: "2025-09-12T20:51:38.897517999Z"
+    dependencies:
+    - condition: mongodb-kubernetes.enabled
+      name: mongodb-kubernetes
+      repository: https://mongodb.github.io/helm-charts
+      version: 1.2.0
+    - condition: mssql.enabled
+      name: mssql
+      repository: oci://registry.gitlab.com/xrow-public/helm-mssql/charts
+      version: 1.0.3
+    description: Helm chart for FogLifter® installation
+    digest: 799cf8c80da14d2cf134b326f7a0f7998ab61481b00377646079d1a84e5c075f
+    name: foglifter
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-0.4.3/foglifter-0.4.3.tgz
+    version: 0.4.3
+  - apiVersion: v2
+    appVersion: "4.4"
     created: "2025-08-20T17:25:28.637732307Z"
     dependencies:
     - condition: mongodb-kubernetes.enabled
@@ -344,6 +363,16 @@ entries:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-0.1.0/foglifter-0.1.0.tgz
     version: 0.1.0
   foglifter-argocd:
+  - apiVersion: v2
+    appVersion: "4.4"
+    created: "2025-09-12T20:51:39.106076437Z"
+    description: Helm chart for FogLifter® installation with Argo CD
+    digest: 768904a8be17e2c05fb34cdffcab6fc204e308cf0bcd3d5ee287a1253056267c
+    name: foglifter-argocd
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-argocd-0.1.38/foglifter-argocd-0.1.38.tgz
+    version: 0.1.38
   - apiVersion: v2
     appVersion: "4.4"
     created: "2025-08-21T22:04:47.060709717Z"
@@ -1389,4 +1418,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-21T22:04:47.061286714Z"
+generated: "2025-09-12T20:51:39.106688246Z"
