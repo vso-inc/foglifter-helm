@@ -222,7 +222,7 @@ mssql:
   # https://gitlab.com/xrow-public/helm-mssql/-/blob/1.0.3/chart/values.yaml
   fullnameOverride: foglifter-compliance-mssql
   auth:
-    database: FogLifter®_Compliance
+    database: FogLifter_Compliance
     rootPassword: ""
     username: foglifter
     password: ""
