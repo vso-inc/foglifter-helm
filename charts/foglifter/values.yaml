@@ -1,15 +1,15 @@
-# Recommended default FogLifter configurations
+# Recommended default FogLifter® configurations
 
-# Image registry for all FogLifter deployments
+# Image registry for all FogLifter® deployments
 # Should end with forward-slash if set (e.g. "quay.io/")
 registry: "ghcr.io/vso-inc/"
-# ImagePullPolicy for all FogLifter deployments
+# ImagePullPolicy for all FogLifter® deployments
 imagePullPolicy: IfNotPresent
-# ImagePullSecret name for all FogLifter deployments
+# ImagePullSecret name for all FogLifter® deployments
 # Must be created separately from helm install/upgrade
 imagePullSecret: "foglifter-pullsecret"
 
-# FogLifter API secret
+# FogLifter® API secret
 apiSecret:
   # Create Secret
   create: true
@@ -23,39 +23,39 @@ apiSecret:
     SCHEDULER_APIKEY: ""
   # Existing secret name
   # Must contain SECRET_KEY
-  # Must contain API keys for all required FogLifter deployments
+  # Must contain API keys for all required FogLifter® deployments
   # AUTH_APIKEY, CORE_APIKEY, EXECUTOR_APIKEY, SCHEDULER_APIKEY
   name: ""
 
-# FogLifter ConfigMap parameters
+# FogLifter® ConfigMap parameters
 cm:
   # Create ConfigMap
   create: true
-  # Environment variables to be passed to all FogLifter deployments via ConfigMap
+  # Environment variables to be passed to all FogLifter® deployments via ConfigMap
   data:
   #   ENV_VAR_NAME: value
 
-# FogLifter Secret parameters
+# FogLifter® Secret parameters
 secret:
   # Create Secret
   create: false
-  # Environment variables to be passed to all FogLifter deployments via Secret
+  # Environment variables to be passed to all FogLifter® deployments via Secret
   data:
   #   ENV_VAR_NAME: value
 
-# FogLifter PriorityClass parameters
+# FogLifter® PriorityClass parameters
 priorityClass:
   # Create PriorityClass to resist eviction
   create: true
   # PriorityClass priority value
   value: 1000000
 
-# FogLifter MongoDB secret name
+# FogLifter® MongoDB secret name
 # Must contain MONGO_URI
 # Ignored if mongob-kubernetes.enabled is true
 mongoSecret: ""
 
-# FogLifter MongoDB backups cronjob parameters
+# FogLifter® MongoDB backups cronjob parameters
 backups:
   # Enable MongoDB backups cronjob
   enabled: false
@@ -84,7 +84,7 @@ backups:
   #     cpu: 500m
   #     memory: 2048Mi
 
-# FogLifter apiservice deployment parameters
+# FogLifter® apiservice deployment parameters
 apiservice:
   # Apiservice deployment port
   port: 8080
@@ -113,7 +113,7 @@ apiservice:
   #     cpu: 500m
   #     memory: 2048Mi
 
-# FogLifter auth deployment parameters
+# FogLifter® auth deployment parameters
 auth:
   # Auth deployment port
   port: 8080
@@ -140,7 +140,7 @@ auth:
   #     cpu: 500m
   #     memory: 2048Mi
 
-# FogLifter UI client deployment parameters
+# FogLifter® UI client deployment parameters
 client:
   # Enable client deployment
   enabled: true
@@ -169,98 +169,51 @@ client:
   #     cpu: 500m
   #     memory: 2048Mi
 
-# FogLifter compliance parameters
+# FogLifter® compliance parameters
 compliance:
+  # Enable compliance API
+  enabled: false
+  # Compliance API deployment port
+  port: 3000
+  # Compliance API deployment replicas
+  replicas: 1
+  # Compliance API deployment image repository
+  repository: foglifter-compliance-api
+  # Compliance API deployment image tag
+  tag: dev # Compliance is currently in alpha
+  # Enable DB init Helm hook
+  enableInitHook: true
+  # Compliance API deployment secret parameters
+  secret:
+    # Create Secret
+    create: true
+    # DB_PASSWORD
+    password: ""
+    # DB_URL
+    url: ""
+    # JWT_SECRET_KEY
+    jwt: ""
+    # Existing secret name
+    # Must contain above environment variables
+    name: ""
+  # Compliance API deployment extra environment variables
+  env:
+    BCRYPT_SALT: "10"
+    JWT_EXPIRATION: 2d
+  # Compliance API deployment extra environment variables from existing secret
+  secretRef:
+  #   ENV_VAR_NAME:
+  #     name: secret-name
+  #     key: secret_key
+  # Compliance API deployment resources
+  resources:
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+  #   limits:
+  #     cpu: 500m
+  #     memory: 2048Mi
 
-  # FogLifter compliance DB API parameters
-  api:
-    # Enable compliance DB API
-    enabled: false
-    # DB deployment port
-    port: 3000
-    # DB deployment replicas
-    replicas: 1
-    # DB deployment image repository
-    repository: foglifter-compliance-api
-    # DB deployment image tag
-    tag: dev # Compliance is currently in alpha
-    # Enable DB init Helm hook
-    enableInitHook: true
-    # DB deployment secret parameters
-    secret:
-      # Create Secret
-      create: true
-      # DB_PASSWORD
-      password: ""
-      # DB_URL
-      url: ""
-      # JWT_SECRET_KEY
-      jwt: ""
-      # Existing secret name
-      # Must contain above environment variables
-      name: ""
-    # DB deployment extra environment variables
-    env:
-      BCRYPT_SALT: "10"
-      JWT_EXPIRATION: 2d
-    # DB deployment extra environment variables from existing secret
-    secretRef:
-    #   ENV_VAR_NAME:
-    #     name: secret-name
-    #     key: secret_key
-    # DB deployment resources
-    resources:
-    #   requests:
-    #     cpu: 100m
-    #     memory: 128Mi
-    #   limits:
-    #     cpu: 500m
-    #     memory: 2048Mi
-
-  # FogLifter compliance EMS/BigFix API parameters
-  ems:
-    # Enable compliance EMS/BigFix API
-    enabled: false
-    # EMS deployment port
-    port: 8080
-    # EMS deployment replicas
-    replicas: 1
-    # EMS deployment image repository
-    repository: foglifter-compliance-ems
-    # EMS deployment image tag
-    tag: dev # Compliance is currently in alpha
-    # EMS deployment secret parameters
-    secret:
-      # Create Secret
-      create: true
-      # BIGFIX_API_TOKEN
-      token: ""
-      # BIGFIX_PASSWORD
-      password: ""
-      # JWT_SECRET
-      jwt: ""
-      # Existing secret name
-      # Should contain above environment variables
-      name: ""
-    # EMS deployment extra environment variables
-    env:
-      BIGFIX_API_URL: ""
-      BIGFIX_USER: ""
-    # EMS deployment extra environment variables from existing secret
-    secretRef:
-    #   ENV_VAR_NAME:
-    #     name: secret-name
-    #     key: secret_key
-    # EMS deployment resources
-    resources:
-    #   requests:
-    #     cpu: 100m
-    #     memory: 128Mi
-    #   limits:
-    #     cpu: 500m
-    #     memory: 2048Mi
-
-# Compliance MSSQL DB parameters
 mssql:
   # Deploy an MSSQL instance for compliance
   enabled: false
@@ -269,13 +222,13 @@ mssql:
   # https://gitlab.com/xrow-public/helm-mssql/-/blob/1.0.3/chart/values.yaml
   fullnameOverride: foglifter-compliance-mssql
   auth:
-    database: FogLifter_Compliance
+    database: FogLifter®_Compliance
     rootPassword: ""
     username: foglifter
     password: ""
     existingSecret: ""
 
-# FogLifter core deployment parameters
+# FogLifter® core deployment parameters
 core:
   # Core deployment port
   port: 8080
@@ -302,100 +255,87 @@ core:
   #     cpu: 4000m
   #     memory: 8192Mi
 
-# FogLifter exec deployment parameters
+# FogLifter® exec deployment parameters
 exec:
-  # Enable replication which splits exec app into two deployments: standard and system
+  # Enable replication which splits exec app into multiple deployments based on job queue(s)
   replication: false
-  ## The following values are used for all exec deployments
-  # Exec deployment image repository
-  repository: foglifter-exec-app
-  # Exec deployment image tag
-  tag: prod
-  # Exec deployment podAntiAffinity
-  antiAffinity:
-    # Anti-affinity between replicas
-    exec: true
-    # Custom pod anti-affinity rules
-    custom:
-    #   - key: "name"
-    #     operator: "In"
-    #     values:
-    #     - "mongodb"
-  # Exec deployment extra environment variables
-  env:
-    NODE_OPTIONS: "--experimental-vm-modules"
-  # Exec deployment extra environment variables from existing secret
-  secretRef:
-  #   ENV_VAR_NAME:
-  #     name: secret-name
-  #     key: secret_key
-  # Exec deployment resources (ignored if replication is true)
-  resources:
-  #   requests:
-  #     cpu: 1000m
-  #     memory: 2048Mi
-  #   limits:
-  #     cpu: 4000m
-  #     memory: 8192Mi
-  ## If replication is true the following values are used for standard exec deployment
-  # Standard queue exec deployment parameters
-  standard:
-    # Standard exec deployment replicas
-    replicas: 1
-    # Standard exec deployment podAntiAffinity
+  # Shared/default values for all exec deployments
+  defaults:
+    # Exec deployment image repository - shared
+    repository: foglifter-exec-app
+    # Exec deployment image tag - shared
+    tag: prod
+    # Exec deployment podAntiAffinity - shared
     antiAffinity:
+      # Anti-affinity between replicas of the same deployment
+      self: true
       # Custom pod anti-affinity rules
       custom:
       #   - key: "name"
       #     operator: "In"
       #     values:
       #     - "mongodb"
-    # Standard exec deployment extra environment variables
+    # Exec deployment extra environment variables - shared, NODE_OPTIONS is default
     env:
-      CONCURRENT_JOBS: 1
-    # Standard exec deployment extra environment variables from existing secret
+      NODE_OPTIONS: "--experimental-vm-modules"
+    # Exec deployment extra environment variables from existing secret - shared
     secretRef:
     #   ENV_VAR_NAME:
     #     name: secret-name
     #     key: secret_key
-    # Standard exec deployment resources
+    # Exec deployment resources - default
     resources:
     #   requests:
-    #     cpu: 1000m
-    #     memory: 2048Mi
+    #     cpu: 2000m
+    #     memory: 4096Mi
     #   limits:
     #     cpu: 4000m
     #     memory: 8192Mi
-  ## If replication is true the following values are used for system exec deployment
-  # System queue exec deployment parameters
-  system:
-    # System exec deployment replicas
-    replicas: 1
-    # System exec deployment podAntiAffinity
-    antiAffinity:
-      # Custom pod anti-affinity rules
-      custom:
-      #   - key: "name"
-      #     operator: "In"
-      #     values:
-      #     - "mongodb"
-    # System exec deployment extra environment variables
-    env:
-      CONCURRENT_JOBS: 5
-    # System exec deployment extra environment variables from existing secret
-    secretRef:
-    #   ENV_VAR_NAME:
-    #     name: secret-name
-    #     key: secret_key
-    # System exec deployment resources
-    resources:
-    #   requests:
-    #     cpu: 1000m
-    #     memory: 2048Mi
-    #   limits:
-    #     cpu: 4000m
-    #     memory: 8192Mi
-# FogLifter main UI deployment parameters
+  # Exec deployments configurations if replication is true
+  # Each entry defines a separate deployment for the specified execution queue(s)
+  # Defaults to a standard and system deployment, but can be customized as needed
+  deployments:
+    standard:
+      replicas: 1
+      queues:
+        - standard
+      # antiAffinity:
+      #   custom: {}
+      env:
+        CONCURRENT_JOBS: 1
+        NODE_OPTIONS: "--experimental-vm-modules"
+      # secretRef: {}
+      # resources: {}
+    system:
+      replicas: 1
+      queues:
+        - system
+      # antiAffinity:
+      #   custom: {}
+      env:
+        CONCURRENT_JOBS: 5
+        NODE_OPTIONS: "--experimental-vm-modules"
+      # secretRef: {}
+      # resources:
+      #   requests:
+      #     cpu: 250m
+      #     memory: 2048Mi
+      #   limits:
+      #     cpu: 1000m
+      #     memory: 2048Mi
+    # Custom deployments can be added in the same format as above
+    # compliance:
+    #   replicas: 1
+    #   queues:
+    #     - compliance
+    #   antiAffinity:
+    #     custom: {}
+    #   env:
+    #     CONCURRENT_JOBS: 5
+    #     NODE_OPTIONS: "--experimental-vm-modules"
+    #   secretRef: {}
+    #   resources: {}
+# FogLifter® main UI deployment parameters
 mainUI:
   # Enable main UI deployment
   enabled: true
@@ -423,37 +363,6 @@ mainUI:
   #   limits:
   #     cpu: 500m
   #     memory: 2048Mi
-# FogLifter module deployment parameters (DEPRECATED)
-module:
-  # Enable module deployment
-  enabled: false
-  # Module deployment port
-  port: 8080
-  # Module deployment replicas
-  replicas: 1
-  # Module deployment image repository
-  repository: foglifter-module-app
-  # Module deployment image tag
-  tag: prod
-  # Module deployment extra environment variables
-  env:
-  #   ENV_VAR_NAME: value
-  #   LOREM: ipsum
-  # Module deployment extra environment variables from existing secret
-  secretRef:
-  #   ENV_VAR_NAME:
-  #     name: secret-name
-  #     key: secret_key
-  # Module deployment resources
-  resources:
-  #   requests:
-  #     cpu: 100m
-  #     memory: 128Mi
-  #   limits:
-  #     cpu: 500m
-  #     memory: 2048Mi
-
-# FogLifter scheduler deployment parameters
 scheduler:
   # Enable scheduler deployment
   enabled: true
@@ -486,7 +395,7 @@ scheduler:
   #     cpu: 500m
   #     memory: 2048Mi
 
-# FogLifter ingress configurations
+# FogLifter® ingress configurations
 ingress:
   # Enable ingress
   enabled: false
@@ -503,12 +412,26 @@ ingress:
   # Ingress annotations
   annotations: {}
 
-# FogLifter service configurations
+# FogLifter® service configurations
 service:
   # Service type (ClusterIP, NodePort, LoadBalancer, etc.)
   type: ClusterIP
   # Service annotations
   annotations: {}
+
+# Default pod options for all FogLifter® deployments
+podOptions:
+  # Node selector for pod scheduling
+  nodeSelector: {}
+  # Tolerations for pod scheduling
+  tolerations: []
+  # Affinity for pod scheduling
+  affinity: {}
+  # Labels to be added to all pods
+  labels: {}
+  # Annotations to be added to all pods
+  annotations: {}
+
 
 # MongoDB Kubernetes Operator parameters
 mongodb-kubernetes:

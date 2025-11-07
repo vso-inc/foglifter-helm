@@ -1,4 +1,4 @@
-{{- if (ne (.Values.module).enabled false) }}
+{{- if (.Values.module).enabled }}
 kind: Deployment
 apiVersion: apps/v1
 metadata:

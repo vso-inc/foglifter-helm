@@ -4,9 +4,9 @@ description: Helm chart for FogLifter® installation
 
 type: application
 
-version: 0.4.4
+version: 0.5.0
 
-appVersion: "4.4"
+appVersion: "4.5"
 dependencies:
   - name: mongodb-kubernetes
     repository: https://mongodb.github.io/helm-charts

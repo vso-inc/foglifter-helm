@@ -1,4 +1,8 @@
-{{- if not (.Values.exec).replication }}
+{{- if (.Values.exec).replication }}
+{{- range $key, $value := .Values.exec.deployments }}
+  {{- include "foglifter.execDeployments" (dict "root" $ "deploy" $value "deployName" $key) }}
+{{- end }}
+{{- else }}
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -6,7 +10,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}
 spec:
-  replicas: {{ default "1" (.Values.exec).replicas | int }}
+  replicas: {{ default "1" ((.Values.exec).defaults).replicas | int }}
   selector:
     matchLabels:
       name: {{ .Release.Name }}-exec
@@ -20,10 +24,10 @@ spec:
       containers:
         - name: exec-app
           {{- $imageTagDelimiter := ":" }}
-          {{- if (hasPrefix "sha256:" (.Values.exec).tag) }}
+          {{- if (hasPrefix "sha256:" ((.Values.exec).defaults).tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
-          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-exec-app" (.Values.exec).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.exec).tag }}"
+          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-exec-app" ((.Values.exec).defaults).repository }}{{ $imageTagDelimiter }}{{ default "latest" ((.Values.exec).defaults).tag }}"
           imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
           envFrom:
             - configMapRef:
@@ -60,20 +64,20 @@ spec:
                   {{- end }}
                   key: EXECUTOR_APIKEY
             - name: NODE_OPTIONS
-              {{- if (((.Values.exec).resources).limits).memory }}
-              {{- $moss := regexReplaceAll "[^0-9]+" (((.Values.exec).resources).limits).memory "" }}
-              value: {{ printf "--max-old-space-size=%s %s" $moss ((.Values.exec).env).NODE_OPTIONS | trim }}
+              {{- if ((((.Values.exec).defaults).resources).limits).memory }}
+              {{- $moss := regexReplaceAll "[^0-9]+" ((((.Values.exec).defaults).resources).limits).memory "" }}
+              value: {{ printf "--max-old-space-size=%s %s" $moss (((.Values.exec).defaults).env).NODE_OPTIONS | trim }}
               {{- else }}
-              value: {{ ((.Values.exec).env).NODE_OPTIONS | default "" | quote }}
+              value: {{ (((.Values.exec).defaults).env).NODE_OPTIONS | default "" | quote }}
               {{- end }}
             {{- include "foglifter.mongoUri" . | nindent 12 }}
-            {{- if (.Values.exec).env }}
+            {{- if ((.Values.exec).defaults).env }}
             {{- range $key, $val := omit .Values.exec.env "NODE_OPTIONS" }}
             - name: {{ $key }}
               value: {{ $val | quote }}
             {{- end }}
             {{- end }}
-            {{- if (.Values.exec).secretRef }}
+            {{- if ((.Values.exec).defaults).secretRef }}
             {{- with .Values.exec.secretRef }}
             {{- range $key, $val := . }}
             - name: {{ $key }}
@@ -85,12 +89,12 @@ spec:
             {{- end }}
             {{- end }}
           resources:
-            {{- default dict (.Values.exec).resources | toYaml | nindent 12 }}
-      {{- with (.Values.exec).antiAffinity }}
-      {{- if or .exec .custom }}
+            {{- default dict ((.Values.exec).defaults).resources | toYaml | nindent 12 }}
+      {{- with ((.Values.exec).defaults).antiAffinity }}
+      {{- if or .self .custom }}
       affinity:
         podAntiAffinity:
-          {{- if .exec }}
+          {{- if .self }}
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
