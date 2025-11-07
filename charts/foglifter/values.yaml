@@ -275,6 +275,10 @@ exec:
       #     operator: "In"
       #     values:
       #     - "mongodb"
+    # Exec deployment nodeSelector - default
+    nodeSelector: {}
+    # Exec deployment tolerations - default
+    tolerations: {}
     # Exec deployment extra environment variables - shared, NODE_OPTIONS is default
     env:
       NODE_OPTIONS: "--experimental-vm-modules"
@@ -301,6 +305,8 @@ exec:
         - standard
       # antiAffinity:
       #   custom: {}
+      # nodeSelector: {}
+      # tolerations: {}
       env:
         CONCURRENT_JOBS: 1
         NODE_OPTIONS: "--experimental-vm-modules"
@@ -310,8 +316,11 @@ exec:
       replicas: 1
       queues:
         - system
+        # - compliance
       # antiAffinity:
       #   custom: {}
+      # nodeSelector: {}
+      # tolerations: {}
       env:
         CONCURRENT_JOBS: 5
         NODE_OPTIONS: "--experimental-vm-modules"
@@ -422,16 +431,14 @@ service:
 # Default pod options for all FogLifter® deployments
 podOptions:
   # Node selector for pod scheduling
-  nodeSelector: {}
+  nodeSelector:
+    label: test
   # Tolerations for pod scheduling
   tolerations: []
-  # Affinity for pod scheduling
-  affinity: {}
   # Labels to be added to all pods
   labels: {}
   # Annotations to be added to all pods
   annotations: {}
-
 
 # MongoDB Kubernetes Operator parameters
 mongodb-kubernetes:

@@ -26,7 +26,7 @@
   Generate a Deployment for the given exec queue(s).
 */}}
 {{- define "foglifter.execDeployments" }}
-{{- $defaults := .root.Values.exec.defaults }}
+{{- $defaults := required "exec.defaults must be set" (.root.Values.exec).defaults }}
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -46,8 +46,33 @@ spec:
         name: {{ .root.Release.Name }}-exec
         controller: {{ .deployName }}
         app: {{ .root.Release.Name }}
+        {{- with (.root.Values.podOptions).labels }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      {{- with (.root.Values.podOptions).annotations }}
+      annotations:
+        {{- toYaml . | indent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ .root.Release.Name }}-sa
+      {{-
+        $nodeSelector := .deploy.nodeSelector |
+          default $defaults.nodeSelector |
+          default (.root.Values.podOptions).nodeSelector
+      }}
+      {{- with $nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{-
+        $tolerations := .deploy.tolerations |
+          default $defaults.tolerations |
+          default (.root.Values.podOptions).tolerations
+      }}
+      {{- with $tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: exec-app
           {{- $imageTagDelimiter := ":" }}

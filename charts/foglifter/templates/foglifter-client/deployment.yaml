@@ -15,16 +15,40 @@ spec:
       labels:
         name: {{ .Release.Name }}-client
         app: {{ .Release.Name }}
+        {{- with (.Values.podOptions).labels }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      {{- with (.Values.podOptions).annotations }}
+      annotations:
+        {{- toYaml . | indent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ .Release.Name }}-sa
+      {{- with (.Values.podOptions).nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (.Values.podOptions).tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: client
           {{- $imageTagDelimiter := ":" }}
           {{- if (hasPrefix "sha256:" (.Values.client).tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
-          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-client" (.Values.client).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.client).tag }}"
-          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          {{-
+            $imageString := (
+              printf "%s%s%s%s"
+                (default "ghcr.io/vso-inc/" .Values.registry)
+                (default "foglifter-client" (.Values.client).repository)
+                ($imageTagDelimiter)
+                (default "latest" (.Values.client).tag)
+            )
+          }}
+          image: {{ $imageString }}
+          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy | quote }}
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm

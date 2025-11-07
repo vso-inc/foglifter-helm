@@ -1,37 +1,61 @@
-{{- with (.Values.compliance).api }}
+{{- with .Values.compliance }}
 {{- if .enabled }}
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: {{ $.Release.Name }}-compliance-api
+  name: {{ $.Release.Name }}-compliance
   labels:
     app: {{ $.Release.Name }}-compliance
 spec:
   replicas: {{ default "1" .replicas | int }}
   selector:
     matchLabels:
-      name: {{ $.Release.Name }}-compliance-api
+      name: {{ $.Release.Name }}-compliance
   template:
     metadata:
       labels:
-        name: {{ $.Release.Name }}-compliance-api
+        name: {{ $.Release.Name }}-compliance
         app: {{ $.Release.Name }}-compliance
+        {{- with ($.Values.podOptions).labels }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      {{- with ($.Values.podOptions).annotations }}
+      annotations:
+        {{- toYaml . | indent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ $.Release.Name }}-sa
+      {{- with ($.Values.podOptions).nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with ($.Values.podOptions).tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
-        - name: compliance-api
+        - name: compliance
           {{- $imageTagDelimiter := ":" }}
           {{- if (hasPrefix "sha256:" .tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
-          image: "{{ default "ghcr.io/vso-inc/" $.Values.registry }}{{ .repository }}{{ $imageTagDelimiter }}{{ default "latest" .tag }}"
-          imagePullPolicy: "{{ default "Always" $.Values.imagePullPolicy }}"
+          {{-
+            $imageString := (
+              printf "%s%s%s%s"
+                (default "ghcr.io/vso-inc/" .Values.registry)
+                (.repository)
+                ($imageTagDelimiter)
+                (default "latest" .tag)
+            )
+          }}
+          image: {{ $imageString }}
+          imagePullPolicy: {{ default "Always" $.Values.imagePullPolicy | quote }}
           envFrom:
             - configMapRef:
                 name: {{ $.Release.Name }}-cm
             {{- if (.secret).create }}
             - secretRef:
-                name: {{ $.Release.Name }}-compliance-api-secret
+                name: {{ $.Release.Name }}-compliance-secret
             {{- else if (.secret).name }}
             - secretRef:
                 name: {{ .secret.name }}
@@ -41,7 +65,7 @@ spec:
           {{- $port := .port | int }}
           env:
             - name: PORT
-              value: "{{ $port }}"
+              value: {{ $port | quote }}
             {{- if .env }}
             {{- range $key, $val := .env }}
             - name: {{ $key }}

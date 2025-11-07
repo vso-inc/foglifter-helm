@@ -3,6 +3,7 @@
   {{- include "foglifter.execDeployments" (dict "root" $ "deploy" $value "deployName" $key) }}
 {{- end }}
 {{- else }}
+{{- $defaults := required "exec.defaults must be set" (.Values.exec).defaults }}
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -10,7 +11,7 @@ metadata:
   labels:
     app: {{ .Release.Name }}
 spec:
-  replicas: {{ default "1" ((.Values.exec).defaults).replicas | int }}
+  replicas: {{ default "1" $defaults.replicas | int }}
   selector:
     matchLabels:
       name: {{ .Release.Name }}-exec
@@ -19,16 +20,48 @@ spec:
       labels:
         name: {{ .Release.Name }}-exec
         app: {{ .Release.Name }}
+        {{- with (.Values.podOptions).labels }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      {{- with (.Values.podOptions).annotations }}
+      annotations:
+        {{- toYaml . | indent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ .Release.Name }}-sa
+      {{-
+        $nodeSelector := $defaults.nodeSelector |
+          default (.Values.podOptions).nodeSelector
+      }}
+      {{- with $nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{-
+        $tolerations := $defaults.tolerations |
+          default (.Values.podOptions).tolerations
+      }}
+      {{- with $tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: exec-app
           {{- $imageTagDelimiter := ":" }}
-          {{- if (hasPrefix "sha256:" ((.Values.exec).defaults).tag) }}
+          {{- if (hasPrefix "sha256:" $defaults.tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
-          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-exec-app" ((.Values.exec).defaults).repository }}{{ $imageTagDelimiter }}{{ default "latest" ((.Values.exec).defaults).tag }}"
-          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          {{-
+            $imageString := (
+              printf "%s%s%s%s"
+                (default "ghcr.io/vso-inc/" .Values.registry)
+                (default "foglifter-exec-app" $defaults.repository)
+                ($imageTagDelimiter)
+                (default "latest" $defaults.tag)
+            )
+          }}
+          image: {{ $imageString }}
+          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy | quote }}
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm
@@ -64,21 +97,21 @@ spec:
                   {{- end }}
                   key: EXECUTOR_APIKEY
             - name: NODE_OPTIONS
-              {{- if ((((.Values.exec).defaults).resources).limits).memory }}
-              {{- $moss := regexReplaceAll "[^0-9]+" ((((.Values.exec).defaults).resources).limits).memory "" }}
-              value: {{ printf "--max-old-space-size=%s %s" $moss (((.Values.exec).defaults).env).NODE_OPTIONS | trim }}
+              {{- if (($defaults.resources).limits).memory }}
+              {{- $moss := regexReplaceAll "[^0-9]+" (($defaults.resources).limits).memory "" }}
+              value: {{ printf "--max-old-space-size=%s %s" $moss ($defaults.env).NODE_OPTIONS | trim }}
               {{- else }}
-              value: {{ (((.Values.exec).defaults).env).NODE_OPTIONS | default "" | quote }}
+              value: {{ ($defaults.env).NODE_OPTIONS | default "" | quote }}
               {{- end }}
             {{- include "foglifter.mongoUri" . | nindent 12 }}
-            {{- if ((.Values.exec).defaults).env }}
-            {{- range $key, $val := omit .Values.exec.defaults.env "NODE_OPTIONS" }}
+            {{- if $defaults.env }}
+            {{- range $key, $val := omit $defaults.env "NODE_OPTIONS" }}
             - name: {{ $key }}
               value: {{ $val | quote }}
             {{- end }}
             {{- end }}
-            {{- if ((.Values.exec).defaults).secretRef }}
-            {{- with .Values.exec.defaults.secretRef }}
+            {{- if $defaults.secretRef }}
+            {{- with $defaults.secretRef }}
             {{- range $key, $val := . }}
             - name: {{ $key }}
               valueFrom:
@@ -89,8 +122,8 @@ spec:
             {{- end }}
             {{- end }}
           resources:
-            {{- default dict ((.Values.exec).defaults).resources | toYaml | nindent 12 }}
-      {{- with ((.Values.exec).defaults).antiAffinity }}
+            {{- default dict $defaults.resources | toYaml | nindent 12 }}
+      {{- with $defaults.antiAffinity }}
       {{- if or .self .custom }}
       affinity:
         podAntiAffinity:
