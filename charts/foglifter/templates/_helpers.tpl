@@ -79,7 +79,16 @@ spec:
           {{- if (hasPrefix "sha256:" $defaults.tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
-          image: "{{ default "ghcr.io/vso-inc/" .root.Values.registry }}{{ default "foglifter-exec-app" $defaults.repository }}{{ $imageTagDelimiter }}{{ default "latest" $defaults.tag }}"
+          {{-
+            $imageString := (
+              printf "%s%s%s%s"
+                (default "ghcr.io/vso-inc/" .root.Values.registry)
+                (default "foglifter-exec-app" $defaults.repository)
+                ($imageTagDelimiter)
+                (default "latest" $defaults.tag)
+            )
+          }}
+          image: {{ $imageString }}
           imagePullPolicy: "{{ default "Always" .root.Values.imagePullPolicy }}"
           envFrom:
             - configMapRef:
