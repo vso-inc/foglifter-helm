@@ -1,0 +1,18 @@
+{{- with (.Values.compliance).api }}
+{{- if .enabled }}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ $.Release.Name }}-compliance-api-svc
+  labels:
+    app: {{ $.Release.Name }}-compliance
+spec:
+  type: {{ default "ClusterIP" (.service).type }}
+  {{- $port := .port | int }}
+  ports:
+  - port: {{ $port }}
+    targetPort: {{ $port }}
+  selector:
+    name: {{ $.Release.Name }}-compliance-api
+{{- end }}
+{{- end }}

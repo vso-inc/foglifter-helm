@@ -1,0 +1,70 @@
+{{- with (.Values.compliance).api }}
+{{- if .enabled }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ $.Release.Name }}-compliance-api
+  labels:
+    app: {{ $.Release.Name }}-compliance
+spec:
+  replicas: {{ default "1" .replicas | int }}
+  selector:
+    matchLabels:
+      name: {{ $.Release.Name }}-compliance-api
+  template:
+    metadata:
+      labels:
+        name: {{ $.Release.Name }}-compliance-api
+        app: {{ $.Release.Name }}-compliance
+    spec:
+      serviceAccountName: {{ $.Release.Name }}-sa
+      containers:
+        - name: compliance-api
+          {{- $imageTagDelimiter := ":" }}
+          {{- if (hasPrefix "sha256:" .tag) }}
+            {{- $imageTagDelimiter = "@" }}
+          {{- end }}
+          image: "{{ default "ghcr.io/vso-inc/" $.Values.registry }}{{ .repository }}{{ $imageTagDelimiter }}{{ default "latest" .tag }}"
+          imagePullPolicy: "{{ default "Always" $.Values.imagePullPolicy }}"
+          envFrom:
+            - configMapRef:
+                name: {{ $.Release.Name }}-cm
+            {{- if (.secret).create }}
+            - secretRef:
+                name: {{ $.Release.Name }}-compliance-api-secret
+            {{- else if (.secret).name }}
+            - secretRef:
+                name: {{ .secret.name }}
+            {{- else }}
+            {{- fail "compliance.api.secret.name must be set if compliance.api.secret.create is false" }}
+            {{- end }}
+          {{- $port := .port | int }}
+          env:
+            - name: PORT
+              value: "{{ $port }}"
+            {{- if .env }}
+            {{- range $key, $val := .env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+            {{- end }}
+            {{- if .secretRef }}
+            {{- with .secretRef }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.name }}
+                  key: {{ $val.key }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          ports:
+            - containerPort: {{ $port }}
+          resources:
+            {{- default dict .resources | toYaml | nindent 12 }}
+      {{- if (ne ($.Values.priorityClass).create false) }}
+      priorityClassName: {{ $.Release.Name }}
+      {{- end }}
+{{- end }}
+{{- end }}
