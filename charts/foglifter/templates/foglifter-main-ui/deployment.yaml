@@ -14,16 +14,40 @@ spec:
       labels:
         name: {{ .Release.Name }}-main-ui
         app: {{ .Release.Name }}
+        {{- with (.Values.podOptions).labels }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      {{- with (.Values.podOptions).annotations }}
+      annotations:
+        {{- toYaml . | indent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ .Release.Name }}-sa
+      {{- with (.Values.podOptions).nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (.Values.podOptions).tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: main-ui
           {{- $imageTagDelimiter := ":" }}
           {{- if (hasPrefix "sha256:" (.Values.mainUI).tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
-          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-main-ui" (.Values.mainUI).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.mainUI).tag }}"
-          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          {{-
+            $imageString := (
+              printf "%s%s%s%s"
+                (default "ghcr.io/vso-inc/" .Values.registry)
+                (default "foglifter-main-ui" (.Values.mainUI).repository)
+                ($imageTagDelimiter)
+                (default "latest" (.Values.mainUI).tag)
+            )
+          }}
+          image: {{ $imageString }}
+          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm

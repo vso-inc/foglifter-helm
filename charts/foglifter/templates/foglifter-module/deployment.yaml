@@ -1,4 +1,4 @@
-{{- if (ne (.Values.module).enabled false) }}
+{{- if (.Values.module).enabled }}
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -15,16 +15,40 @@ spec:
       labels:
         name: {{ .Release.Name }}-module
         app: {{ .Release.Name }}
+        {{- with (.Values.podOptions).labels }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      {{- with (.Values.podOptions).annotations }}
+      annotations:
+        {{- toYaml . | indent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ .Release.Name }}-sa
+      {{- with (.Values.podOptions).nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (.Values.podOptions).tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: module-app
           {{- $imageTagDelimiter := ":" }}
           {{- if (hasPrefix "sha256:" (.Values.module).tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
-          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-module-app" (.Values.module).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.module).tag }}"
-          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          {{-
+            $imageString := (
+              printf "%s%s%s%s"
+                (default "ghcr.io/vso-inc/" .Values.registry)
+                (default "foglifter-module-app" (.Values.module).repository)
+                ($imageTagDelimiter)
+                (default "latest" (.Values.module).tag)
+            )
+          }}
+          image: {{ $imageString }}
+          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm
@@ -35,7 +59,7 @@ spec:
           {{- $port := default "8080" (.Values.module).port | int }}
           env:
             - name: PORT
-              value: "{{ $port }}"
+              value: {{ $port | quote }}
             {{- include "foglifter.mongoUri" . | nindent 12 }}
             {{- if (.Values.module).env }}
             {{- range $key, $val := .Values.module.env }}

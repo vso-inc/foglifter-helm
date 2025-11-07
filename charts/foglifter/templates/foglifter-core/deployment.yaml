@@ -14,8 +14,23 @@ spec:
       labels:
         name: {{ .Release.Name }}-core
         app: {{ .Release.Name }}
+        {{- with (.Values.podOptions).labels }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      {{- with (.Values.podOptions).annotations }}
+      annotations:
+        {{- toYaml . | indent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ .Release.Name }}-sa
+      {{- with (.Values.podOptions).nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (.Values.podOptions).tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
         - name: config-volume
           configMap:
@@ -26,8 +41,17 @@ spec:
           {{- if (hasPrefix "sha256:" (.Values.core).tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
-          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-core-app" (.Values.core).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.core).tag }}"
-          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          {{-
+            $imageString := (
+              printf "%s%s%s%s"
+                (default "ghcr.io/vso-inc/" .Values.registry)
+                (default "foglifter-core-app" (.Values.core).repository)
+                ($imageTagDelimiter)
+                (default "latest" (.Values.core).tag)
+            )
+          }}
+          image: {{ $imageString }}
+          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
@@ -42,7 +66,7 @@ spec:
           {{- $port := default "8080" (.Values.core).port | int }}
           env:
             - name: PORT
-              value: "{{ $port }}"
+              value: {{ $port | quote }}
             - name: APIKEY
               valueFrom:
                 secretKeyRef:

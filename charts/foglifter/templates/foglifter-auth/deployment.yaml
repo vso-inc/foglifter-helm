@@ -14,16 +14,40 @@ spec:
       labels:
         name: {{ .Release.Name }}-auth
         app: {{ .Release.Name }}
+        {{- with (.Values.podOptions).labels }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      {{- with (.Values.podOptions).annotations }}
+      annotations:
+        {{- toYaml . | indent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ .Release.Name }}-sa
+      {{- with (.Values.podOptions).nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (.Values.podOptions).tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: auth-app
           {{- $imageTagDelimiter := ":" }}
           {{- if (hasPrefix "sha256:" (.Values.auth).tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
-          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-auth-service" (.Values.auth).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.auth).tag }}"
-          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          {{-
+            $imageString := (
+              printf "%s%s%s%s"
+                (default "ghcr.io/vso-inc/" .Values.registry)
+                (default "foglifter-auth-service" (.Values.auth).repository)
+                ($imageTagDelimiter)
+                (default "latest" (.Values.auth).tag)
+            )
+          }}
+          image: {{ $imageString }}
+          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy | quote }}
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm
@@ -35,10 +59,10 @@ spec:
           env:
             {{- if or (.Values.apiservice).trustToken (.Values.auth).trustToken }}
             - name: TRUST_TOKEN_HASH_KEY
-              value: "{{ (.Values.auth).trustToken | default (.Values.apiservice).trustToken }}"
+              value: {{ (.Values.auth).trustToken | default (.Values.apiservice).trustToken | quote }}
             {{- end }}
             - name: PORT
-              value: "{{ $port }}"
+              value: {{ $port | quote }}
             - name: APIKEY
               valueFrom:
                 secretKeyRef:

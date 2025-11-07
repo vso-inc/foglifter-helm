@@ -14,16 +14,40 @@ spec:
       labels:
         name: {{ .Release.Name }}-apiservice
         app: {{ .Release.Name }}
+        {{- with (.Values.podOptions).labels }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      {{- with (.Values.podOptions).annotations }}
+      annotations:
+        {{- toYaml . | indent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ .Release.Name }}-sa
+      {{- with (.Values.podOptions).nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (.Values.podOptions).tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: apiservice-app
           {{- $imageTagDelimiter := ":" }}
           {{- if (hasPrefix "sha256:" (.Values.apiservice).tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
-          image: "{{ default "ghcr.io/vso-inc/" .Values.registry }}{{ default "foglifter-api-service" (.Values.apiservice).repository }}{{ $imageTagDelimiter }}{{ default "latest" (.Values.apiservice).tag }}"
-          imagePullPolicy: "{{ default "Always" .Values.imagePullPolicy }}"
+          {{-
+            $imageString := (
+              printf "%s%s%s%s"
+                (default "ghcr.io/vso-inc/" .Values.registry)
+                (default "foglifter-api-service" (.Values.apiservice).repository)
+                ($imageTagDelimiter)
+                (default "latest" (.Values.apiservice).tag)
+            )
+          }}
+          image: {{ $imageString }}
+          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}
           envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}-cm
@@ -44,10 +68,10 @@ spec:
           env:
             {{- if (.Values.apiservice).trustToken }}
             - name: TRUST_TOKEN_HASH_KEY
-              value: "{{ (.Values.apiservice).trustToken }}"
+              value: {{ (.Values.apiservice).trustToken | quote }}
             {{- end }}
             - name: PORT
-              value: "{{ $port }}"
+              value: {{ $port | quote }}
             {{- include "foglifter.mongoUri" . | nindent 12 }}
             {{- if (.Values.apiservice).env }}
             {{- range $key, $val := .Values.apiservice.env }}
