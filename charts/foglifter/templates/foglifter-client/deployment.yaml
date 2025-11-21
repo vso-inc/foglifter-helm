@@ -57,15 +57,12 @@ spec:
                 name: {{ .Release.Name }}-secret
             {{- end }}
           env:
-            - name: PORT
-              value: "80"
             {{- if (.Values.client).env }}
             {{- range $key, $val := .Values.client.env }}
             - name: {{ $key }}
               value: {{ $val | quote }}
             {{- end }}
             {{- end }}
-            {{- if (.Values.client).secretRef }}
             {{- with .Values.client.secretRef }}
             {{- range $key, $val := . }}
             - name: {{ $key }}
@@ -75,11 +72,25 @@ spec:
                   key: {{ $val.key }}
             {{- end }}
             {{- end }}
-            {{- end }}
+          {{- $port := 80 }}
           ports:
-            - containerPort: 80
+            - containerPort: {{ $port }}
+          {{- with (.Values.client).livenessProbe }}
+          livenessProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+          {{- end }}
+          {{- with (.Values.client).readinessProbe }}
+          readinessProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+          {{- end }}
+          {{- with (.Values.client).startupProbe }}
+          startupProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+          {{- end }}
+          {{- with (.Values.client).resources }}
           resources:
-            {{- default dict (.Values.client).resources | toYaml | nindent 12 }}
+            {{- default dict . | toYaml | nindent 12 }}
+          {{- end }}
       {{- if (ne (.Values.priorityClass).create false) }}
       priorityClassName: {{ .Release.Name }}
       {{- end }}

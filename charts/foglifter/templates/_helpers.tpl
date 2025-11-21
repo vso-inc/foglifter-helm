@@ -23,6 +23,27 @@
 {{- end -}}
 
 {{/*
+  Render a Kubernetes probe, injecting the port into httpGet/tcpSocket/grpc if not already set.
+*/}}
+{{- define "foglifter.probe" -}}
+{{- $probe := .probe | default dict -}}
+{{- $port := .port -}}
+{{- if $probe.httpGet }}
+  {{- $httpGet := merge (dict "port" $port) $probe.httpGet }}
+  {{- $probe = merge $probe (dict "httpGet" $httpGet) }}
+{{- end }}
+{{- if $probe.tcpSocket }}
+  {{- $tcpSocket := merge (dict "port" $port) $probe.tcpSocket }}
+  {{- $probe = merge $probe (dict "tcpSocket" $tcpSocket) }}
+{{- end }}
+{{- if $probe.grpc }}
+  {{- $grpc := merge (dict "port" $port) $probe.grpc }}
+  {{- $probe = merge $probe (dict "grpc" $grpc) }}
+{{- end }}
+{{- toYaml $probe }}
+{{- end }}
+
+{{/*
   Generate a Deployment for the given exec queue(s).
 */}}
 {{- define "foglifter.execDeployments" }}
@@ -157,6 +178,18 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
+          {{- with $defaults.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $defaults.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $defaults.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{- if .deploy.resources }}
             {{ .deploy.resources | toYaml | nindent 12 }}
