@@ -79,7 +79,6 @@ spec:
               value: {{ $val | quote }}
             {{- end }}
             {{- end }}
-            {{- if (.Values.apiservice).secretRef }}
             {{- with .Values.apiservice.secretRef }}
             {{- range $key, $val := . }}
             - name: {{ $key }}
@@ -89,11 +88,24 @@ spec:
                   key: {{ $val.key }}
             {{- end }}
             {{- end }}
-            {{- end }}
           ports:
             - containerPort: {{ $port }}
+          {{- with (.Values.apiservice).livenessProbe }}
+          livenessProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+          {{- end }}
+          {{- with (.Values.apiservice).readinessProbe }}
+          readinessProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+          {{- end }}
+          {{- with (.Values.apiservice).startupProbe }}
+          startupProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+          {{- end }}
+          {{- with (.Values.apiservice).resources }}
           resources:
-            {{- default dict (.Values.apiservice).resources | toYaml | nindent 12 }}
+            {{- default dict . | toYaml | nindent 12 }}
+          {{- end }}
       {{- if (ne (.Values.priorityClass).create false) }}
       priorityClassName: {{ .Release.Name }}
       {{- end }}

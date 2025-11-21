@@ -104,6 +104,19 @@ apiservice:
   #   ENV_VAR_NAME:
   #     name: secret-name
   #     key: secret_key
+  # Apiservice deployment probes
+  livenessProbe:
+    httpGet:
+      path: /api/v1/health
+    periodSeconds: 5
+  readinessProbe:
+    httpGet:
+      path: /api/v1/health
+    initialDelaySeconds: 3
+    periodSeconds: 3
+  startupProbe:
+    httpGet:
+      path: /api/v1/health
   # Apiservice deployment resources
   resources:
   #   requests:
@@ -131,6 +144,19 @@ auth:
   #   ENV_VAR_NAME:
   #     name: secret-name
   #     key: secret_key
+  # Auth deployment probes
+  livenessProbe:
+    httpGet:
+      path: /api/auth/system/health
+    periodSeconds: 5
+  readinessProbe:
+    httpGet:
+      path: /api/auth/system/health
+    initialDelaySeconds: 5
+    periodSeconds: 3
+  startupProbe:
+    httpGet:
+      path: /api/auth/system/health
   # Auth deployment resources
   resources:
   #   requests:
@@ -160,6 +186,10 @@ client:
   #   ENV_VAR_NAME:
   #     name: secret-name
   #     key: secret_key
+  # Client deployment probes
+  livenessProbe: {}
+  readinessProbe: {}
+  startupProbe: {}
   # Client deployment resources
   resources:
   #   requests:
@@ -205,6 +235,10 @@ compliance:
   #   ENV_VAR_NAME:
   #     name: secret-name
   #     key: secret_key
+  # Compliance API deployment probes
+  livenessProbe: {}
+  readinessProbe: {}
+  startupProbe: {}
   # Compliance API deployment resources
   resources:
   #   requests:
@@ -246,6 +280,10 @@ core:
   #   ENV_VAR_NAME:
   #     name: secret-name
   #     key: secret_key
+  # Core deployment probes
+  livenessProbe: {}
+  readinessProbe: {}
+  startupProbe: {}
   # Core deployment resources
   resources:
   #   requests:
@@ -287,6 +325,10 @@ exec:
     #   ENV_VAR_NAME:
     #     name: secret-name
     #     key: secret_key
+    # Exec deployment probes - shared
+    livenessProbe: {}
+    readinessProbe: {}
+    startupProbe: {}
     # Exec deployment resources - default
     resources:
     #   requests:
@@ -364,6 +406,10 @@ mainUI:
   #   ENV_VAR_NAME:
   #     name: secret-name
   #     key: secret_key
+  # Main UI deployment probes
+  livenessProbe: {}
+  readinessProbe: {}
+  startupProbe: {}
   # Main UI deployment resources
   resources:
   #   requests:
@@ -395,6 +441,10 @@ scheduler:
   #   ENV_VAR_NAME:
   #     name: secret-name
   #     key: secret_key
+  # Scheduler deployment probes
+  livenessProbe: {}
+  readinessProbe: {}
+  startupProbe: {}
   # Scheduler deployment resources
   resources:
   #   requests:
@@ -431,8 +481,7 @@ service:
 # Default pod options for all FogLifter® deployments
 podOptions:
   # Node selector for pod scheduling
-  nodeSelector:
-    label: test
+  nodeSelector: {}
   # Tolerations for pod scheduling
   tolerations: []
   # Labels to be added to all pods

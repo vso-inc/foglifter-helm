@@ -72,7 +72,6 @@ spec:
               value: {{ $val | quote }}
             {{- end }}
             {{- end }}
-            {{- if .secretRef }}
             {{- with .secretRef }}
             {{- range $key, $val := . }}
             - name: {{ $key }}
@@ -82,11 +81,24 @@ spec:
                   key: {{ $val.key }}
             {{- end }}
             {{- end }}
-            {{- end }}
           ports:
             - containerPort: {{ $port }}
+          {{- with .livenessProbe }}
+          livenessProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+          {{- end }}
+          {{- with .readinessProbe }}
+          readinessProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+          {{- end }}
+          {{- with .startupProbe }}
+          startupProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+          {{- end }}
+          {{- with .resources }}
           resources:
-            {{- default dict .resources | toYaml | nindent 12 }}
+            {{- default dict . | toYaml | nindent 12 }}
+          {{- end }}
       {{- if (ne ($.Values.priorityClass).create false) }}
       priorityClassName: {{ $.Release.Name }}
       {{- end }}

@@ -70,21 +70,11 @@ spec:
                 name: {{ .Release.Name }}-secret
             {{- end }}
           env:
-            {{- $decryptionKeySecret := "" }}
             {{- if .Values.decryptionKeySecret }}
-              {{- $decryptionKeySecret = .Values.decryptionKeySecret }}
-            {{- else }}
-              {{- range $i, $secret := (lookup "v1" "Secret" .Release.Namespace "").items }}
-                {{- if (get (get $secret "data" | default dict) "DECRYPTION_KEY") }}
-                  {{- $decryptionKeySecret = $secret.metadata.name }}
-                {{- end }}
-              {{- end }}
-            {{- end }}
-            {{- if $decryptionKeySecret }}
             - name: DECRYPTION_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ $decryptionKeySecret }}
+                  name: {{ .Values.decryptionKeySecret }}
                   key: DECRYPTION_KEY
             {{- end }}
             - name: APIKEY
@@ -110,7 +100,6 @@ spec:
               value: {{ $val | quote }}
             {{- end }}
             {{- end }}
-            {{- if $defaults.secretRef }}
             {{- with $defaults.secretRef }}
             {{- range $key, $val := . }}
             - name: {{ $key }}
@@ -120,9 +109,22 @@ spec:
                   key: {{ $val.key }}
             {{- end }}
             {{- end }}
-            {{- end }}
+          {{- with $defaults.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $defaults.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $defaults.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $defaults.resources }}
           resources:
-            {{- default dict $defaults.resources | toYaml | nindent 12 }}
+            {{- default dict . | toYaml | nindent 12 }}
+          {{- end }}
       {{- with $defaults.antiAffinity }}
       {{- if or .self .custom }}
       affinity:

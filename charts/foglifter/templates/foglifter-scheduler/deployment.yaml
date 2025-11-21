@@ -83,7 +83,6 @@ spec:
               value: {{ $val | quote }}
             {{- end }}
             {{- end }}
-            {{- if (.Values.scheduler).secretRef }}
             {{- with .Values.scheduler.secretRef }}
             {{- range $key, $val := . }}
             - name: {{ $key }}
@@ -93,11 +92,24 @@ spec:
                   key: {{ $val.key }}
             {{- end }}
             {{- end }}
-            {{- end }}
           ports:
             - containerPort: {{ $port }}
+          {{- with (.Values.scheduler).livenessProbe }}
+          livenessProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+          {{- end }}
+          {{- with (.Values.scheduler).readinessProbe }}
+          readinessProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+          {{- end }}
+          {{- with (.Values.scheduler).startupProbe }}
+          startupProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+          {{- end }}
+          {{- with (.Values.scheduler).resources }}
           resources:
-            {{- default dict (.Values.scheduler).resources | toYaml | nindent 12 }}
+            {{- default dict . | toYaml | nindent 12 }}
+          {{- end }}
       {{- if (ne (.Values.priorityClass).create false) }}
       priorityClassName: {{ .Release.Name }}
       {{- end }}
