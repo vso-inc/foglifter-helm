@@ -481,8 +481,7 @@ service:
 # Default pod options for all FogLifter® deployments
 podOptions:
   # Node selector for pod scheduling
-  nodeSelector:
-    label: test
+  nodeSelector: {}
   # Tolerations for pod scheduling
   tolerations: []
   # Labels to be added to all pods
