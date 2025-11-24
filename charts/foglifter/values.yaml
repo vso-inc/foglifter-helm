@@ -145,7 +145,10 @@ auth:
   tag: prod
   # Auth deployment extra environment variables
   env:
-    EXCLUDE_ROUTES_FROM_LOGGING_ARRAY: ["/api/auth/system/health"]
+    EXCLUDE_ROUTES_FROM_LOGGING_ARRAY: |
+      [
+        "/api/auth/system/health"
+      ]
   # Auth deployment extra environment variables from existing secret
   secretRef:
   #   ENV_VAR_NAME:
