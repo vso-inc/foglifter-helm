@@ -99,6 +99,13 @@ apiservice:
   # Apiservice deployment extra environment variables
   env:
     API_PREFIX: "api"
+    EXCLUDE_ROUTES_FROM_LOGGING_ARRAY: |
+      [
+        "/api/v1/heartbeat",
+        "/api/v1/health",
+        "/api/v1/notification/process",
+        "/api/v1/scheduler/settings"
+      ]
   # Apiservice deployment extra environment variables from existing secret
   secretRef:
   #   ENV_VAR_NAME:
@@ -138,7 +145,7 @@ auth:
   tag: prod
   # Auth deployment extra environment variables
   env:
-  #   ENV_VAR_NAME: value
+    EXCLUDE_ROUTES_FROM_LOGGING_ARRAY: ["/api/auth/system/health"]
   # Auth deployment extra environment variables from existing secret
   secretRef:
   #   ENV_VAR_NAME:
