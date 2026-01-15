@@ -112,20 +112,6 @@ spec:
       host: {{ .Values.ingress.host }}
       {{- end }}
   {{- end }}
-  {{- if .Values.module.enabled }}
-    - http:
-        paths:
-          - pathType: Prefix
-            path: "/api/module"
-            backend:
-              service:
-                name: {{ .Release.Name }}-module-svc
-                port:
-                  number: {{ .Values.module.port | int }}
-      {{- if .Values.ingress.host }}
-      host: {{ .Values.ingress.host }}
-      {{- end }}
-  {{- end }}
   {{- if .Values.scheduler.enabled }}
     - http:
         paths:
