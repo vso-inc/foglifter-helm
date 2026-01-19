@@ -41,12 +41,8 @@ spec:
             exposedPort: {{ default "5432" ((.Values.traefik).postgres).port | int }}
             protocol: TCP
           {{- end }}
-          {{- range $key, $value := .Values.traefik.extraPorts }}
-          {{ $key }}:
-            port: {{ $value.port | int }}
-            expose: {{ default "true" $value.expose }}
-            exposedPort: {{ default $value.port $value.exposedPort | int }}
-            protocol: {{ default "TCP" $value.protocol }}
+          {{- with ((.Values.traefik).extraPorts) }}
+          {{- toYaml . | nindent 10 }}
           {{- end }}
         ingressRoute:
           dashboard:
