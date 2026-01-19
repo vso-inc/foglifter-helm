@@ -49,6 +49,9 @@ spec:
             matchRule: PathPrefix(`/`)
         additionalArguments:
           - "--providers.kubernetescrd.allowCrossNamespace=true"
+          {{- with ((.Values.traefik).additionalArguments) }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
         {{- if ((.Values.traefik).extraChartValues) }}
         {{- toYaml ((.Values.traefik).extraChartValues) | nindent 8 }}
         {{- end }}
