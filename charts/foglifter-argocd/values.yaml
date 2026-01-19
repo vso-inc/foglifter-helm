@@ -1,6 +1,5 @@
 # Argo CD Image Updater
 imageUpdater:
-
   # Enable Argo CD Image Updater
   enabled: true
   # Argo CD Image Updater version
@@ -10,7 +9,6 @@ imageUpdater:
 
 # Recommended default FogLifter configurations
 foglifter:
-
   # Argo CD application configurations
   application:
     # Install application
@@ -22,23 +20,10 @@ foglifter:
     # Application Argo CD project
     project: foglifter
     # Chart version
-    version: 0.2.1
-
-# Recommended default FogLifter MongoDB backend configurations
-mongo:
-
-  # Argo CD application configurations
-  application:
-    # Install application
-    install: false
-    # Application name
-    name: foglifter-mongo
-    # Chart version
-    version: 0.1.18
+    version: 0.5.3
 
 # Recommended default FogLifter Traefik ingress configurations
 traefik:
-
   # Argo CD application configurations
   application:
     # Install application
@@ -50,7 +35,7 @@ traefik:
     # Application Argo CD project
     project: traefik
     # FogLifter Traefik ingress chart version
-    version: 0.1.18
+    version: 0.1.23
     # Traefik chart version
     traefikVersion: 24.0.0
     # Traefik image tag
@@ -60,7 +45,6 @@ traefik:
 
 # Recommended default configurations for FogLifter View
 view:
-
   # Argo CD application configurations
   application:
     # Install application
@@ -72,11 +56,10 @@ view:
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.2.6
+    version: 0.2.8
 
 # Recommended default configurations for FogLifter Postgres
 postgres:
-
   # Argo CD application configurations
   application:
     # Install application
@@ -92,7 +75,6 @@ postgres:
 
 # Recommended default configurations for FogLifter Redis
 redis:
-
   # Argo CD application configurations
   application:
     # Install application
