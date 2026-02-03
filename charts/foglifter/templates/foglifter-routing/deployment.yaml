@@ -1,18 +1,18 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: {{ .Release.Name }}-main-ui
+  name: {{ .Release.Name }}-routing
   labels:
     app: {{ .Release.Name }}
 spec:
-  replicas: {{ default "1" (.Values.mainUI).replicas | int }}
+  replicas: {{ default "1" (.Values.routing).replicas | int }}
   selector:
     matchLabels:
-      name: {{ .Release.Name }}-main-ui
+      name: {{ .Release.Name }}-routing
   template:
     metadata:
       labels:
-        name: {{ .Release.Name }}-main-ui
+        name: {{ .Release.Name }}-routing
         app: {{ .Release.Name }}
         {{- with (.Values.podOptions).labels }}
         {{- toYaml . | indent 8 }}
@@ -32,18 +32,18 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: main-ui
+        - name: routing
           {{- $imageTagDelimiter := ":" }}
-          {{- if (hasPrefix "sha256:" (.Values.mainUI).tag) }}
+          {{- if (hasPrefix "sha256:" (.Values.routing).tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
           {{-
             $imageString := (
               printf "%s%s%s%s"
                 (default "ghcr.io/vso-inc/" .Values.registry)
-                (default "foglifter-main-ui" (.Values.mainUI).repository)
+                (default "foglifter-routing-service" (.Values.routing).repository)
                 ($imageTagDelimiter)
-                (default "latest" (.Values.mainUI).tag)
+                (default "latest" (.Values.routing).tag)
             )
           }}
           image: {{ $imageString }}
@@ -55,14 +55,18 @@ spec:
             - secretRef:
                 name: {{ .Release.Name }}-secret
             {{- end }}
+          {{- $port := default "8080" (.Values.routing).port | int }}
           env:
-            {{- if (.Values.mainUI).env }}
-            {{- range $key, $val := .Values.mainUI.env }}
+            - name: PORT
+              value: {{ $port | quote }}
+            {{- include "foglifter.mongoUri" . | nindent 12 }}
+            {{- if (.Values.routing).env }}
+            {{- range $key, $val := .Values.routing.env }}
             - name: {{ $key }}
               value: {{ $val | quote }}
             {{- end }}
             {{- end }}
-            {{- with .Values.mainUI.secretRef }}
+            {{- with .Values.routing.secretRef }}
             {{- range $key, $val := . }}
             - name: {{ $key }}
               valueFrom:
@@ -71,22 +75,21 @@ spec:
                   key: {{ $val.key }}
             {{- end }}
             {{- end }}
-          {{- $port := 80 }}
           ports:
             - containerPort: {{ $port }}
-          {{- with (.Values.mainUI).livenessProbe }}
+          {{- with (.Values.routing).livenessProbe }}
           livenessProbe:
             {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
           {{- end }}
-          {{- with (.Values.mainUI).readinessProbe }}
+          {{- with (.Values.routing).readinessProbe }}
           readinessProbe:
             {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
           {{- end }}
-          {{- with (.Values.mainUI).startupProbe }}
+          {{- with (.Values.routing).startupProbe }}
           startupProbe:
             {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
           {{- end }}
-          {{- with (.Values.mainUI).resources }}
+          {{- with (.Values.routing).resources }}
           resources:
             {{- default dict . | toYaml | nindent 12 }}
           {{- end }}
