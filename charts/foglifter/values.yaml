@@ -1,3 +1,4 @@
+---
 # Recommended default FogLifter® configurations
 
 # Image registry for all FogLifter® deployments
@@ -49,7 +50,6 @@ priorityClass:
   create: true
   # PriorityClass priority value
   value: 1000000
-
 # FogLifter® MongoDB secret name
 # Must contain MONGO_URI
 # Ignored if mongob-kubernetes.enabled is true
@@ -220,7 +220,7 @@ compliance:
   # Compliance API deployment image repository
   repository: foglifter-compliance-api
   # Compliance API deployment image tag
-  tag: dev # Compliance is currently in alpha
+  tag: prod
   # Enable DB init Helm hook
   enableInitHook: true
   # Compliance API deployment secret parameters
@@ -396,31 +396,31 @@ exec:
     #     NODE_OPTIONS: "--experimental-vm-modules"
     #   secretRef: {}
     #   resources: {}
-# FogLifter® main UI deployment parameters
-mainUI:
-  # Enable main UI deployment
+# FogLifter® routing service deployment parameters
+routing:
+  # Enable routing service deployment
   enabled: true
-  # Main UI deployment port
-  port: 80
-  # Main UI deployment replicas
+  # Routing service deployment port
+  port: 8080
+  # Routing service deployment replicas
   replicas: 1
-  # Main UI deployment image repository
-  repository: foglifter-main-ui
-  # Main UI deployment image tag
+  # Routing service deployment image repository
+  repository: foglifter-routing-service
+  # Routing service deployment image tag
   tag: prod
-  # Main UI deployment extra environment variables
+  # Routing service deployment extra environment variables
   env:
   #   ENV_VAR_NAME: value
-  # Main UI deployment extra environment variables from existing secret
+  # Routing service deployment extra environment variables from existing secret
   secretRef:
   #   ENV_VAR_NAME:
   #     name: secret-name
   #     key: secret_key
-  # Main UI deployment probes
+  # Routing service deployment probes
   livenessProbe: {}
   readinessProbe: {}
   startupProbe: {}
-  # Main UI deployment resources
+  # Routing service deployment resources
   resources:
   #   requests:
   #     cpu: 100m
@@ -510,7 +510,7 @@ mongodb-kubernetes:
   community:
     resource:
       name: foglifter-mongodb
-      version: 5.0.31
+      version: 6.0.27
       members: 3
       users:
         - name: foglifter
@@ -531,6 +531,23 @@ mongodb-kubernetes:
             - metadata:
                 name: data-volume
               spec:
+                storageClassName: ""
                 resources:
                   requests:
                     storage: 10Gi
+            - metadata:
+                name: logs-volume
+              spec:
+                storageClassName: ""
+                resources:
+                  requests:
+                    storage: 10Gi
+          # containers:
+          #   - name: mongod
+          #     resources:
+          #       requests:
+          #         cpu: 500m
+          #         memory: 4096Mi
+          #       limits:
+          #         cpu: 500m
+          #         memory: 4096Mi
