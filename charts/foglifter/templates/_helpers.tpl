@@ -47,7 +47,8 @@
   Generate a Deployment for the given exec queue(s).
 */}}
 {{- define "foglifter.execDeployments" }}
-{{- $defaults := required "exec.defaults must be set" (.root.Values.exec).defaults }}
+{{- $exec := required "exec must be set" .root.Values.exec }}
+{{- $defaults := required "exec.defaults must be set" .root.Values.exec.defaults }}
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -97,16 +98,16 @@ spec:
       containers:
         - name: exec-app
           {{- $imageTagDelimiter := ":" }}
-          {{- if (hasPrefix "sha256:" $defaults.tag) }}
+          {{- if (hasPrefix "sha256:" $exec.tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
           {{-
             $imageString := (
               printf "%s%s%s%s"
                 (default "ghcr.io/vso-inc/" .root.Values.registry)
-                (default "foglifter-exec-app" $defaults.repository)
+                (default "foglifter-exec-app" $exec.repository)
                 ($imageTagDelimiter)
-                (default "latest" $defaults.tag)
+                (default "latest" $exec.tag)
             )
           }}
           image: {{ $imageString }}
@@ -178,15 +179,15 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
-          {{- with $defaults.livenessProbe }}
+          {{- with $exec.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with $defaults.readinessProbe }}
+          {{- with $exec.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with $defaults.startupProbe }}
+          {{- with $exec.startupProbe }}
           startupProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -196,10 +197,12 @@ spec:
             {{- else }}
             {{- default dict $defaults.resources | toYaml | nindent 12 }}
             {{- end }}
-      {{- if or (or ($defaults.antiAffinity).self ($defaults.antiAffinity).custom) (.deploy.antiAffinity).custom }}
+      {{- $selfAntiAffinity := (.deploy.antiAffinity).self | default ($defaults.antiAffinity).self }}
+      {{- $customAntiAffinity := or (.deploy.antiAffinity).custom ($defaults.antiAffinity).custom }}
+      {{- if or $selfAntiAffinity $customAntiAffinity }}
       affinity:
         podAntiAffinity:
-          {{- if ($defaults.antiAffinity).self }}
+          {{- if $selfAntiAffinity }}
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
@@ -213,7 +216,7 @@ spec:
                       - {{ .deployName }}
               topologyKey: kubernetes.io/hostname
           {{- end }}
-          {{- if or ($defaults.antiAffinity).custom (.deploy.antiAffinity).custom }}
+          {{- if $customAntiAffinity }}
           preferredDuringSchedulingIgnoredDuringExecution:
             {{- if ($defaults.antiAffinity).custom }}
             - weight: 100

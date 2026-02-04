@@ -305,15 +305,19 @@ core:
 
 # FogLifter® exec deployment parameters
 exec:
+  # Exec deployment image repository
+  repository: foglifter-exec-app
+  # Exec deployment image tag
+  tag: prod
+  # Exec deployment probes
+  livenessProbe: {}
+  readinessProbe: {}
+  startupProbe: {}
   # Enable replication which splits exec app into multiple deployments based on job queue(s)
   replication: false
   # Shared/default values for all exec deployments
   defaults:
-    # Exec deployment image repository - shared
-    repository: foglifter-exec-app
-    # Exec deployment image tag - shared
-    tag: prod
-    # Exec deployment podAntiAffinity - shared
+    # Exec deployment podAntiAffinity
     antiAffinity:
       # Anti-affinity between replicas of the same deployment
       self: true
@@ -323,22 +327,18 @@ exec:
       #     operator: "In"
       #     values:
       #     - "mongodb"
-    # Exec deployment nodeSelector - default
+    # Exec deployment nodeSelector
     nodeSelector: {}
-    # Exec deployment tolerations - default
+    # Exec deployment tolerations
     tolerations: {}
-    # Exec deployment extra environment variables - shared, NODE_OPTIONS is default
+    # Exec deployment extra environment variables
     env:
       NODE_OPTIONS: "--experimental-vm-modules"
-    # Exec deployment extra environment variables from existing secret - shared
+    # Exec deployment extra environment variables from existing secret
     secretRef:
     #   ENV_VAR_NAME:
     #     name: secret-name
     #     key: secret_key
-    # Exec deployment probes - shared
-    livenessProbe: {}
-    readinessProbe: {}
-    startupProbe: {}
     # Exec deployment resources - default
     resources:
     #   requests:
