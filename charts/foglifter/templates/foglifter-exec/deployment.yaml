@@ -3,7 +3,8 @@
   {{- include "foglifter.execDeployments" (dict "root" $ "deploy" $value "deployName" $key) }}
 {{- end }}
 {{- else }}
-{{- $defaults := required "exec.defaults must be set" (.Values.exec).defaults }}
+{{- $exec := required "exec must be set" .Values.exec }}
+{{- $defaults := required "exec.defaults must be set" .Values.exec.defaults }}
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -48,16 +49,16 @@ spec:
       containers:
         - name: exec-app
           {{- $imageTagDelimiter := ":" }}
-          {{- if (hasPrefix "sha256:" $defaults.tag) }}
+          {{- if (hasPrefix "sha256:" $exec.tag) }}
             {{- $imageTagDelimiter = "@" }}
           {{- end }}
           {{-
             $imageString := (
               printf "%s%s%s%s"
                 (default "ghcr.io/vso-inc/" .Values.registry)
-                (default "foglifter-exec-app" $defaults.repository)
+                (default "foglifter-exec-app" $exec.repository)
                 ($imageTagDelimiter)
-                (default "latest" $defaults.tag)
+                (default "latest" $exec.tag)
             )
           }}
           image: {{ $imageString }}
@@ -109,15 +110,15 @@ spec:
                   key: {{ $val.key }}
             {{- end }}
             {{- end }}
-          {{- with $defaults.livenessProbe }}
+          {{- with $exec.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with $defaults.readinessProbe }}
+          {{- with $exec.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with $defaults.startupProbe }}
+          {{- with $exec.startupProbe }}
           startupProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
