@@ -14,10 +14,12 @@ metadata:
   {{- $imageList := list }}
   {{- range $services }}
     {{- $svc := index $values . | default dict }}
+    {{- if ne $svc.enabled false }}
     {{- $repo := $svc.repository }}
     {{- $tag := $svc.tag }}
     {{- $imageList = append $imageList (printf "foglifter-%s=%s%s:%s" . $registry $repo $tag) }}
     {{ printf "argocd-image-updater.argoproj.io/foglifter-%s.helm.image-tag: %s.tag" . . }}
+    {{- end }}
   {{- end }}
     argocd-image-updater.argoproj.io/image-list: {{ $imageList | join ", " | quote }}
     argocd-image-updater.argoproj.io/update-strategy: digest
