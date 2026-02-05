@@ -1,38 +1,43 @@
-{{- if (eq ((.Values.foglifter).application).install true) }}
-{{- $values := (omit .Values.foglifter "application") }}
-{{- $name := ((.Values.foglifter).application).name }}
-{{- $registry := (default "ghcr.io/vso-inc/" (.Values.foglifter).registry) }}
+{{- $foglifter := .Values.foglifter | default dict }}
+{{- $application := $foglifter.application | default dict }}
+{{- if $application.install }}
+{{- $values := omit $foglifter "application" }}
+{{- $name := $application.name }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   annotations:
-    argocd-image-updater.argoproj.io/image-list: "foglifter-apiservice={{ $registry }}{{ ((.Values.foglifter).apiservice).repository }}:{{ ((.Values.foglifter).apiservice).tag }}, foglifter-auth={{ $registry }}{{ ((.Values.foglifter).auth).repository }}:{{ ((.Values.foglifter).auth).tag }}, foglifter-client={{ $registry }}{{ ((.Values.foglifter).client).repository }}:{{ ((.Values.foglifter).client).tag }}, foglifter-compliance-api={{ $registry }}{{ (((.Values.foglifter).compliance).api).repository }}:{{ (((.Values.foglifter).compliance).api).tag }}, foglifter-compliance-ems={{ $registry }}{{ (((.Values.foglifter).compliance).ems).repository }}:{{ (((.Values.foglifter).compliance).ems).tag }}, foglifter-core={{ $registry }}{{ ((.Values.foglifter).core).repository }}:{{ ((.Values.foglifter).core).tag }}, foglifter-exec={{ $registry }}{{ ((.Values.foglifter).exec).repository }}:{{ ((.Values.foglifter).exec).tag }}, foglifter-mainUI={{ $registry }}{{ ((.Values.foglifter).mainUI).repository }}:{{ ((.Values.foglifter).mainUI).tag }}, foglifter-scheduler={{ $registry }}{{ ((.Values.foglifter).scheduler).repository }}:{{ ((.Values.foglifter).scheduler).tag }}"
-    argocd-image-updater.argoproj.io/foglifter-apiservice.helm.image-tag: apiservice.tag
-    argocd-image-updater.argoproj.io/foglifter-auth.helm.image-tag: auth.tag
-    argocd-image-updater.argoproj.io/foglifter-client.helm.image-tag: client.tag
-    argocd-image-updater.argoproj.io/foglifter-compliance-api.helm.image-tag: compliance.api.tag
-    argocd-image-updater.argoproj.io/foglifter-compliance-ems.helm.image-tag: compliance.ems.tag
-    argocd-image-updater.argoproj.io/foglifter-core.helm.image-tag: core.tag
-    argocd-image-updater.argoproj.io/foglifter-exec.helm.image-tag: exec.tag
-    argocd-image-updater.argoproj.io/foglifter-mainUI.helm.image-tag: mainUI.tag
-    argocd-image-updater.argoproj.io/foglifter-scheduler.helm.image-tag: scheduler.tag
+  {{- $imageUpdater := .Values.imageUpdater | default dict }}
+  {{- if $imageUpdater.enabled }}
+  {{- $registry := .Values.foglifter.registry | default "ghcr.io/vso-inc/" }}
+  {{- $services := $imageUpdater.services }}
+  {{- $imageList := list }}
+  {{- range $services }}
+    {{- $svc := index $values . | default dict }}
+    {{- $repo := $svc.repository }}
+    {{- $tag := $svc.tag }}
+    {{- $imageList = append $imageList (printf "foglifter-%s=%s%s:%s" . $registry $repo $tag) }}
+    {{ printf "argocd-image-updater.argoproj.io/foglifter-%s.helm.image-tag: %s.tag" . . }}
+  {{- end }}
+    argocd-image-updater.argoproj.io/image-list: {{ $imageList | join ", " | quote }}
     argocd-image-updater.argoproj.io/update-strategy: digest
-    argocd-image-updater.argoproj.io/pull-secret: pullsecret:{{ .Release.Namespace }}/{{ default "foglifter-pullsecret" (.Values.foglifter).imagePullSecret }}
+    argocd-image-updater.argoproj.io/pull-secret: {{ printf "pullsecret:%s/%s" .Release.Namespace (default "foglifter-pullsecret" $values.imagePullSecret) }}
+  {{- end }}
   name: foglifter
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: {{ default "foglifter" ((.Values.foglifter).application).project }}
+  project: {{ default "foglifter" $application.project }}
   source:
     chart: foglifter
     repoURL: https://vso-inc.github.io/foglifter-helm
-    targetRevision: {{ ((.Values.foglifter).application).version | semver }}
+    targetRevision: {{ $application.version | semver }}
     helm:
       values: |
         {{- default dict $values | toYaml | nindent 8 }}
   destination:
     server: https://kubernetes.default.svc
-    namespace: {{ default "foglifter" ((.Values.foglifter).application).namespace }}
+    namespace: {{ default "foglifter" $application.namespace }}
   syncPolicy:
     syncOptions:
       - CreateNamespace=true

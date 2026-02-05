@@ -1,3 +1,4 @@
+---
 # Argo CD Image Updater
 imageUpdater:
   # Enable Argo CD Image Updater
@@ -6,6 +7,16 @@ imageUpdater:
   version: 0.12.3
   # Argo CD Image Updater registry configurations
   registries: []
+  # Argo CD Image Updater service list
+  services:
+    - apiservice
+    - auth
+    - client
+    - compliance
+    - core
+    - exec
+    - routing
+    - scheduler
 
 # Recommended default FogLifter configurations
 foglifter:
@@ -21,6 +32,31 @@ foglifter:
     project: foglifter
     # Chart version
     version: 0.5.3
+  # Default FogLifter deployment image configs
+  apiservice:
+    repository: foglifter-api-service
+    tag: prod
+  auth:
+    repository: foglifter-auth-service
+    tag: prod
+  client:
+    repository: foglifter-client
+    tag: prod
+  compliance:
+    repository: foglifter-compliance-api
+    tag: prod
+  core:
+    repository: foglifter-core-app
+    tag: prod
+  exec:
+    repository: foglifter-exec-app
+    tag: prod
+  routing:
+    repository: foglifter-routing-service
+    tag: prod
+  scheduler:
+    repository: foglifter-scheduler
+    tag: prod
 
 # Recommended default FogLifter Traefik ingress configurations
 traefik:
