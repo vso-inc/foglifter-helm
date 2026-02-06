@@ -1,3 +1,4 @@
+---
 # Recommended default FogLifter Traefik configurations
 
 # FQDNs used to access FogLifter UI
@@ -25,13 +26,13 @@ core:
   # Core app service route path
   path: /api
 
-# FogLifter main UI ingress configurations
-mainUI:
-  # main UI service port
-  port: 80
-  # main UI service name
-  name: foglifter-main-ui-svc
-  # main UI service route path
+# FogLifter routing service ingress configurations
+routing:
+  # routing service service port
+  port: 8080
+  # routing service service name
+  name: foglifter-routing-svc
+  # routing service service route path
   path: /
 
 # FogLifter apiservice ingress configurations
@@ -61,17 +62,6 @@ client:
   # Client service route path
   path: /ui
 
-# FogLifter module app ingress configurations
-module:
-  # Enable module app ingress
-  enabled: true
-  # Module app service port
-  port: 8080
-  # Module app service name
-  name: foglifter-module-svc
-  # Module app service route path
-  path: /api/module
-
 # FogLifter scheduler ingress configurations
 scheduler:
   # Enable scheduler ingress
@@ -85,26 +75,14 @@ scheduler:
 
 # FogLifter compliance
 compliance:
-  # Compliance API ingress configurations
-  api:
-    # Enable compliance API ingress
-    enabled: false
-    # Compliance API service port
-    port: 3000
-    # Compliance API service name
-    name: foglifter-compliance-api-svc
-    # Compliance API service route path
-    path: /api/compliance
-  # Compliance EMS API ingress configurations
-  ems:
-    # Enable compliance EMS API ingress
-    enabled: false
-    # Compliance EMS API service port
-    port: 8080
-    # Compliance EMS API service name
-    name: foglifter-compliance-ems-api-svc
-    # Compliance EMS API service route path
-    /path: /api/compliance/ems
+  # Enable compliance API ingress
+  enabled: false
+  # Compliance API service port
+  port: 3000
+  # Compliance API service name
+  name: foglifter-compliance-api-svc
+  # Compliance API service route path
+  path: /api/compliance
 
 # Argo CD ingress configurations
 argocd:

@@ -1,18 +1,20 @@
+{{- if .Values.compliance.enabled }}
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: {{ .Release.Name }}-main-ui-https
+  name: {{ .Release.Name }}-compliance-api-https
 spec:
   entryPoints:
     - websecure
   routes:
-    - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.mainUI }}
+    - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.compliance }}
       kind: Rule
       services:
-        - name: {{ default "foglifter-main-ui-svc" (.Values.mainUI).name }}
+        - name: {{ default "foglifter-compliance-api-svc" (.Values.compliance).name }}
           namespace: {{ default "foglifter" .Values.foglifterNamespace }}
-          port: {{ default "80" (.Values.mainUI).port | int }}
+          port: {{ default "8080" (.Values.compliance).port | int }}
   {{- if (eq (.Values.certificate).useExisting true ) }}
   tls:
     secretName: {{ default "foglifter-traefik-cert" (.Values.certificate).name }}
   {{- end }}
+{{- end }}
