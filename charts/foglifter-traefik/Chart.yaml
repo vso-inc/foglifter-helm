@@ -1,9 +1,10 @@
+---
 apiVersion: v2
 name: foglifter-traefik
 description: Helm chart for FogLifter® Traefik ingress configurations
 
 type: application
 
-version: 0.1.23
+version: 0.1.24
 
 appVersion: "4.6"
