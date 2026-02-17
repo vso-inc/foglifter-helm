@@ -165,6 +165,7 @@ spec:
                 secretKeyRef:
                   name: {{ $val.name }}
                   key: {{ $val.key }}
+                  optional: {{ $val.optional | default false }}
             {{- end }}
             {{- end }}
             {{- end }}
@@ -176,6 +177,7 @@ spec:
                 secretKeyRef:
                   name: {{ $val.name }}
                   key: {{ $val.key }}
+                  optional: {{ $val.optional | default false }}
             {{- end }}
             {{- end }}
             {{- end }}
