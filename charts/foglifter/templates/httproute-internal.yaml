@@ -1,0 +1,80 @@
+{{- if and (.Values.gatewayAPI).enabled ((.Values.gatewayAPI).httpRoute).enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Values.gatewayAPI.httpRoute.name }}-internal
+  namespace: {{ default .Release.Namespace .Values.gatewayAPI.httpRoute.namespace }}
+  {{- with .Values.gatewayAPI.httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  parentRefs:
+    - name: {{ .Values.gatewayAPI.gateway.name }}
+      sectionName: http
+      namespace: {{ default .Release.Namespace .Values.gatewayAPI.gateway.namespace }}
+  {{- $routes := .Values.gatewayAPI.httpRoute.routes }}
+  {{- $releaseName := .Release.Name }}
+  hostnames:
+    - {{ .Values.serviceMesh.domain }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ $routes.apiservice.path }}
+      backendRefs:
+        - name: {{ $releaseName }}-apiservice-svc
+          port: {{ $.Values.apiservice.port | int }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ $routes.auth.path }}
+      backendRefs:
+        - name: {{ $releaseName }}-auth-svc
+          port: {{ $.Values.auth.port | int }}
+  {{- if and $routes.client.enabled (.Values.client).enabled }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ $routes.client.path }}
+      backendRefs:
+        - name: {{ $releaseName }}-client-svc
+          port: {{ $.Values.client.port | int }}
+  {{- end }}
+  {{- if and $routes.compliance.enabled (.Values.compliance).enabled }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ $routes.compliance.path }}
+      backendRefs:
+        - name: {{ $releaseName }}-compliance-svc
+          port: {{ $.Values.compliance.port | int }}
+  {{- end }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ $routes.core.path }}
+      backendRefs:
+        - name: {{ $releaseName }}-core-svc
+          port: {{ $.Values.core.port | int }}
+  {{- if and $routes.routing.enabled (.Values.routing).enabled }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ $routes.routing.path }}
+      backendRefs:
+        - name: {{ $releaseName }}-routing-svc
+          port: {{ $.Values.routing.port | int }}
+  {{- end }}
+  {{- if and $routes.scheduler.enabled (.Values.scheduler).enabled }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ $routes.scheduler.path }}
+      backendRefs:
+        - name: {{ $releaseName }}-scheduler-svc
+          port: {{ $.Values.scheduler.port | int }}
+  {{- end }}
+{{- end }}

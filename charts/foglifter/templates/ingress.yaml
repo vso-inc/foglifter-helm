@@ -98,16 +98,16 @@ spec:
       {{- if .Values.ingress.host }}
       host: {{ .Values.ingress.host }}
       {{- end }}
-  {{- if .Values.mainUI.enabled }}
+  {{- if .Values.routing.enabled }}
     - http:
         paths:
           - pathType: Prefix
             path: "/"
             backend:
               service:
-                name: {{ .Release.Name }}-main-ui-svc
+                name: {{ .Release.Name }}-routing-svc
                 port:
-                  number: {{ .Values.mainUI.port | int }}
+                  number: {{ .Values.routing.port | int }}
       {{- if .Values.ingress.host }}
       host: {{ .Values.ingress.host }}
       {{- end }}

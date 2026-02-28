@@ -1,0 +1,47 @@
+{{- if and (.Values.gatewayAPI).enabled ((.Values.gatewayAPI).gateway).name }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Values.gatewayAPI.gateway.name }}
+  namespace: {{ default .Release.Namespace .Values.gatewayAPI.gateway.namespace }}
+  {{- with .Values.gatewayAPI.gateway.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  gatewayClassName: {{ .Values.gatewayAPI.gateway.gatewayClassName }}
+  {{- with .Values.gatewayAPI.gateway.listeners }}
+  listeners:
+    {{- if .http.enabled }}
+    - name: http
+      protocol: HTTP
+      port: {{ default "8000" .http.port | int }}
+      {{- with .http.allowedRoutes }}
+      allowedRoutes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+    {{- if .https.enabled }}
+    - name: https
+      protocol: HTTPS
+      port: {{ default "8443" .https.port | int }}
+      {{- with .https.tls }}
+      tls:
+        mode: {{ .mode }}
+        {{- with .certificateRefs }}
+        certificateRefs:
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- with .https.allowedRoutes }}
+      allowedRoutes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+    {{- with .extra }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}
