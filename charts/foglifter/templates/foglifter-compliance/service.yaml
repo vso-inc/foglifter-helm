@@ -13,6 +13,6 @@ spec:
   - port: {{ $port }}
     targetPort: {{ $port }}
   selector:
-    name: {{ $.Release.Name }}-compliance-api
+    name: {{ $.Release.Name }}-compliance
 {{- end }}
 {{- end }}
