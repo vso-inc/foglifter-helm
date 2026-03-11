@@ -69,38 +69,38 @@ spec:
             - name: APIKEY
               valueFrom:
                 secretKeyRef:
-                  {{- if (.Values.apiSecret).create }}
-                  name: {{ .Release.Name }}-api-secret
-                  {{- else if (.Values.apiSecret).name }}
-                  name: {{ .Values.apiSecret.name }}
+                  {{- if ($.Values.apiSecret).create }}
+                  name: {{ $.Release.Name }}-api-secret
+                  {{- else if ($.Values.apiSecret).name }}
+                  name: {{ $.Values.apiSecret.name }}
                   {{- end }}
                   key: COMPLIANCE_APIKEY
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
-                  {{- if (.Values.apiSecret).create }}
-                  name: {{ .Release.Name }}-api-secret
-                  {{- else if (.Values.apiSecret).name }}
-                  name: {{ .Values.apiSecret.name }}
+                  {{- if ($.Values.apiSecret).create }}
+                  name: {{ $.Release.Name }}-api-secret
+                  {{- else if ($.Values.apiSecret).name }}
+                  name: {{ $.Values.apiSecret.name }}
                   {{- end }}
                   key: COMPLIANCE_APIKEY
             - name: TOKEN_JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  {{- if (.Values.apiSecret).create }}
-                  name: {{ .Release.Name }}-api-secret
-                  {{- else if (.Values.apiSecret).name }}
-                  name: {{ .Values.apiSecret.name }}
+                  {{- if ($.Values.apiSecret).create }}
+                  name: {{ $.Release.Name }}-api-secret
+                  {{- else if ($.Values.apiSecret).name }}
+                  name: {{ $.Values.apiSecret.name }}
                   {{- end }}
                   key: TOKEN_JWT_SECRET
                   optional: true
             - name: JWT_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  {{- if (.Values.apiSecret).create }}
-                  name: {{ .Release.Name }}-api-secret
-                  {{- else if (.Values.apiSecret).name }}
-                  name: {{ .Values.apiSecret.name }}
+                  {{- if ($.Values.apiSecret).create }}
+                  name: {{ $.Release.Name }}-api-secret
+                  {{- else if ($.Values.apiSecret).name }}
+                  name: {{ $.Values.apiSecret.name }}
                   {{- end }}
                   key: TOKEN_JWT_SECRET
                   optional: true

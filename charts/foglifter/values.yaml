@@ -617,6 +617,10 @@ mongodb-kubernetes:
   # Values to be passed to mongodb-kubernetes helm chart
   # https://github.com/mongodb/mongodb-kubernetes/blob/master/helm_chart/values.yaml
   community:
+    mongodb:
+      repo: quay.io/mongodb
+      name: mongodb-community-server
+      imageType: ubi8
     resource:
       name: foglifter-mongodb
       version: 6.0.27
