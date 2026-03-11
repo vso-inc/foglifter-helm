@@ -1,4 +1,4 @@
-{{- with (.Values.compliance).api }}
+{{- with .Values.compliance }}
 {{- if .enabled }}
 kind: Service
 apiVersion: v1

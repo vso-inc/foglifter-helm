@@ -1,4 +1,4 @@
-{{- with (.Values.compliance).api }}
+{{- with .Values.compliance }}
 {{- if and .enabled (ne .enableInitHook false) }}
 apiVersion: batch/v1
 kind: Job

@@ -1,4 +1,4 @@
-{{- if and ((.Values.compliance).api).enabled (ne ((.Values.compliance).api).enableInitHook false) }}
+{{- if and (.Values.compliance).enabled (ne (.Values.compliance).enableInitHook false) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

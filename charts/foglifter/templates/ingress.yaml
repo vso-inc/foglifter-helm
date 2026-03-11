@@ -58,7 +58,7 @@ spec:
       host: {{ .Values.ingress.host }}
       {{- end }}
     {{- end }}
-    {{- if .Values.compliance.api.enabled}}
+    {{- if .Values.compliance.enabled}}
     - http:
         paths:
           - pathType: Prefix
@@ -67,7 +67,7 @@ spec:
               service:
                 name: {{ .Release.Name }}-compliance-api-svc
                 port:
-                  number: {{ .Values.compliance.api.port | int }}
+                  number: {{ .Values.compliance.port | int }}
       {{- if .Values.ingress.host }}
       host: {{ .Values.ingress.host }}
       {{- end }}
