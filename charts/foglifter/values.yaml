@@ -10,31 +10,49 @@ imagePullPolicy: IfNotPresent
 # Must be created separately from helm install/upgrade
 imagePullSecret: "foglifter-pullsecret"
 
+# FogLifter® site domain name (e.g. "foglifter.example.com")
+domain: ""
+
+# FogLifter® internal service-mesh URL
+serviceMesh:
+  # Internal service-mesh domain
+  domain: foglifter-traefik
+  # Internal service-mesh protocol
+  protocol: http
+  # Internal service-mesh path
+  # path: /api
+  # Internal service-mesh port
+  # port: 80
+
 # FogLifter® API secret
 apiSecret:
   # Create Secret
-  create: true
+  create: false
   # API secret data
-  data:
-    # Values can be any random strings, e.g. `openssl rand -hex 32`
-    SECRET_KEY: ""
-    TOKEN_JWT_SECRET: ""
-    AUTH_APIKEY: ""
-    CORE_APIKEY: ""
-    EXECUTOR_APIKEY: ""
-    SCHEDULER_APIKEY: ""
+  data: {}
+  #   AUTH_APIKEY: ""
+  #   COMPLIANCE_APIKEY: ""
+  #   CORE_APIKEY: ""
+  #   EXECUTOR_APIKEY: ""
+  #   SCHEDULER_APIKEY: ""
+  #   SECRET_KEY: ""
+  #   TOKEN_JWT_SECRET: ""
   # Existing secret name
-  # Must contain SECRET_KEY
-  # Must contain API keys for all required FogLifter® deployments
-  # AUTH_APIKEY, CORE_APIKEY, EXECUTOR_APIKEY, SCHEDULER_APIKEY
-  name: ""
+  # Must contain above environment variables
+  name: foglifter-api-secret
+# Create foglifter-mongodb secret for mongodb-kubernetes if enabled
+createMongoSecret: false
+# FogLifter® MongoDB secret name
+# Must contain MONGO_URI
+# Ignored if mongob-kubernetes.enabled is true
+mongoSecret: ""
 
 # FogLifter® ConfigMap parameters
 cm:
   # Create ConfigMap
   create: true
   # Environment variables to be passed to all FogLifter® deployments via ConfigMap
-  data:
+  data: {}
   #   ENV_VAR_NAME: value
 
 # FogLifter® Secret parameters
@@ -51,10 +69,6 @@ priorityClass:
   create: true
   # PriorityClass priority value
   value: 1000000
-# FogLifter® MongoDB secret name
-# Must contain MONGO_URI
-# Ignored if mongob-kubernetes.enabled is true
-mongoSecret: ""
 
 # FogLifter® MongoDB backups cronjob parameters
 backups:
@@ -232,8 +246,6 @@ compliance:
     password: ""
     # DB_URL
     url: ""
-    # JWT_SECRET_KEY
-    jwt: ""
     # Existing secret name
     # Must contain above environment variables
     name: ""
@@ -465,6 +477,102 @@ scheduler:
   #     cpu: 500m
   #     memory: 2048Mi
 
+# Traefik ingress controller parameters
+traefik:
+  # Enable Traefik as an ingress controller
+  enabled: true
+  # Values to be passed to traefik helm chart
+  # https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
+  fullnameOverride: foglifter-traefik
+  gateway:
+    enabled: false
+  ingressClass:
+    enabled: false
+  providers:
+    kubernetesCRD:
+      enabled: false
+    kubernetesIngress:
+      enabled: false
+    kubernetesGateway:
+      enabled: true
+
+# Gateway API configurations
+gatewayAPI:
+  # Enable Gateway API resources
+  enabled: true
+  # Gateway resource configuration
+  gateway:
+    # Gateway name
+    name: foglifter-gateway
+    # Gateway namespace (defaults to Release namespace)
+    namespace: ""
+    # Gateway controller name
+    gatewayClassName: traefik
+    # Gateway listeners configuration
+    listeners:
+      http:
+        enabled: true
+        # Default Traefik HTTP entrypoint port is 8000,
+        # but will be exposed on port 80
+        port: 8000
+      https:
+        enabled: false
+        # Default Traefik HTTPS entrypoint port is 8443,
+        # but will be exposed on port 443
+        port: 8443
+        tls:
+          mode: Terminate
+          certificateRefs:
+            - name: foglifter-tls
+      extra: {}
+        # - name: mongo
+        #   protocol: TCP
+        #   port: 27017
+    # Gateway annotations
+    annotations: {}
+  # HTTPRoute resource configuration
+  httpRoute:
+    # Enable HTTPRoute creation
+    enabled: true
+    # HTTPRoute name
+    name: foglifter-routes
+    # HTTPRoute namespace (defaults to Release namespace)
+    namespace: ""
+    # HTTPRoute hostnames for routing (optional)
+    # Can be used to route specific hostnames to the foglifter services
+    hostnames: []
+    # HTTPRoute annotations
+    annotations: {}
+    # HTTPRoute redirect HTTP to HTTPS if https listener is enabled
+    httpsRedirect: true
+    # Service routes configuration
+    routes:
+      # API service routing
+      apiservice:
+        path: /api/v1
+      # Auth service routing
+      auth:
+        path: /api/auth
+      # Client service routing
+      client:
+        enabled: true
+        path: /ui
+      # Compliance service routing
+      compliance:
+        enabled: false
+        path: /api/compliance
+      # Core service routing
+      core:
+        path: /api
+      # Routing service routing
+      routing:
+        enabled: true
+        path: /
+      # Scheduler service routing
+      scheduler:
+        enabled: true
+        path: /scheduler
+
 # FogLifter® ingress configurations
 ingress:
   # Enable ingress
@@ -512,11 +620,11 @@ mongodb-kubernetes:
     resource:
       name: foglifter-mongodb
       version: 6.0.27
-      members: 3
+      # Increase to 3 or more members for production deployments
+      members: 1
       users:
         - name: foglifter
           db: foglifterDB
-          # This secret with password must be created separately, see above
           passwordSecretRef:
             name: foglifter-mongodb
             key: password
@@ -532,14 +640,14 @@ mongodb-kubernetes:
             - metadata:
                 name: data-volume
               spec:
-                storageClassName: ""
+                # storageClassName: ""
                 resources:
                   requests:
                     storage: 10Gi
             - metadata:
                 name: logs-volume
               spec:
-                storageClassName: ""
+                # storageClassName: ""
                 resources:
                   requests:
                     storage: 10Gi

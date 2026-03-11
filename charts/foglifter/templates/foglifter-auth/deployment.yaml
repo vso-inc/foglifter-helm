@@ -72,6 +72,16 @@ spec:
                   name: {{ .Values.apiSecret.name }}
                   {{- end }}
                   key: AUTH_APIKEY
+            - name: TOKEN_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  {{- if (.Values.apiSecret).create }}
+                  name: {{ .Release.Name }}-api-secret
+                  {{- else if (.Values.apiSecret).name }}
+                  name: {{ .Values.apiSecret.name }}
+                  {{- end }}
+                  key: TOKEN_JWT_SECRET
+                  optional: true
             {{- include "foglifter.mongoUri" . | nindent 12 }}
             {{- if (.Values.auth).env }}
             {{- range $key, $val := .Values.auth.env }}
