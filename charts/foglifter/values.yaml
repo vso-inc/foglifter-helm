@@ -608,6 +608,45 @@ podOptions:
   # Annotations to be added to all pods
   annotations: {}
 
+# CloudNative-PG operator parameters
+cloudnative-pg:
+  # Enable CloudNative-PG operator
+  enabled: false
+  # Values to be passed to CloudNative-PG helm chart
+  # https://github.com/cloudnative-pg/charts/blob/main/charts/cloudnative-pg/values.yaml
+  config:
+    clusterWide: false
+
+# CloudNative-PG cluster parameters
+cluster:
+  # Enable CloudNative-PG cluster
+  enabled: false
+  # Values to be passed to CloudNative-PG cluster helm chart
+  # https://github.com/cloudnative-pg/charts/blob/main/charts/cluster/values.yaml
+  fullnameOverride: postgresql-1
+  version:
+    postgresql: "16"
+    mode: standalone
+  cluster:
+    instances: 1
+    storage:
+      size: 10Gi
+      storageClass: ""
+    services:
+      disabledDefaultServices: ["ro", "r"]
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: postgresql
+            spec:
+              type: ClusterIP
+    affinity:
+      topologyKey: kubernetes.io/hostname
+    roles: []
+    initdb: {}
+  databases: []
+
 # MongoDB Kubernetes Operator parameters
 mongodb-kubernetes:
   # Enable MongoDB Kubernetes Operator
@@ -655,12 +694,14 @@ mongodb-kubernetes:
                 resources:
                   requests:
                     storage: 10Gi
-          # containers:
-          #   - name: mongod
-          #     resources:
-          #       requests:
-          #         cpu: 500m
-          #         memory: 4096Mi
-          #       limits:
-          #         cpu: 500m
-          #         memory: 4096Mi
+          # template:
+          #   spec:
+          #     containers:
+          #       - name: mongod
+          #         resources:
+          #           requests:
+          #             cpu: 500m
+          #             memory: 4096Mi
+          #           limits:
+          #             cpu: 500m
+          #             memory: 4096Mi
