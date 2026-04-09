@@ -1,12 +1,18 @@
 dependencies:
 - name: mongodb-kubernetes
   repository: https://mongodb.github.io/helm-charts
-  version: 1.6.1
+  version: 1.8.0
 - name: mssql
   repository: oci://registry.gitlab.com/xrow-public/helm-mssql/charts
-  version: 1.3.0
+  version: 1.6.1
 - name: traefik
   repository: https://traefik.github.io/charts
-  version: 39.0.2
-digest: sha256:eb55bbdfdebd5e03d000091eaa3173cc3ff4b3e900b781a7e80a9f35435fd275
-generated: "2026-02-27T11:28:53.601551-05:00"
+  version: 39.0.7
+- name: cloudnative-pg
+  repository: https://cloudnative-pg.github.io/charts
+  version: 0.27.1
+- name: cluster
+  repository: https://cloudnative-pg.github.io/charts
+  version: 0.6.0
+digest: sha256:b96925dadacb6116f8fadbe9a4c48f9eee83d983057aac543322afdaf6226cf7
+generated: "2026-04-09T11:31:39.230099-04:00"
