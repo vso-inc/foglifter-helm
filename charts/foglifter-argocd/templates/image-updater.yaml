@@ -15,11 +15,7 @@ spec:
     helm:
       values: |
         config:
-          argocd:
-            grpcWeb: false
-            insecure: true
-            serverAddress: {{ .Release.Name }}-server.{{ .Release.Namespace }}.cluster.local
-          logLevel: debug
+          log.level: debug
           {{- if (.Values.imageUpdater).registries }}
           registries:
             {{- default list .Values.imageUpdater.registries | toYaml | nindent 12 }}

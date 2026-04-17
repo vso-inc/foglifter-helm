@@ -1,0 +1,32 @@
+{{- $imageUpdater := .Values.imageUpdater | default dict }}
+{{- if $imageUpdater.enabled }}
+{{- $foglifter := .Values.foglifter | default dict }}
+{{- $values := omit $foglifter "application" }}
+{{- $registry := $foglifter.registry | default "ghcr.io/vso-inc/" }}
+{{- $services := $imageUpdater.services }}
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: foglifter-image-updater
+  namespace: {{ .Release.Namespace }}
+spec:
+  commonUpdateSettings:
+    updateStrategy: digest
+    pullSecret: {{ printf "pullsecret:%s/%s" .Release.Namespace (default "foglifter-pullsecret" $values.imagePullSecret) }}
+  applicationRefs:
+    - namePattern: "foglifter"
+      images:
+      {{- range $services }}
+        {{- $svc := index $values . | default dict }}
+        {{- if ne $svc.enabled false }}
+        - alias: foglifter-{{ . }}
+          imageName: "{{ $registry }}{{ $svc.repository }}:{{ $svc.tag }}"
+          manifestTargets:
+            helm:
+              tag: "{{ . }}.tag"
+        {{- end }}
+      {{- end }}
+    {{- with $imageUpdater.extraApplicationRefs }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}

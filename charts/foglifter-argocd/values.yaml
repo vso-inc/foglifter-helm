@@ -2,11 +2,13 @@
 # Argo CD Image Updater
 imageUpdater:
   # Enable Argo CD Image Updater
-  enabled: true
-  # Argo CD Image Updater version
-  version: 0.12.3
+  enabled: false
+  # Argo CD Image Updater chart version
+  version: 1.1.5
   # Argo CD Image Updater registry configurations
   registries: []
+  # Extra applicationRefs for ad-hoc applications
+  extraApplicationRefs: []
   # Argo CD Image Updater service list
   services:
     - apiservice
@@ -31,7 +33,7 @@ foglifter:
     # Application Argo CD project
     project: foglifter
     # Chart version
-    version: 0.5.3
+    version: 1.1.0
   # Default FogLifter deployment image configs
   apiservice:
     repository: foglifter-api-service
@@ -71,7 +73,7 @@ traefik:
     # Application Argo CD project
     project: traefik
     # FogLifter Traefik ingress chart version
-    version: 0.1.23
+    version: 0.1.24
     # Traefik chart version
     traefikVersion: 24.0.0
     # Traefik image tag
