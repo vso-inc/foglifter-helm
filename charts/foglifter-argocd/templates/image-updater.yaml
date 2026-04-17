@@ -20,6 +20,8 @@ spec:
           registries:
             {{- default list .Values.imageUpdater.registries | toYaml | nindent 12 }}
           {{- end }}
+        extraObjects:
+          - {{- tpl (.Files.Get "files/image-updater-cr.yaml") . | nindent 12 }}
   destination:
     server: "https://kubernetes.default.svc"
     namespace: {{ .Release.Namespace }}
