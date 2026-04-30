@@ -1098,6 +1098,27 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-argocd-0.1.1/foglifter-argocd-0.1.1.tgz
     version: 0.1.1
+  foglifter-headlamp:
+  - apiVersion: v2
+    appVersion: 0.41.0
+    created: "2026-04-30T18:53:21.545537844Z"
+    dependencies:
+    - condition: headlamp.enabled
+      name: headlamp
+      repository: https://kubernetes-sigs.github.io/headlamp/
+      version: 0.41.0
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 84.4.0
+    description: Headlamp dashboard plus a minimal kube-prometheus-stack for FogLifter
+      clusters
+    digest: 437aee52710a1f23813010f10510f0db0094444d134c8df2ce5b6f55a752bad5
+    name: foglifter-headlamp
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-headlamp-0.1.0/foglifter-headlamp-0.1.0.tgz
+    version: 0.1.0
   foglifter-mongo:
   - apiVersion: v2
     appVersion: 5.0.20
@@ -1803,4 +1824,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-17T19:55:10.858421384Z"
+generated: "2026-04-30T18:53:21.545795217Z"
