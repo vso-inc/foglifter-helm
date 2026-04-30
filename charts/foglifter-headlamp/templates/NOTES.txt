@@ -1,0 +1,43 @@
+{{- $url := "" -}}
+{{- if .Values.host -}}
+{{- $scheme := ternary "https" "http" .Values.tls.enabled -}}
+{{- $url = printf "%s://%s%s/" $scheme .Values.host .Values.path -}}
+{{- end -}}
+
+foglifter-headlamp installed.
+
+{{- if $url }}
+
+  Headlamp URL : {{ $url }}
+{{- end }}
+
+{{- if .Values.serviceAccount.tokenSecret.create }}
+
+Read the long-lived bearer token (paste into Headlamp's login screen):
+
+  kubectl -n {{ .Release.Namespace }} get secret \
+    {{ .Values.headlamp.serviceAccount.name }}-token \
+    -o jsonpath='{.data.token}' | base64 -d
+{{- else }}
+
+Mint a short-lived bearer token on demand (paste into Headlamp's login screen):
+
+  kubectl -n {{ .Release.Namespace }} create token \
+    {{ .Values.headlamp.serviceAccount.name }} --duration=8760h
+{{- end }}
+
+{{- if (index .Values "kube-prometheus-stack" "enabled") }}
+
+Prometheus (in-cluster only):
+  http://{{ index .Values "kube-prometheus-stack" "fullnameOverride" | default "kube-prometheus-stack" }}-prometheus.{{ .Release.Namespace }}.svc.cluster.local:9090
+{{- end }}
+
+{{- if (.Values.ingress).enabled }}
+
+Ingress profile : standard networking.k8s.io/v1 Ingress + Traefik Middleware
+  (slash redirect via Middleware CRD).
+{{- else if and (.Values.gatewayAPI).enabled ((.Values.gatewayAPI).httpRoute).enabled }}
+
+Ingress profile : Gateway API HTTPRoute
+  (slash redirect via native RequestRedirect filter).
+{{- end }}

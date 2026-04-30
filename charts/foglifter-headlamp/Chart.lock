@@ -1,0 +1,9 @@
+dependencies:
+- name: headlamp
+  repository: https://kubernetes-sigs.github.io/headlamp/
+  version: 0.41.0
+- name: kube-prometheus-stack
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 84.4.0
+digest: sha256:e801ea6e302f1dd79abe8de1021891431e6fb5d19ea036aa724bcd257b319296
+generated: "2026-04-30T14:17:28.739754-04:00"

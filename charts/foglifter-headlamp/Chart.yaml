@@ -1,0 +1,18 @@
+apiVersion: v2
+name: foglifter-headlamp
+description: Headlamp dashboard plus a minimal kube-prometheus-stack for FogLifter clusters
+type: application
+
+version: 0.1.0
+
+appVersion: "0.41.0"
+
+dependencies:
+  - name: headlamp
+    repository: https://kubernetes-sigs.github.io/headlamp/
+    version: 0.41.0
+    condition: headlamp.enabled
+  - name: kube-prometheus-stack
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 84.4.0
+    condition: kube-prometheus-stack.enabled

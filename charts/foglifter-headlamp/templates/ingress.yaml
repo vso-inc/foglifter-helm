@@ -1,0 +1,42 @@
+{{- if (.Values.ingress).enabled -}}
+{{- $svc := include "foglifter-headlamp.headlampServiceName" . -}}
+{{- $port := default 80 (((.Values.headlamp).service).port) -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "foglifter-headlamp.fullname" . }}
+  labels:
+    {{- include "foglifter-headlamp.labels" . | nindent 4 }}
+  annotations:
+    {{- if .Values.ingress.traefikMiddleware.enabled }}
+    traefik.ingress.kubernetes.io/router.middlewares: {{ include "foglifter-headlamp.redirectMiddlewareAnnotation" . }}
+    {{- end }}
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ required "host must be set when ingress.enabled and tls.enabled are both true" .Values.host }}
+      {{- if .Values.tls.secretName }}
+      secretName: {{ .Values.tls.secretName }}
+      {{- end }}
+  {{- end }}
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: {{ .Values.path | quote }}
+            backend:
+              service:
+                name: {{ $svc }}
+                port:
+                  number: {{ $port }}
+      {{- if .Values.host }}
+      host: {{ .Values.host }}
+      {{- end }}
+{{- end }}
