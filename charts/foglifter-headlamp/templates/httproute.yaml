@@ -1,0 +1,47 @@
+{{- if and (.Values.gatewayAPI).enabled ((.Values.gatewayAPI).httpRoute).enabled -}}
+{{- $svc := include "foglifter-headlamp.headlampServiceName" . -}}
+{{- $port := default 80 (((.Values.headlamp).service).port) -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ default (include "foglifter-headlamp.fullname" .) .Values.gatewayAPI.httpRoute.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "foglifter-headlamp.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+    - name: {{ required "gatewayAPI.gateway.name is required when gatewayAPI.enabled is true" .Values.gatewayAPI.gateway.name }}
+      {{- with .Values.gatewayAPI.gateway.namespace }}
+      namespace: {{ . }}
+      {{- end }}
+  {{- if or .Values.host .Values.gatewayAPI.httpRoute.hostnames }}
+  hostnames:
+    {{- if .Values.host }}
+    - {{ .Values.host }}
+    {{- end }}
+    {{- with .Values.gatewayAPI.httpRoute.hostnames }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  rules:
+    # Slash redirect: native RequestRedirect, no Middleware needed.
+    - matches:
+        - path:
+            type: Exact
+            value: {{ .Values.path | quote }}
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: {{ printf "%s/" .Values.path | quote }}
+            statusCode: 302
+    # Forward everything under <path>/ to the Headlamp Service.
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ printf "%s/" .Values.path | quote }}
+      backendRefs:
+        - name: {{ $svc }}
+          port: {{ $port }}
+{{- end }}

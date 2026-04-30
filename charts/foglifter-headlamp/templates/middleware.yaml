@@ -1,0 +1,14 @@
+{{- if and (.Values.ingress).enabled (.Values.ingress.traefikMiddleware).enabled -}}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "foglifter-headlamp.redirectMiddlewareName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "foglifter-headlamp.labels" . | nindent 4 }}
+spec:
+  redirectRegex:
+    regex: {{ printf "^https?://([^/]+)%s$" .Values.path | quote }}
+    replacement: {{ printf "https://${1}%s/" .Values.path | quote }}
+    permanent: false
+{{- end }}

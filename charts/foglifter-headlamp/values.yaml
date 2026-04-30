@@ -1,0 +1,150 @@
+---
+# --- Wrapper-owned (Ingress / HTTPRoute / Middleware / RBAC / token) ---
+
+# Public host to which the chart's ingress/route binds. Required when ingress.enabled
+# or gatewayAPI.httpRoute.enabled is true.
+host: ""
+
+# Path prefix Headlamp is served at. Must match `headlamp.config.baseURL` below.
+path: /headlamp
+
+# TLS termination at the ingress layer. Reuse a shared cert in the ingress
+# namespace
+tls:
+  enabled: true
+  secretName: foglifter-tls
+
+# Kubernetes Ingress profile
+ingress:
+  enabled: false
+  className: traefik
+  annotations: {}
+  # Slash redirect (`<path>` → `<path>/`) is not expressible in stock Ingress.
+  # On Traefik clusters, set this enabled to render a Middleware CRD and
+  # inject the `traefik.ingress.kubernetes.io/router.middlewares` annotation.
+  # Disable on non-Traefik clusters (the slashless URL will 404 on Headlamp).
+  traefikMiddleware:
+    enabled: true
+
+# Gateway API HTTPRoute profile
+gatewayAPI:
+  enabled: true
+  gateway:
+    name: foglifter-gateway
+    namespace: foglifter
+  httpRoute:
+    enabled: true
+    name: foglifter-headlamp
+    hostnames: []
+
+# Cluster-scoped read-only ClusterRole + ClusterRoleBinding for Headlamp's SA.
+rbac:
+  create: true
+  # Custom rules override the default read-only rule set if non-empty.
+  rules: []
+
+# Optional long-lived `kubernetes.io/service-account-token` Secret bound to
+# the SA. Disable to use `kubectl create token` on demand instead.
+serviceAccount:
+  tokenSecret:
+    create: true
+
+# --- Headlamp sub-chart overrides ---
+headlamp:
+  enabled: true
+  replicaCount: 1
+  image:
+    pullPolicy: IfNotPresent
+  config:
+    inCluster: true
+    baseURL: /headlamp
+    pluginsManager:
+      enabled: false
+    watchPlugins: false
+  serviceAccount:
+    create: true
+    # Fixed name; RBAC and token-Secret templates reference this verbatim.
+    name: headlamp-viewer
+  # The upstream Headlamp chart creates a ClusterRoleBinding to cluster-admin
+  # by default. This is disabled in favor of creating a read-only ClusterRole
+  # and ClusterRoleBinding via the wrapper's templates.
+  clusterRoleBinding:
+    create: false
+  ingress:
+    enabled: false
+  persistentVolumeClaim:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 100
+    runAsGroup: 101
+
+# --- kube-prometheus-stack sub-chart overrides ---
+kube-prometheus-stack:
+  enabled: true
+
+  # Pin sub-chart resource names so the in-cluster Prometheus URL is stable
+  # regardless of the parent release name.
+  fullnameOverride: kube-prometheus-stack
+
+  crds:
+    enabled: true
+
+  defaultRules:
+    create: false
+
+  alertmanager:
+    enabled: false
+
+  grafana:
+    enabled: false
+
+  # Cluster-component scrape jobs that have no working endpoints on rke2/k3s.
+  kubeControllerManager:
+    enabled: false
+  kubeScheduler:
+    enabled: false
+  kubeProxy:
+    enabled: false
+  kubeEtcd:
+    enabled: false
+
+  # Metric sources Headlamp's pod/node charts read from. Both are upstream
+  # defaults; listed here for clarity.
+  nodeExporter:
+    enabled: true
+  kubeStateMetrics:
+    enabled: true
+
+  prometheusOperator:
+    enabled: true
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+  prometheus:
+    enabled: true
+    prometheusSpec:
+      retention: 24h
+      # Empty storageSpec → emptyDir, no PVC. Prometheus loses metrics on
+      # pod restart; intentional for the minimal posture.
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
