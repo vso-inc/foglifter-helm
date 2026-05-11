@@ -5,7 +5,7 @@
 - name: MONGO_URI
   valueFrom:
     secretKeyRef:
-      {{- if (index .Values "mongodb-kubernetes").enabled }}
+      {{- if and (index .Values "mongodb-kubernetes").enabled (not .Values.mongoSecretOverride) }}
       {{- with (index .Values "mongodb-kubernetes").community.resource }}
       {{- $user := "" }}
       {{- $db := "" }}

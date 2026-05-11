@@ -44,8 +44,10 @@ apiSecret:
 createMongoSecret: false
 # FogLifter® MongoDB secret name
 # Must contain MONGO_URI
-# Ignored if mongob-kubernetes.enabled is true
+# Ignored if mongob-kubernetes.enabled is true and mongoSecretOverride is false
 mongoSecret: ""
+# Override MongoDB secret if mongodb-kubernetes is enabled
+mongoSecretOverride: false
 
 # FogLifter® ConfigMap parameters
 cm:
