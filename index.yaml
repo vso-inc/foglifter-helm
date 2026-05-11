@@ -3,6 +3,37 @@ entries:
   foglifter:
   - apiVersion: v2
     appVersion: "4.6"
+    created: "2026-05-11T17:10:52.736606707Z"
+    dependencies:
+    - condition: mongodb-kubernetes.enabled
+      name: mongodb-kubernetes
+      repository: https://mongodb.github.io/helm-charts
+      version: 1.8.0
+    - condition: mssql.enabled
+      name: mssql
+      repository: oci://registry.gitlab.com/xrow-public/helm-mssql/charts
+      version: 1.6.1
+    - condition: traefik.enabled
+      name: traefik
+      repository: https://traefik.github.io/charts
+      version: 39.0.7
+    - condition: cloudnative-pg.enabled
+      name: cloudnative-pg
+      repository: https://cloudnative-pg.github.io/charts
+      version: 0.27.1
+    - condition: cluster.enabled
+      name: cluster
+      repository: https://cloudnative-pg.github.io/charts
+      version: 0.6.0
+    description: Helm chart for FogLifter® installation
+    digest: 5e4f762c34e78c054984dc6be7213326e30dfb7a3951283c9fa6390d271405a4
+    name: foglifter
+    type: application
+    urls:
+    - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-1.1.1/foglifter-1.1.1.tgz
+    version: 1.1.1
+  - apiVersion: v2
+    appVersion: "4.6"
     created: "2026-04-09T15:39:04.160713152Z"
     dependencies:
     - condition: mongodb-kubernetes.enabled
@@ -1824,4 +1855,4 @@ entries:
     urls:
     - https://github.com/vso-inc/foglifter-helm/releases/download/foglifter-view-0.1.0/foglifter-view-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-30T18:53:21.545795217Z"
+generated: "2026-05-11T17:10:52.737050495Z"
