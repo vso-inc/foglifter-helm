@@ -21,3 +21,7 @@ resources: {}
   # limits:
   #   cpu: 200m
   #   memory: 200Mi
+
+# Override Redis maxmemory. If not set, defaults to resources.requests.memory
+# with unit conversion (Ki→kb, Mi→mb, Gi→gb). Set to "0" to disable the limit.
+maxmemory: ""

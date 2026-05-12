@@ -4,5 +4,20 @@ metadata:
   name: {{ .Release.Name }}-cm
 data:
   redis-config: |
-    maxmemory 2mb
+    {{- $maxmemory := "" }}
+    {{- if .Values.maxmemory }}
+    {{-   $maxmemory = .Values.maxmemory | toString }}
+    {{- else }}
+    {{-   $mem := dig "requests" "memory" "" .Values.resources }}
+    {{-   if $mem }}
+    {{-     $memStr := toString $mem }}
+    {{-     $memStr = regexReplaceAll "Gi$" $memStr "gb" }}
+    {{-     $memStr = regexReplaceAll "Mi$" $memStr "mb" }}
+    {{-     $memStr = regexReplaceAll "Ki$" $memStr "kb" }}
+    {{-     $maxmemory = $memStr }}
+    {{-   else }}
+    {{-     $maxmemory = "0" }}
+    {{-   end }}
+    {{- end }}
+    maxmemory {{ $maxmemory }}
     maxmemory-policy allkeys-lru
