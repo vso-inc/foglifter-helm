@@ -10,7 +10,7 @@ spec:
   project: {{ default "redis" ((.Values.redis).application).project }}
   source:
     chart: foglifter-redis
-    repoURL: https://vso-inc.github.io/foglifter-helm
+    repoURL: {{.Values.helmRegistry}}
     targetRevision: {{ ((.Values.redis).application).version | semver }}
     helm:
       values: |

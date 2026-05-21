@@ -1,4 +1,7 @@
 ---
+# Helm registry for FogLifter Argo CD applications
+helmRegistry: https://vso-inc.github.io/foglifter-helm
+
 # Argo CD Image Updater
 imageUpdater:
   # Enable Argo CD Image Updater
@@ -33,7 +36,7 @@ foglifter:
     # Application Argo CD project
     project: foglifter
     # Chart version
-    version: 1.1.0
+    version: 1.1.1
   # Default FogLifter deployment image configs
   apiservice:
     repository: foglifter-api-service

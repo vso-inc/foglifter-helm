@@ -10,7 +10,7 @@ spec:
   project: {{ default "view" ((.Values.view).application).project }}
   source:
     chart: foglifter-view
-    repoURL: https://vso-inc.github.io/foglifter-helm
+    repoURL: {{.Values.helmRegistry}}
     targetRevision: {{ ((.Values.view).application).version | semver }}
     helm:
       values: |

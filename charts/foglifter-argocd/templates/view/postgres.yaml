@@ -10,7 +10,7 @@ spec:
   project: {{ default "postgres" ((.Values.postgres).application).project }}
   source:
     chart: foglifter-postgres
-    repoURL: https://vso-inc.github.io/foglifter-helm
+    repoURL: {{.Values.helmRegistry}}
     targetRevision: {{ ((.Values.postgres).application).version | semver }}
     helm:
       values: |

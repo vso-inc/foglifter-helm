@@ -17,7 +17,7 @@ spec:
   project: {{ default "foglifter" ((.Values.mongo).application).project }}
   source:
     chart: foglifter-mongo
-    repoURL: https://vso-inc.github.io/foglifter-helm
+    repoURL: {{.Values.helmRegistry}}
     targetRevision: {{ ((.Values.mongo).application).version | semver }}
     helm:
       values: |
