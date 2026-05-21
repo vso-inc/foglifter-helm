@@ -6,6 +6,8 @@ helmRegistry: https://vso-inc.github.io/foglifter-helm
 imageUpdater:
   # Enable Argo CD Image Updater
   enabled: false
+  # Argo CD Image Updater Helm registry
+  helmRegistry: https://argoproj.github.io/argo-helm
   # Argo CD Image Updater chart version
   version: 1.1.5
   # Argo CD Image Updater registry configurations
