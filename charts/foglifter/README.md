@@ -44,9 +44,11 @@ helm template foglifter foglifter/foglifter \
   --namespace foglifter \
   --set apiSecret.create=true \
   --set createMongoSecret=true \
+  --set createPostgresRoleSecrets=true \
   --show-only templates/apisecret.yaml \
-  --show-only templates/mongosecret.yaml
-| kubectl apply -f -
+  --show-only templates/mongosecret.yaml \
+  --show-only templates/postgres-role-secrets.yaml \
+  | kubectl apply -f -
 ```
 
 ### Step 3: Install FogLifter®
