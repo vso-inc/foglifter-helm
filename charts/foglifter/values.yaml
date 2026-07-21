@@ -48,6 +48,8 @@ createMongoSecret: false
 mongoSecret: ""
 # Override MongoDB secret if mongodb-kubernetes is enabled
 mongoSecretOverride: false
+# Generate basic-auth Secrets for CloudNativePG managed roles (see cluster.cluster.roles)
+createPostgresRoleSecrets: false
 
 # FogLifter® ConfigMap parameters
 cm:
@@ -123,8 +125,15 @@ apiservice:
         "/api/v1/notification/process",
         "/api/v1/scheduler/settings"
       ]
+    POSTGRES_HOST: postgresql
+    POSTGRES_PORT: "5432"
+    POSTGRES_DB: notifications
+    POSTGRES_USER: apiservice
   # Apiservice deployment extra environment variables from existing secret
   secretRef:
+    POSTGRES_PASSWORD:
+      name: foglifter-pg-apiservice
+      key: password
   #   ENV_VAR_NAME:
   #     name: secret-name
   #     key: secret_key
@@ -411,6 +420,57 @@ exec:
     #     NODE_OPTIONS: "--experimental-vm-modules"
     #   secretRef: {}
     #   resources: {}
+
+# FogLifter® notification server deployment parameters
+notification:
+  # Enable notification server deployment
+  enabled: true
+  # Notification server replicas
+  replicas: 1
+  # Notification server image repository
+  repository: foglifter-notification-server
+  # Notification server image tag
+  tag: prod
+  # Notification server extra environment variables
+  env:
+    LOG_LEVEL: info
+    POSTGRES_HOST: postgresql
+    POSTGRES_PORT: "5432"
+    POSTGRES_DB: notifications
+    POSTGRES_USER: notifications
+    QUEUE_TEAM_SIZE: "10"
+    # SMTP is required for delivery; unset defaults to a no-op localhost relay
+    # NOTIFICATION_SMTP_SERVER: smtp.example.com
+    # NOTIFICATION_SMTP_PORT: "587"
+    # NOTIFICATION_SMTP_TLS: "true"
+    # NOTIFICATION_EMAIL_FROM: noreply@foglifter.example.com
+  # Notification server extra environment variables from existing secret
+  secretRef:
+    POSTGRES_PASSWORD:
+      name: foglifter-pg-notifications
+      key: password
+  #   NOTIFICATION_SMTP_PASSWORD:
+  #     name: secret-name
+  #     key: secret_key
+  #   TELEGRAM_BOT_TOKEN:
+  #     name: secret-name
+  #     key: secret_key
+  # Notification server probes (no HTTP endpoint; an exec probe against the queue is optional)
+  livenessProbe: {}
+  #   exec:
+  #     command: ["node", "apps/server/dist/bin/notify.js", "queue:probe"]
+  #   initialDelaySeconds: 30
+  #   periodSeconds: 60
+  readinessProbe: {}
+  # Notification server resources
+  resources:
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+  #   limits:
+  #     cpu: 500m
+  #     memory: 2048Mi
+
 # FogLifter® routing service deployment parameters
 routing:
   # Enable routing service deployment
@@ -443,6 +503,7 @@ routing:
   #   limits:
   #     cpu: 500m
   #     memory: 2048Mi
+
 scheduler:
   # Enable scheduler deployment
   enabled: true
@@ -613,7 +674,7 @@ podOptions:
 # CloudNative-PG operator parameters
 cloudnative-pg:
   # Enable CloudNative-PG operator
-  enabled: false
+  enabled: true
   # Values to be passed to CloudNative-PG helm chart
   # https://github.com/cloudnative-pg/charts/blob/main/charts/cloudnative-pg/values.yaml
   config:
@@ -622,7 +683,7 @@ cloudnative-pg:
 # CloudNative-PG cluster parameters
 cluster:
   # Enable CloudNative-PG cluster
-  enabled: false
+  enabled: true
   # Values to be passed to CloudNative-PG cluster helm chart
   # https://github.com/cloudnative-pg/charts/blob/main/charts/cluster/values.yaml
   fullnameOverride: postgresql-1
@@ -645,9 +706,25 @@ cluster:
               type: ClusterIP
     affinity:
       topologyKey: kubernetes.io/hostname
-    roles: []
+    roles:
+      - name: notifications
+        ensure: present
+        login: true
+        superuser: false
+        passwordSecret:
+          name: foglifter-pg-notifications
+      - name: apiservice
+        ensure: present
+        login: true
+        superuser: false
+        inRoles:
+          - notifications
+        passwordSecret:
+          name: foglifter-pg-apiservice
     initdb: {}
-  databases: []
+  databases:
+    - name: notifications
+      owner: notifications
 
 # MongoDB Kubernetes Operator parameters
 mongodb-kubernetes:
@@ -664,7 +741,7 @@ mongodb-kubernetes:
       imageType: ubi8
     resource:
       name: foglifter-mongodb
-      version: 6.0.27
+      version: 7.0.37
       # Increase to 3 or more members for production deployments
       members: 1
       users:

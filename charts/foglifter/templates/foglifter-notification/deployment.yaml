@@ -1,0 +1,91 @@
+{{- if (ne (.Values.notification).enabled false) }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-notification
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ default "1" (.Values.notification).replicas | int }}
+  selector:
+    matchLabels:
+      name: {{ .Release.Name }}-notification
+  template:
+    metadata:
+      labels:
+        name: {{ .Release.Name }}-notification
+        app: {{ .Release.Name }}
+        {{- with (.Values.podOptions).labels }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      {{- with (.Values.podOptions).annotations }}
+      annotations:
+        {{- toYaml . | indent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}-sa
+      {{- with (.Values.podOptions).nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (.Values.podOptions).tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: notification
+          {{- $imageTagDelimiter := ":" }}
+          {{- if (hasPrefix "sha256:" (.Values.notification).tag) }}
+            {{- $imageTagDelimiter = "@" }}
+          {{- end }}
+          {{-
+            $imageString := (
+              printf "%s%s%s%s"
+                (default "ghcr.io/vso-inc/" .Values.registry)
+                (default "foglifter-notification-server" (.Values.notification).repository)
+                ($imageTagDelimiter)
+                (default "latest" (.Values.notification).tag)
+            )
+          }}
+          image: {{ $imageString }}
+          imagePullPolicy: {{ default "Always" .Values.imagePullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-cm
+            {{- if and (ne (.Values.secret).create false) (.Values.secret).data }}
+            - secretRef:
+                name: {{ .Release.Name }}-secret
+            {{- end }}
+          env:
+            {{- if (.Values.notification).env }}
+            {{- range $key, $val := .Values.notification.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.notification.secretRef }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.name }}
+                  key: {{ $val.key }}
+                  optional: {{ $val.optional | default false }}
+            {{- end }}
+            {{- end }}
+          {{- with (.Values.notification).livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with (.Values.notification).readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with (.Values.notification).resources }}
+          resources:
+            {{- default dict . | toYaml | nindent 12 }}
+          {{- end }}
+      {{- if (ne (.Values.priorityClass).create false) }}
+      priorityClassName: {{ .Release.Name }}
+      {{- end }}
+{{- end }}
