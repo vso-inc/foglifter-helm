@@ -22,6 +22,7 @@ imageUpdater:
     - compliance
     - core
     - exec
+    - notification
     - routing
     - scheduler
 
@@ -57,6 +58,9 @@ foglifter:
     tag: prod
   exec:
     repository: foglifter-exec-app
+    tag: prod
+  notification:
+    repository: foglifter-notification-server
     tag: prod
   routing:
     repository: foglifter-routing-service
