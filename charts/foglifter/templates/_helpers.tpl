@@ -56,6 +56,25 @@
 {{- end -}}
 
 {{/*
+  Emit a Postgres DSN env var plus the password env var it references. The
+  password is injected via Kubernetes $(VAR) dependent-env expansion (emitted
+  first) so it never lands in Git or the ConfigMap.
+  Usage: include "foglifter.postgresUri" (dict "name" "DATABASE_URI" "user" "nlq"
+         "host" "postgresql" "port" 5432 "db" "nlq"
+         "secret" (dict "name" "foglifter-pg-nlq" "key" "password"))
+*/}}
+{{- define "foglifter.postgresUri" -}}
+{{- $pwVar := printf "%s_PASSWORD" (regexReplaceAll "[^A-Z0-9]" (upper .name) "_") -}}
+- name: {{ $pwVar }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .secret.name }}
+      key: {{ .secret.key | default "password" }}
+- name: {{ .name }}
+  value: {{ printf "%s://%s:$(%s)@%s:%v/%s" (.scheme | default "postgresql") .user $pwVar .host (.port | default 5432) .db | quote }}
+{{- end -}}
+
+{{/*
   Shared Deployment for FogLifter microservices.
   Params (dict):
     root              root context (.)
@@ -66,8 +85,10 @@
     portEnv           bool: emit a PORT env var
     mongoUri          bool: inject MONGO_URI via foglifter.mongoUri
     apiKeyEnv         api-secret key for an APIKEY env (e.g. "CORE_APIKEY"); "" => none
+    apiSecretKeys     map of {ENV_NAME: api-secret key} for extra secretKeyRef envs
     jwtSecret         bool: inject TOKEN_JWT_SECRET (optional) from the api-secret
     apiSecretEnvFrom  bool: mount the whole api-secret via envFrom
+    postgres          dict for foglifter.postgresUri (emits a DSN + password env)
     trustTokenValue   TRUST_TOKEN_HASH_KEY value; empty => omitted
     volumes           raw YAML for pod volumes; empty => omitted
     volumeMounts      raw YAML for container volumeMounts; empty => omitted
@@ -172,6 +193,18 @@ spec:
                   {{- end }}
                   key: TOKEN_JWT_SECRET
                   optional: true
+            {{- end }}
+            {{- range $env, $key := .apiSecretKeys }}
+            - name: {{ $env }}
+              valueFrom:
+                secretKeyRef:
+                  {{- if $apiSecretName }}
+                  name: {{ $apiSecretName }}
+                  {{- end }}
+                  key: {{ $key }}
+            {{- end }}
+            {{- with .postgres }}
+            {{- include "foglifter.postgresUri" . | nindent 12 }}
             {{- end }}
             {{- if .mongoUri }}
             {{- include "foglifter.mongoUri" $ | nindent 12 }}

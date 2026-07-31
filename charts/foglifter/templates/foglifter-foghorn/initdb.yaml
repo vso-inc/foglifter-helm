@@ -1,0 +1,64 @@
+{{- with .Values.foghorn }}
+{{- if and .enabled .bootstrap.enabled $.Values.cluster.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $.Release.Name }}-foghorn-initdb
+  labels:
+    app: {{ $.Release.Name }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      name: {{ $.Release.Name }}-foghorn-initdb
+      labels:
+        app: {{ $.Release.Name }}
+    spec:
+      serviceAccountName: {{ $.Release.Name }}-sa
+      restartPolicy: Never
+      containers:
+        - name: foghorn-initdb
+          image: {{ .bootstrap.image | quote }}
+          imagePullPolicy: {{ $.Values.imagePullPolicy | quote }}
+          env:
+            - name: PGHOST
+              value: {{ .postgres.host | quote }}
+            - name: PGPORT
+              value: {{ .postgres.port | quote }}
+            - name: PGDATABASE
+              value: {{ .postgres.db | quote }}
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .bootstrap.ownerSecret }}
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .bootstrap.ownerSecret }}
+                  key: password
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eu
+              echo "waiting for $PGHOST:$PGPORT/$PGDATABASE and the CNPG-managed role + schema"
+              until pg_isready -q; do sleep 2; done
+              until [ "$(psql -tAc "select 1 from pg_roles where rolname='foghorn_readonly'")" = "1" ]; do sleep 2; done
+              until [ "$(psql -tAc "select 1 from information_schema.schemata where schema_name='api'")" = "1" ]; do sleep 2; done
+              echo "applying grants and default privileges"
+              psql -v ON_ERROR_STOP=1 <<'SQL'
+              GRANT USAGE ON SCHEMA api TO foghorn_readonly;
+              GRANT SELECT ON ALL TABLES IN SCHEMA api TO foghorn_readonly;
+              ALTER DEFAULT PRIVILEGES FOR ROLE foghorn_etl IN SCHEMA api GRANT SELECT ON TABLES TO foghorn_readonly;
+              GRANT USAGE ON SCHEMA api TO foghorn_anon;
+              SQL
+              echo "foghorn bootstrap complete"
+      {{- if $.Values.priorityClass.create }}
+      priorityClassName: {{ $.Release.Name }}
+      {{- end }}
+{{- end }}
+{{- end }}

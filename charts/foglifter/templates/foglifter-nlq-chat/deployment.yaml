@@ -1,0 +1,5 @@
+{{- if .Values.nlqChat.enabled }}
+{{- include "foglifter.deployment" (dict
+    "root" . "name" "nlq-chat" "svc" .Values.nlqChat "container" "nlq-chat"
+    "port" 80 "portEnv" false "mongoUri" false "startupProbe" true) }}
+{{- end }}

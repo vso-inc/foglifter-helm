@@ -1,0 +1,3 @@
+{{- if .Values.foghorn.enabled }}
+{{- include "foglifter.service" (dict "root" . "name" "foghorn" "port" .Values.foghorn.port) }}
+{{- end }}

@@ -1,0 +1,16 @@
+{{- if .Values.assistant.enabled }}
+{{- $extra := "" }}
+{{- if not .Values.assistant.env.FOGLIFTER_CORE_URL }}
+{{- $extra = printf "- name: FOGLIFTER_CORE_URL\n  value: %s" (printf "http://%s-core-svc:%s/api" .Release.Name (.Values.core.port | toString) | quote) }}
+{{- end }}
+{{- $agentSecret := "" }}
+{{- with .Values.agentSecretName }}
+{{- $agentSecret = printf "- secretRef:\n    name: %s\n    optional: true" . }}
+{{- end }}
+{{- include "foglifter.deployment" (dict
+    "root" . "name" "assistant" "svc" .Values.assistant "container" "assistant"
+    "port" (.Values.assistant.port | int) "portEnv" true "mongoUri" false
+    "jwtSecret" true "apiSecretKeys" (dict "FOGLIFTER_API_KEY" "CORE_APIKEY")
+    "postgres" .Values.assistant.postgres "extraEnv" $extra
+    "extraSecretEnvFrom" $agentSecret "startupProbe" true) }}
+{{- end }}

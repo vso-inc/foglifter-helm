@@ -71,6 +71,32 @@ helm upgrade --install foglifter foglifter/foglifter \
   --values values.yaml
 ```
 
+### (Optional) Add-on services
+
+Several services ship disabled (`enabled: false`) and are enabled per install,
+e.g. `--set nlqServer.enabled=true`:
+
+- `compliance` — the compliance API (with an optional bundled MSSQL instance via
+  `mssql.enabled=true`).
+- `nlqServer`, `nlqAgent`, `assistant`, `foghorn` (PostgREST), `nlqChat`.
+
+- **Compliance.** Backed by MSSQL; provide connection details via the
+  `compliance.secret` block (or an existing secret) and, if using the bundled
+  database, set `mssql.enabled=true`. A pre-install Job initializes the schema.
+- **Postgres.** `nlqAgent`, `assistant`, and `foghorn` use the built-in
+  CloudNativePG cluster. Their roles and databases are provisioned from the
+  default `cluster` block; their role password secrets are minted by the Step 2
+  render (`createPostgresRoleSecrets=true`).
+- **Agent provider keys.** `nlqAgent` and `assistant` read AI-provider keys
+  (e.g. `OPENAI_API_KEY` / `AZURE_OPENAI_API_KEY`) from an out-of-band Secret
+  named by `agentSecretName` (default `foglifter-agent-secret`). Create it
+  separately — it is never rendered by this chart.
+- **FogHorn.** Requires the CNPG cluster (`cluster.enabled=true`). A
+  post-install/upgrade Job applies the schema grants the CNPG CRs cannot express.
+- **Routing.** The agent and FogHorn routes strip their path prefix via the
+  Gateway API `URLRewrite` filter, which requires a Gateway controller that
+  implements it (Traefik v3.1+).
+
 ### Step 4: Verify Installation
 
 Check the deployment status:
