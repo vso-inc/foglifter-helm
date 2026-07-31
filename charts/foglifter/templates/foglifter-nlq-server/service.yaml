@@ -1,0 +1,3 @@
+{{- if .Values.nlqServer.enabled }}
+{{- include "foglifter.service" (dict "root" . "name" "nlq-server" "port" .Values.nlqServer.port) }}
+{{- end }}

@@ -5,23 +5,12 @@ metadata:
   labels:
     app: {{ .Release.Name }}
 data:
-  {{- with .Values.serviceMesh }}
-  {{-
-    $serviceMeshURL := (
-      printf "%s://%s:%s%s"
-        .protocol
-        .domain
-        (default "80" .port)
-        (default "/api" .path)
-      | quote
-    )
-  }}
-  {{- if not $.Values.cm.data.API_SERVICEMESH_URL }}
+  {{- $serviceMeshURL := include "foglifter.serviceMeshUrl" . | quote }}
+  {{- if not .Values.cm.data.API_SERVICEMESH_URL }}
   API_SERVICEMESH_URL: {{ $serviceMeshURL }}
   {{- end }}
-  {{- if not $.Values.cm.data.API_MESH_URL }}
+  {{- if not .Values.cm.data.API_MESH_URL }}
   API_MESH_URL: {{ $serviceMeshURL }}
-  {{- end }}
   {{- end }}
   {{- if .Values.cm.data }}
   {{- .Values.cm.data | toYaml | nindent 2 }}

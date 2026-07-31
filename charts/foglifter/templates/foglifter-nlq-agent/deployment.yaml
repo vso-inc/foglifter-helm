@@ -1,0 +1,20 @@
+{{- if .Values.nlqAgent.enabled }}
+{{- $mesh := include "foglifter.serviceMeshUrl" . }}
+{{- $extra := "" }}
+{{- if not .Values.nlqAgent.env.FOGLIFTER_CORE_URL }}
+{{- $extra = printf "- name: FOGLIFTER_CORE_URL\n  value: %s" ($mesh | quote) }}
+{{- end }}
+{{- if not .Values.nlqAgent.env.FOGLIFTER_MCP_HOST }}
+{{- $extra = printf "%s\n- name: FOGLIFTER_MCP_HOST\n  value: %s" $extra (printf "%s/ai/nlq/context/mcp" $mesh | quote) }}
+{{- end }}
+{{- $agentSecret := "" }}
+{{- with .Values.agentSecretName }}
+{{- $agentSecret = printf "- secretRef:\n    name: %s\n    optional: true" . }}
+{{- end }}
+{{- include "foglifter.deployment" (dict
+    "root" . "name" "nlq-agent" "svc" .Values.nlqAgent "container" "nlq-agent"
+    "port" (.Values.nlqAgent.port | int) "portEnv" true "mongoUri" false
+    "jwtSecret" true "apiSecretKeys" (dict "FOGLIFTER_API_KEY" "CORE_APIKEY")
+    "postgres" .Values.nlqAgent.postgres "extraEnv" $extra
+    "extraSecretEnvFrom" $agentSecret "startupProbe" true) }}
+{{- end }}

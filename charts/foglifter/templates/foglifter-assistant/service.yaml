@@ -1,0 +1,3 @@
+{{- if .Values.assistant.enabled }}
+{{- include "foglifter.service" (dict "root" . "name" "assistant" "port" .Values.assistant.port) }}
+{{- end }}

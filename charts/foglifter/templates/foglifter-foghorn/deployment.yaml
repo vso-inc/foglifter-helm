@@ -1,0 +1,91 @@
+{{- with .Values.foghorn }}
+{{- if .enabled }}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ $.Release.Name }}-foghorn
+  labels:
+    app: {{ $.Release.Name }}
+spec:
+  replicas: {{ .replicas | int }}
+  selector:
+    matchLabels:
+      name: {{ $.Release.Name }}-foghorn
+  template:
+    metadata:
+      labels:
+        name: {{ $.Release.Name }}-foghorn
+        app: {{ $.Release.Name }}
+        {{- with $.Values.podOptions.labels }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      {{- with $.Values.podOptions.annotations }}
+      annotations:
+        {{- toYaml . | indent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ $.Release.Name }}-sa
+      {{- with $.Values.podOptions.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.podOptions.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: foghorn
+          {{- $delim := ":" }}
+          {{- if hasPrefix "sha256:" .tag }}{{- $delim = "@" }}{{- end }}
+          image: {{ printf "%s%s%s%s" .registry .repository $delim (default "latest" .tag) }}
+          imagePullPolicy: {{ $.Values.imagePullPolicy | quote }}
+          env:
+            # Password-free DSN; libpq reads PGPASSWORD. statement_timeout rides the
+            # connection options so no role-level GUC is required.
+            - name: PGRST_DB_URI
+              value: {{ printf "postgres://%s@%s:%v/%s?options=-c%%20statement_timeout%%3D%s" .postgres.user .postgres.host .postgres.port .postgres.db .postgres.statementTimeout | quote }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .postgres.secret.name }}
+                  key: {{ .postgres.secret.key | default "password" }}
+            - name: PGRST_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "foglifter.apiSecretName" $ }}
+                  key: TOKEN_JWT_SECRET
+            {{- with .env }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+            {{- end }}
+            {{- with .secretRef }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.name }}
+                  key: {{ $val.key }}
+                  optional: {{ $val.optional | default false }}
+            {{- end }}
+            {{- end }}
+          ports:
+            - containerPort: {{ .port | int }}
+          {{- with .livenessProbe }}
+          livenessProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" ($.Values.foghorn.port | int)) | nindent 12 }}
+          {{- end }}
+          {{- with .readinessProbe }}
+          readinessProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" ($.Values.foghorn.port | int)) | nindent 12 }}
+          {{- end }}
+          {{- with .resources }}
+          resources:
+            {{- default dict . | toYaml | nindent 12 }}
+          {{- end }}
+      {{- if $.Values.priorityClass.create }}
+      priorityClassName: {{ $.Release.Name }}
+      {{- end }}
+{{- end }}
+{{- end }}

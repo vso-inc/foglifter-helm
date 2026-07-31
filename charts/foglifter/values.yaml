@@ -247,8 +247,6 @@ compliance:
   repository: foglifter-compliance-api
   # Compliance API deployment image tag
   tag: prod
-  # Enable DB init Helm hook
-  enableInitHook: true
   # Compliance API deployment secret parameters
   secret:
     # Create Secret
@@ -540,6 +538,140 @@ scheduler:
   #     cpu: 500m
   #     memory: 2048Mi
 
+# Out-of-band Secret holding AI-provider keys for the agents (OPENAI_API_KEY /
+# ANTHROPIC_API_KEY / AZURE_OPENAI_API_KEY ...). Created separately; consumed via
+# envFrom (optional) by nlqAgent and assistant. Never rendered by this chart.
+agentSecretName: foglifter-agent-secret
+
+# FogLifter® NLQ context server (MongoDB-backed, HTTP) — opt-in addon
+nlqServer:
+  enabled: false
+  port: 8080
+  replicas: 1
+  repository: foglifter-nlq-server
+  tag: prod
+  env:
+    API_PREFIX: api/ai/nlq/context
+    API_PREFIX_SWAGGER: api/ai/nlq
+  secretRef:
+  livenessProbe:
+    httpGet:
+      path: /api/ai/nlq/context/health
+    periodSeconds: 5
+  readinessProbe:
+    httpGet:
+      path: /api/ai/nlq/context/health
+    initialDelaySeconds: 3
+    periodSeconds: 3
+  startupProbe:
+    httpGet:
+      path: /api/ai/nlq/context/health
+  resources:
+
+# FogLifter® NLQ agent (Postgres-backed, HTTP; route prefix stripped) — opt-in addon
+nlqAgent:
+  enabled: false
+  # App default is 3142; forced to 8000 to match the Service/route backend
+  port: 8000
+  replicas: 1
+  repository: foglifter-nlq-agent
+  tag: prod
+  # Postgres role/db; the role password Secret is minted by postgres-role-secrets.yaml
+  postgres:
+    name: DATABASE_URI
+    host: postgresql
+    port: 5432
+    db: nlq
+    user: nlq
+    secret:
+      name: foglifter-pg-nlq
+      key: password
+  env:
+    NODE_ENV: production
+    MEMORY_STORAGE: postgres
+    AGENT_GUARD_READONLY: "false"
+    AGENT_GUARD_LIMIT_INJECT: "false"
+    AGENT_GUARD_LIMIT_DEFAULT: "1000"
+    AGENT_MAX_STEPS: "75"
+    MODEL_PROVIDER: azure
+    MODEL_NAME: gpt-4o
+  secretRef:
+  livenessProbe: {}
+  readinessProbe: {}
+  startupProbe: {}
+  resources:
+
+# FogLifter® Assistant (Buddy) agent (Postgres-backed, HTTP; route prefix stripped) — opt-in addon
+assistant:
+  enabled: false
+  port: 3141
+  replicas: 1
+  # Note the nested repository path under the vso registry
+  repository: foglifter-agents/foglifter-assistant-agent
+  tag: prod
+  postgres:
+    name: DATABASE_URI
+    host: postgresql
+    port: 5432
+    db: agent_assistant
+    user: agent_assistant
+    secret:
+      name: foglifter-pg-agent-assistant
+      key: password
+  env:
+    NODE_ENV: production
+    MEMORY_STORAGE: postgres
+    MODEL_PROVIDER: azure
+    MODEL_NAME: gpt-4o
+  secretRef:
+  livenessProbe: {}
+  readinessProbe: {}
+  startupProbe: {}
+  resources:
+
+# FogHorn read-only query API — PostgREST over the foghorn DB (upstream image) — opt-in addon
+foghorn:
+  enabled: false
+  port: 3000
+  replicas: 1
+  # Upstream image on Docker Hub; empty registry bypasses the global vso registry
+  registry: ""
+  repository: postgrest/postgrest
+  tag: v14.15
+  # Read path (password-free DSN; libpq reads PGPASSWORD from the role secret).
+  # statementTimeout rides the connection string so no role-level GUC is needed.
+  postgres:
+    host: postgresql
+    port: 5432
+    db: foghorn
+    user: foghorn_readonly
+    statementTimeout: 30s
+    secret:
+      name: foglifter-pg-foghorn-readonly
+      key: password
+  # Idempotent grants/default-privileges the CNPG CRs cannot express (see initdb.yaml)
+  bootstrap:
+    enabled: true
+    image: ghcr.io/cloudnative-pg/postgresql:16
+    ownerSecret: foglifter-pg-foghorn-etl
+  env:
+    PGRST_DB_SCHEMAS: api
+    PGRST_DB_EXTRA_SEARCH_PATH: ""
+    PGRST_DB_AGGREGATES_ENABLED: "true"
+    PGRST_DB_ANON_ROLE: foghorn_anon
+    PGRST_OPENAPI_MODE: ignore-privileges
+  secretRef:
+  resources:
+
+# FogLifter® NLQ chat UI (static nginx) — opt-in addon (droppable)
+nlqChat:
+  enabled: false
+  port: 80
+  replicas: 1
+  repository: nlq-chat-client
+  tag: prod
+  resources:
+
 # Traefik ingress controller parameters
 traefik:
   # Enable Traefik as an ingress controller
@@ -608,33 +740,61 @@ gatewayAPI:
     annotations: {}
     # HTTPRoute redirect HTTP to HTTPS if https listener is enabled
     httpsRedirect: true
-    # Service routes configuration
+    # Service routes. List order is the rule order in the rendered HTTPRoutes.
+    # Each entry: name (the service's values key); path; and optionally
+    #   service        backend Service name (defaults to name)
+    #   port           backend port (defaults to .Values.<name>.port)
+    #   enabled        render this route (default true)
+    #   enabledKey     also require .Values.<key>.enabled
+    #   listeners      which HTTPRoutes it appears in (default [http, https, internal])
+    #   urlRewrite     {replacePrefix: /} to strip the path prefix before the backend
     routes:
-      # API service routing
-      apiservice:
+      - name: apiservice
         path: /api/v1
-      # Auth service routing
-      auth:
+      - name: auth
         path: /api/auth
-      # Client service routing
-      client:
-        enabled: true
+      - name: client
         path: /ui
-      # Compliance service routing
-      compliance:
-        enabled: false
+        enabledKey: client
+      - name: compliance
         path: /api/compliance
-      # Core service routing
-      core:
+        enabled: false
+        enabledKey: compliance
+      - name: core
         path: /api
-      # Routing service routing
-      routing:
-        enabled: true
+      - name: routing
         path: /
-      # Scheduler service routing
-      scheduler:
-        enabled: true
+        enabledKey: routing
+      - name: scheduler
         path: /scheduler
+        enabledKey: scheduler
+      # Addon-service routes (render only when the matching service is enabled)
+      - name: nlqServer
+        service: nlq-server
+        path: /api/ai/nlq
+        enabledKey: nlqServer
+      - name: nlqChat
+        service: nlq-chat
+        path: /chat
+        enabledKey: nlqChat
+      - name: nlqAgent
+        service: nlq-agent
+        path: /ai/agent
+        enabledKey: nlqAgent
+        urlRewrite:
+          replacePrefix: /
+      - name: assistant
+        service: assistant
+        path: /ai/agents/assistant
+        enabledKey: assistant
+        urlRewrite:
+          replacePrefix: /
+      - name: foghorn
+        service: foghorn
+        path: /api/query
+        enabledKey: foghorn
+        urlRewrite:
+          replacePrefix: /
 
 # FogLifter® ingress configurations
 ingress:
@@ -721,10 +881,53 @@ cluster:
           - notifications
         passwordSecret:
           name: foglifter-pg-apiservice
+      # Addon-service roles (opt-in; only used when the matching service is enabled)
+      - name: nlq
+        ensure: present
+        login: true
+        superuser: false
+        passwordSecret:
+          name: foglifter-pg-nlq
+      - name: agent_assistant
+        ensure: present
+        login: true
+        superuser: false
+        passwordSecret:
+          name: foglifter-pg-agent-assistant
+      - name: foghorn_etl
+        ensure: present
+        login: true
+        superuser: false
+        passwordSecret:
+          name: foglifter-pg-foghorn-etl
+      - name: foghorn_anon
+        ensure: present
+        login: false
+        superuser: false
+        disablePassword: true
+      - name: foghorn_readonly
+        ensure: present
+        login: true
+        superuser: false
+        # == GRANT foghorn_anon TO foghorn_readonly
+        inRoles:
+          - foghorn_anon
+        passwordSecret:
+          name: foglifter-pg-foghorn-readonly
     initdb: {}
   databases:
     - name: notifications
       owner: notifications
+    - name: nlq
+      owner: nlq
+    - name: agent_assistant
+      owner: agent_assistant
+    - name: foghorn
+      owner: foghorn_etl
+      # Schema created by the Database CR; grants applied by the foghorn initdb Job
+      schemas:
+        - name: api
+          owner: foghorn_etl
 
 # MongoDB Kubernetes Operator parameters
 mongodb-kubernetes:

@@ -23,6 +23,16 @@
 {{- end -}}
 
 {{/*
+  The internal service-mesh base URL (protocol://domain:port/path), from the
+  serviceMesh block. Shared by the ConfigMap and the agent service URLs.
+*/}}
+{{- define "foglifter.serviceMeshUrl" -}}
+{{- with .Values.serviceMesh -}}
+{{- printf "%s://%s:%s%s" .protocol .domain (.port | default "80") (.path | default "/api") -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
   Render a Kubernetes probe, injecting the port into httpGet/tcpSocket/grpc if not already set.
 */}}
 {{- define "foglifter.probe" -}}
@@ -42,6 +52,291 @@
 {{- end }}
 {{- toYaml $probe }}
 {{- end }}
+
+{{/*
+  Resolve the API secret name: the generated secret when apiSecret.create is
+  true, otherwise the externally-supplied apiSecret.name (may be empty).
+*/}}
+{{- define "foglifter.apiSecretName" -}}
+{{- if .Values.apiSecret.create -}}
+{{- printf "%s-api-secret" .Release.Name -}}
+{{- else -}}
+{{- .Values.apiSecret.name -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+  Emit a Postgres DSN env var plus the password env var it references. The
+  password is injected via Kubernetes $(VAR) dependent-env expansion (emitted
+  first) so it never lands in Git or the ConfigMap.
+  Usage: include "foglifter.postgresUri" (dict "name" "DATABASE_URI" "user" "nlq"
+         "host" "postgresql" "port" 5432 "db" "nlq"
+         "secret" (dict "name" "foglifter-pg-nlq" "key" "password"))
+*/}}
+{{- define "foglifter.postgresUri" -}}
+{{- $pwVar := printf "%s_PASSWORD" (regexReplaceAll "[^A-Z0-9]" (upper .name) "_") -}}
+- name: {{ $pwVar }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .secret.name }}
+      key: {{ .secret.key | default "password" }}
+- name: {{ .name }}
+  value: {{ printf "%s://%s:$(%s)@%s:%v/%s" (.scheme | default "postgresql") .user $pwVar .host (.port | default 5432) .db | quote }}
+{{- end -}}
+
+{{/*
+  Shared Deployment for FogLifter microservices.
+  Params (dict):
+    root              root context (.)
+    name              service name (object suffix + selector label)
+    svc               the service's values block
+    container         container name
+    port              container port (int); "" => no PORT env, no ports, no probe port
+    portEnv           bool: emit a PORT env var
+    mongoUri          bool: inject MONGO_URI via foglifter.mongoUri
+    apiKeyEnv         api-secret key for an APIKEY env (e.g. "CORE_APIKEY"); "" => none
+    apiSecretKeys     map of {ENV_NAME: api-secret key} for extra secretKeyRef envs
+    jwtSecret         bool: inject TOKEN_JWT_SECRET (optional) from the api-secret
+    apiSecretEnvFrom  bool: mount the whole api-secret via envFrom
+    postgres          dict for foglifter.postgresUri (emits a DSN + password env)
+    trustTokenValue   TRUST_TOKEN_HASH_KEY value; empty => omitted
+    volumes           raw YAML for pod volumes; empty => omitted
+    volumeMounts      raw YAML for container volumeMounts; empty => omitted
+    extraSecretEnvFrom raw YAML for extra envFrom secretRef entries; empty => omitted
+    extraEnv          raw YAML env entries spliced before the values env loop
+    probeRaw          bool: emit liveness/readiness probes verbatim (workers)
+    startupProbe      bool: emit a startupProbe block
+*/}}
+{{- define "foglifter.deployment" -}}
+{{- $ := .root -}}
+{{- $svc := .svc -}}
+{{- $name := .name -}}
+{{- $port := .port -}}
+{{- $probeRaw := .probeRaw -}}
+{{- $apiSecretName := include "foglifter.apiSecretName" $ -}}
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ $.Release.Name }}-{{ $name }}
+  labels:
+    app: {{ $.Release.Name }}
+spec:
+  replicas: {{ $svc.replicas | int }}
+  selector:
+    matchLabels:
+      name: {{ $.Release.Name }}-{{ $name }}
+  template:
+    metadata:
+      labels:
+        name: {{ $.Release.Name }}-{{ $name }}
+        app: {{ $.Release.Name }}
+        {{- with $.Values.podOptions.labels }}
+        {{- toYaml . | indent 8 }}
+        {{- end }}
+      {{- with $.Values.podOptions.annotations }}
+      annotations:
+        {{- toYaml . | indent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ $.Release.Name }}-sa
+      {{- with $.Values.podOptions.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.podOptions.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .volumes }}
+      volumes:
+        {{- . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .container }}
+          {{- $delim := ":" }}
+          {{- if hasPrefix "sha256:" $svc.tag }}{{- $delim = "@" }}{{- end }}
+          image: {{ printf "%s%s%s%s" (default "ghcr.io/vso-inc/" $.Values.registry) $svc.repository $delim (default "latest" $svc.tag) }}
+          imagePullPolicy: {{ $.Values.imagePullPolicy | quote }}
+          {{- with .volumeMounts }}
+          volumeMounts:
+            {{- . | nindent 12 }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ $.Release.Name }}-cm
+            {{- if and $.Values.secret.create $.Values.secret.data }}
+            - secretRef:
+                name: {{ $.Release.Name }}-secret
+            {{- end }}
+            {{- if .apiSecretEnvFrom }}
+            {{- if not $apiSecretName }}{{- fail "apiSecret.name must be set if apiSecret.create is false" }}{{- end }}
+            - secretRef:
+                name: {{ $apiSecretName }}
+            {{- end }}
+            {{- with .extraSecretEnvFrom }}
+            {{- . | nindent 12 }}
+            {{- end }}
+          env:
+            {{- with .trustTokenValue }}
+            - name: TRUST_TOKEN_HASH_KEY
+              value: {{ . | quote }}
+            {{- end }}
+            {{- if .portEnv }}
+            - name: PORT
+              value: {{ $port | quote }}
+            {{- end }}
+            {{- with .apiKeyEnv }}
+            - name: APIKEY
+              valueFrom:
+                secretKeyRef:
+                  {{- if $apiSecretName }}
+                  name: {{ $apiSecretName }}
+                  {{- end }}
+                  key: {{ . }}
+            {{- end }}
+            {{- if .jwtSecret }}
+            - name: TOKEN_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  {{- if $apiSecretName }}
+                  name: {{ $apiSecretName }}
+                  {{- end }}
+                  key: TOKEN_JWT_SECRET
+                  optional: true
+            {{- end }}
+            {{- range $env, $key := .apiSecretKeys }}
+            - name: {{ $env }}
+              valueFrom:
+                secretKeyRef:
+                  {{- if $apiSecretName }}
+                  name: {{ $apiSecretName }}
+                  {{- end }}
+                  key: {{ $key }}
+            {{- end }}
+            {{- with .postgres }}
+            {{- include "foglifter.postgresUri" . | nindent 12 }}
+            {{- end }}
+            {{- if .mongoUri }}
+            {{- include "foglifter.mongoUri" $ | nindent 12 }}
+            {{- end }}
+            {{- with .extraEnv }}
+            {{- . | nindent 12 }}
+            {{- end }}
+            {{- with $svc.env }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+            {{- end }}
+            {{- with $svc.secretRef }}
+            {{- range $key, $val := . }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.name }}
+                  key: {{ $val.key }}
+                  optional: {{ $val.optional | default false }}
+            {{- end }}
+            {{- end }}
+          {{- if $port }}
+          ports:
+            - containerPort: {{ $port }}
+          {{- end }}
+          {{- with $svc.livenessProbe }}
+          livenessProbe:
+            {{- if $probeRaw }}
+            {{- toYaml . | nindent 12 }}
+            {{- else }}
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          {{- with $svc.readinessProbe }}
+          readinessProbe:
+            {{- if $probeRaw }}
+            {{- toYaml . | nindent 12 }}
+            {{- else }}
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          {{- if .startupProbe }}
+          {{- with $svc.startupProbe }}
+          startupProbe:
+            {{- include "foglifter.probe" (dict "probe" . "port" $port) | nindent 12 }}
+          {{- end }}
+          {{- end }}
+          {{- with $svc.resources }}
+          resources:
+            {{- default dict . | toYaml | nindent 12 }}
+          {{- end }}
+      {{- if $.Values.priorityClass.create }}
+      priorityClassName: {{ $.Release.Name }}
+      {{- end }}
+{{- end -}}
+
+{{/*
+  Shared ClusterIP Service for FogLifter microservices.
+  Params (dict): root, name, port, targetPort (defaults to port).
+*/}}
+{{- define "foglifter.service" -}}
+{{- $ := .root -}}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ $.Release.Name }}-{{ .name }}-svc
+  labels:
+    app: {{ $.Release.Name }}
+spec:
+  type: {{ $.Values.service.type }}
+  ports:
+  - port: {{ .port | int }}
+    targetPort: {{ .targetPort | default .port | int }}
+  selector:
+    name: {{ $.Release.Name }}-{{ .name }}
+{{- end -}}
+
+{{/*
+  HTTPRoute rules block, driven by gatewayAPI.httpRoute.routes.
+  Params (dict): root, listener (http|https|internal), httpsEnabled, httpsRedirect.
+  Each route: name, path, service (backend, defaults to name), port (defaults to
+  .Values.<name>.port), enabled (default true), enabledKey (also gate on
+  .Values.<key>.enabled), listeners (default all), urlRewrite.replacePrefix.
+*/}}
+{{- define "foglifter.httpRouteRules" -}}
+{{- $ := .root -}}
+{{- $listener := .listener -}}
+{{- $redirect := and (eq $listener "http") .httpsEnabled .httpsRedirect -}}
+rules:
+{{- range $r := $.Values.gatewayAPI.httpRoute.routes }}
+{{- $listeners := $r.listeners | default (list "http" "https" "internal") }}
+{{- $svcOn := true }}
+{{- with $r.enabledKey }}{{- $svcOn = (index $.Values .).enabled }}{{- end }}
+{{- if and (ne $r.enabled false) $svcOn (has $listener $listeners) }}
+  - matches:
+      - path:
+          type: PathPrefix
+          value: {{ $r.path }}
+    {{- if $redirect }}
+    filters:
+      - type: RequestRedirect
+        requestRedirect:
+          scheme: https
+          statusCode: 301
+    {{- else }}
+    {{- with $r.urlRewrite }}
+    filters:
+      - type: URLRewrite
+        urlRewrite:
+          path:
+            type: ReplacePrefixMatch
+            replacePrefixMatch: {{ .replacePrefix }}
+    {{- end }}
+    backendRefs:
+      - name: {{ $.Release.Name }}-{{ $r.service | default $r.name }}-svc
+        port: {{ $r.port | default (index $.Values $r.name).port | int }}
+    {{- end }}
+{{- end }}
+{{- end }}
+{{- end -}}
 
 {{/*
   Generate a Deployment for the given exec queue(s).

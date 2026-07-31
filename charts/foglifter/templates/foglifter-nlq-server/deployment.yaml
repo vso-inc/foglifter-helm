@@ -1,0 +1,6 @@
+{{- if .Values.nlqServer.enabled }}
+{{- include "foglifter.deployment" (dict
+    "root" . "name" "nlq-server" "svc" .Values.nlqServer "container" "nlq-server"
+    "port" (.Values.nlqServer.port | int) "portEnv" true "mongoUri" true
+    "jwtSecret" true "startupProbe" true) }}
+{{- end }}
