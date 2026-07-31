@@ -23,6 +23,16 @@
 {{- end -}}
 
 {{/*
+  The internal service-mesh base URL (protocol://domain:port/path), from the
+  serviceMesh block. Shared by the ConfigMap and the agent service URLs.
+*/}}
+{{- define "foglifter.serviceMeshUrl" -}}
+{{- with .Values.serviceMesh -}}
+{{- printf "%s://%s:%s%s" .protocol .domain (.port | default "80") (.path | default "/api") -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
   Render a Kubernetes probe, injecting the port into httpGet/tcpSocket/grpc if not already set.
 */}}
 {{- define "foglifter.probe" -}}

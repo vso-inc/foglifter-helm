@@ -1,10 +1,11 @@
 {{- if .Values.nlqAgent.enabled }}
+{{- $mesh := include "foglifter.serviceMeshUrl" . }}
 {{- $extra := "" }}
 {{- if not .Values.nlqAgent.env.FOGLIFTER_CORE_URL }}
-{{- $extra = printf "- name: FOGLIFTER_CORE_URL\n  value: %s" (printf "http://%s-core-svc:%s/api" .Release.Name (.Values.core.port | toString) | quote) }}
+{{- $extra = printf "- name: FOGLIFTER_CORE_URL\n  value: %s" ($mesh | quote) }}
 {{- end }}
 {{- if not .Values.nlqAgent.env.FOGLIFTER_MCP_HOST }}
-{{- $extra = printf "%s\n- name: FOGLIFTER_MCP_HOST\n  value: %s" $extra (printf "http://%s-nlq-server-svc:%s/api/ai/nlq/context/mcp" .Release.Name (.Values.nlqServer.port | toString) | quote) }}
+{{- $extra = printf "%s\n- name: FOGLIFTER_MCP_HOST\n  value: %s" $extra (printf "%s/ai/nlq/context/mcp" $mesh | quote) }}
 {{- end }}
 {{- $agentSecret := "" }}
 {{- with .Values.agentSecretName }}

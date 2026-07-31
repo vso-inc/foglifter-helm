@@ -1,7 +1,8 @@
 {{- if .Values.assistant.enabled }}
+{{- $mesh := include "foglifter.serviceMeshUrl" . }}
 {{- $extra := "" }}
 {{- if not .Values.assistant.env.FOGLIFTER_CORE_URL }}
-{{- $extra = printf "- name: FOGLIFTER_CORE_URL\n  value: %s" (printf "http://%s-core-svc:%s/api" .Release.Name (.Values.core.port | toString) | quote) }}
+{{- $extra = printf "- name: FOGLIFTER_CORE_URL\n  value: %s" ($mesh | quote) }}
 {{- end }}
 {{- $agentSecret := "" }}
 {{- with .Values.agentSecretName }}

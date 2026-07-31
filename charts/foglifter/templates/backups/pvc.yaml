@@ -1,4 +1,4 @@
-{{- if (.Values.backups).enabled }}
+{{- if .Values.backups.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -12,7 +12,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: "{{ default "10Gi" .Values.backups.storage }}"
+      storage: "{{ .Values.backups.storage }}"
   {{- if .Values.backups.storageClass }}
   storageClassName: "{{ .Values.backups.storageClass }}"
   {{- end }}

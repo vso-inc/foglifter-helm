@@ -1,13 +1,6 @@
 {{- if .Values.scheduler.enabled }}
-{{- $extra := "" }}
-{{- if not .Values.scheduler.env.FOGLIFTER_CORE_URL }}
-{{- $extra = printf "- name: FOGLIFTER_CORE_URL\n  value: %s" (printf "http://%s-core-svc:%s/api" .Release.Name (.Values.core.port | toString) | quote) }}
-{{- end }}
-{{- if not .Values.scheduler.env.FOGLIFTER_API_URL }}
-{{- $extra = printf "%s\n- name: FOGLIFTER_API_URL\n  value: %s" $extra (printf "http://%s-apiservice-svc:%s/api/v1" .Release.Name (.Values.apiservice.port | toString) | quote) }}
-{{- end }}
 {{- include "foglifter.deployment" (dict
     "root" . "name" "scheduler" "svc" .Values.scheduler "container" "scheduler"
     "port" (.Values.scheduler.port | int) "portEnv" true "mongoUri" false
-    "apiKeyEnv" "SCHEDULER_APIKEY" "startupProbe" true "extraEnv" $extra) }}
+    "apiKeyEnv" "SCHEDULER_APIKEY" "startupProbe" true) }}
 {{- end }}

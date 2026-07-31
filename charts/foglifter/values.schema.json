@@ -90,6 +90,28 @@
         "annotations": { "type": ["object", "null"] }
       }
     },
+    "serviceMesh": {
+      "type": "object",
+      "properties": {
+        "domain": { "type": "string" },
+        "protocol": { "type": "string" },
+        "path": { "type": "string" },
+        "port": { "type": ["integer", "string"] }
+      }
+    },
+    "backups": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "schedule": { "type": "string" },
+        "retain": { "type": ["integer", "string"] },
+        "storage": { "type": "string" },
+        "storageClass": { "type": "string" },
+        "env": { "$ref": "#/definitions/envMap" },
+        "secretRef": { "$ref": "#/definitions/secretRefMap" },
+        "resources": { "type": ["object", "null"] }
+      }
+    },
     "apiservice": { "$ref": "#/definitions/serviceBlock" },
     "auth": { "$ref": "#/definitions/serviceBlock" },
     "core": { "$ref": "#/definitions/serviceBlock" },
