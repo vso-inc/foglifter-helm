@@ -1,16 +1,3 @@
-{{- if (ne (.Values.scheduler).enabled false) }}
-kind: Service
-apiVersion: v1
-metadata:
-  name: {{ .Release.Name }}-scheduler-svc
-  labels:
-    app: {{ .Release.Name }}
-spec:
-  type: {{ default "ClusterIP" (.Values.service).type }}
-  {{- $port := default "8011" (.Values.scheduler).port | int }}
-  ports:
-  - port: {{ $port }}
-    targetPort: {{ $port }}
-  selector:
-    name: {{ .Release.Name }}-scheduler
+{{- if .Values.scheduler.enabled }}
+{{- include "foglifter.service" (dict "root" . "name" "scheduler" "port" .Values.scheduler.port) }}
 {{- end }}

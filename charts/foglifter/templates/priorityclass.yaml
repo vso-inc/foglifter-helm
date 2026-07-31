@@ -1,11 +1,11 @@
-{{- if (ne (.Values.priorityClass).create false) }}
+{{- if .Values.priorityClass.create }}
 apiVersion: scheduling.k8s.io/v1
 kind: PriorityClass
 metadata:
   name: {{ .Release.Name }}
   labels:
     app: {{ .Release.Name }}
-value: {{ default "1000000" (.Values.priorityClass).value | int }}
+value: {{ .Values.priorityClass.value | int }}
 globalDefault: false
 description: "This priority class is reserved for FogLifter pods."
 {{- end }}

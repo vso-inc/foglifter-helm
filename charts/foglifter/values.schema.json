@@ -1,7 +1,109 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
+  "definitions": {
+    "envMap": {
+      "type": ["object", "null"],
+      "additionalProperties": { "type": ["string", "integer", "number", "boolean"] }
+    },
+    "secretRefMap": {
+      "type": ["object", "null"],
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "key": { "type": "string" },
+          "optional": { "type": "boolean" }
+        },
+        "required": ["name", "key"]
+      }
+    },
+    "serviceBlock": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "port": { "type": ["integer", "string"] },
+        "replicas": { "type": ["integer", "string"] },
+        "repository": { "type": "string" },
+        "tag": { "type": "string" },
+        "trustToken": { "type": "string" },
+        "env": { "$ref": "#/definitions/envMap" },
+        "secretRef": { "$ref": "#/definitions/secretRefMap" },
+        "livenessProbe": { "type": ["object", "null"] },
+        "readinessProbe": { "type": ["object", "null"] },
+        "startupProbe": { "type": ["object", "null"] },
+        "resources": { "type": ["object", "null"] }
+      }
+    }
+  },
   "properties": {
-    "mongoSecret": {"type": "string" },
+    "registry": { "type": "string" },
+    "imagePullPolicy": { "type": "string", "enum": ["IfNotPresent", "Always", "Never"] },
+    "imagePullSecret": { "type": "string" },
+    "domain": { "type": "string" },
+    "createMongoSecret": { "type": "boolean" },
+    "mongoSecret": { "type": "string" },
+    "mongoSecretOverride": { "type": "boolean" },
+    "createPostgresRoleSecrets": { "type": "boolean" },
+    "apiSecret": {
+      "type": "object",
+      "properties": {
+        "create": { "type": "boolean" },
+        "data": { "type": ["object", "null"] },
+        "name": { "type": "string" }
+      }
+    },
+    "cm": {
+      "type": "object",
+      "properties": {
+        "create": { "type": "boolean" },
+        "data": { "type": ["object", "null"] }
+      }
+    },
+    "secret": {
+      "type": "object",
+      "properties": {
+        "create": { "type": "boolean" },
+        "data": { "type": ["object", "null"] }
+      }
+    },
+    "priorityClass": {
+      "type": "object",
+      "properties": {
+        "create": { "type": "boolean" },
+        "value": { "type": "integer" }
+      }
+    },
+    "podOptions": {
+      "type": "object",
+      "properties": {
+        "nodeSelector": { "type": ["object", "null"] },
+        "tolerations": { "type": ["array", "object", "null"] },
+        "labels": { "type": ["object", "null"] },
+        "annotations": { "type": ["object", "null"] }
+      }
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "annotations": { "type": ["object", "null"] }
+      }
+    },
+    "apiservice": { "$ref": "#/definitions/serviceBlock" },
+    "auth": { "$ref": "#/definitions/serviceBlock" },
+    "core": { "$ref": "#/definitions/serviceBlock" },
+    "routing": { "$ref": "#/definitions/serviceBlock" },
+    "scheduler": { "$ref": "#/definitions/serviceBlock" },
+    "client": { "$ref": "#/definitions/serviceBlock" },
+    "notification": { "$ref": "#/definitions/serviceBlock" },
+    "compliance": { "$ref": "#/definitions/serviceBlock" },
+    "nlqServer": { "$ref": "#/definitions/serviceBlock" },
+    "nlqAgent": { "$ref": "#/definitions/serviceBlock" },
+    "assistant": { "$ref": "#/definitions/serviceBlock" },
+    "foghorn": { "$ref": "#/definitions/serviceBlock" },
+    "nlqChat": { "$ref": "#/definitions/serviceBlock" },
+    "agentSecretName": { "type": "string" },
     "mongodb-kubernetes": {
       "type": "object",
       "properties": {
@@ -17,14 +119,8 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "name": {
-                        "type": "string",
-                        "minLength": 1
-                      },
-                      "db": {
-                        "type": "string",
-                        "minLength": 1
-                      },
+                      "name": { "type": "string", "minLength": 1 },
+                      "db": { "type": "string", "minLength": 1 },
                       "passwordSecretRef": {
                         "type": "object",
                         "properties": {
@@ -44,10 +140,7 @@
                           "required": ["name", "db"]
                         }
                       },
-                      "scramCredentialsSecretName": {
-                        "type": "string",
-                        "minLength": 1
-                      }
+                      "scramCredentialsSecretName": { "type": "string", "minLength": 1 }
                     },
                     "required": ["name", "db", "passwordSecretRef", "roles", "scramCredentialsSecretName"]
                   },

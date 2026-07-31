@@ -608,33 +608,34 @@ gatewayAPI:
     annotations: {}
     # HTTPRoute redirect HTTP to HTTPS if https listener is enabled
     httpsRedirect: true
-    # Service routes configuration
+    # Service routes. List order is the rule order in the rendered HTTPRoutes.
+    # Each entry: name (the service's values key); path; and optionally
+    #   service        backend Service name (defaults to name)
+    #   port           backend port (defaults to .Values.<name>.port)
+    #   enabled        render this route (default true)
+    #   enabledKey     also require .Values.<key>.enabled
+    #   listeners      which HTTPRoutes it appears in (default [http, https, internal])
+    #   urlRewrite     {replacePrefix: /} to strip the path prefix before the backend
     routes:
-      # API service routing
-      apiservice:
+      - name: apiservice
         path: /api/v1
-      # Auth service routing
-      auth:
+      - name: auth
         path: /api/auth
-      # Client service routing
-      client:
-        enabled: true
+      - name: client
         path: /ui
-      # Compliance service routing
-      compliance:
-        enabled: false
+        enabledKey: client
+      - name: compliance
         path: /api/compliance
-      # Core service routing
-      core:
+        enabled: false
+        enabledKey: compliance
+      - name: core
         path: /api
-      # Routing service routing
-      routing:
-        enabled: true
+      - name: routing
         path: /
-      # Scheduler service routing
-      scheduler:
-        enabled: true
+        enabledKey: routing
+      - name: scheduler
         path: /scheduler
+        enabledKey: scheduler
 
 # FogLifter® ingress configurations
 ingress:
