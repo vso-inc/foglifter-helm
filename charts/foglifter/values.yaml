@@ -574,7 +574,7 @@ nlqAgent:
   # App default is 3142; forced to 8000 to match the Service/route backend
   port: 8000
   replicas: 1
-  repository: foglifter-nlq-agent
+  repository: foglifter-agents/foglifter-nlq-agent
   tag: prod
   # Postgres role/db; the role password Secret is minted by postgres-role-secrets.yaml
   postgres:
