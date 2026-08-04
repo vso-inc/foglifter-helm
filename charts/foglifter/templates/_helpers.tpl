@@ -330,7 +330,9 @@ rules:
             replacePrefixMatch: {{ .replacePrefix }}
     {{- end }}
     backendRefs:
-      - name: {{ $.Release.Name }}-{{ $r.service | default $r.name }}-svc
+      - group: ''
+        kind: Service
+        name: {{ $.Release.Name }}-{{ $r.service | default $r.name }}-svc
         port: {{ $r.port | default (index $.Values $r.name).port | int }}
     {{- end }}
 {{- end }}

@@ -13,7 +13,9 @@ metadata:
     app: {{ .Release.Name }}
 spec:
   parentRefs:
-    - name: {{ .Values.gatewayAPI.gateway.name }}
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: {{ .Values.gatewayAPI.gateway.name }}
       sectionName: http
       namespace: {{ default .Release.Namespace .Values.gatewayAPI.gateway.namespace }}
   {{- if or .Values.domain .Values.gatewayAPI.httpRoute.hostnames }}

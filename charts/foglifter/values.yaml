@@ -709,7 +709,9 @@ gatewayAPI:
         tls:
           mode: Terminate
           certificateRefs:
-            - name: foglifter-tls
+            - group: ''
+              kind: Secret
+              name: foglifter-tls
       extra: {}
         # - name: mongo
         #   protocol: TCP
