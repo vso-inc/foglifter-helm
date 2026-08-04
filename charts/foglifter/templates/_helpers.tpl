@@ -202,7 +202,6 @@ spec:
                   name: {{ $apiSecretName }}
                   {{- end }}
                   key: TOKEN_JWT_SECRET
-                  optional: true
             {{- end }}
             {{- range $env, $key := .apiSecretKeys }}
             - name: {{ $env }}

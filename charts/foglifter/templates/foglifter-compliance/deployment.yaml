@@ -93,17 +93,6 @@ spec:
                   name: {{ $.Values.apiSecret.name }}
                   {{- end }}
                   key: TOKEN_JWT_SECRET
-                  optional: true
-            - name: JWT_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  {{- if ($.Values.apiSecret).create }}
-                  name: {{ $.Release.Name }}-api-secret
-                  {{- else if ($.Values.apiSecret).name }}
-                  name: {{ $.Values.apiSecret.name }}
-                  {{- end }}
-                  key: TOKEN_JWT_SECRET
-                  optional: true
             {{- if .env }}
             {{- range $key, $val := .env }}
             - name: {{ $key }}
