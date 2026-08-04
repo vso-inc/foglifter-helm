@@ -1,3 +1,0 @@
-{{- if .Values.nlqChat.enabled }}
-{{- include "foglifter.service" (dict "root" . "name" "nlq-chat" "port" .Values.nlqChat.port) }}
-{{- end }}

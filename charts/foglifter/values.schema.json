@@ -124,7 +124,6 @@
     "nlqAgent": { "$ref": "#/definitions/serviceBlock" },
     "assistant": { "$ref": "#/definitions/serviceBlock" },
     "foghorn": { "$ref": "#/definitions/serviceBlock" },
-    "nlqChat": { "$ref": "#/definitions/serviceBlock" },
     "agentSecretName": { "type": "string" },
     "mongodb-kubernetes": {
       "type": "object",

@@ -453,7 +453,7 @@ notification:
   #   TELEGRAM_BOT_TOKEN:
   #     name: secret-name
   #     key: secret_key
-  # Notification server probes (no HTTP endpoint; an exec probe against the queue is optional)
+  # Notification server probes
   livenessProbe: {}
   #   exec:
   #     command: ["node", "apps/server/dist/bin/notify.js", "queue:probe"]
@@ -543,7 +543,7 @@ scheduler:
 # envFrom (optional) by nlqAgent and assistant. Never rendered by this chart.
 agentSecretName: foglifter-agent-secret
 
-# FogLifter® NLQ context server (MongoDB-backed, HTTP) — opt-in addon
+# FogLifter® NLQ context server — opt-in addon
 nlqServer:
   enabled: false
   port: 8080
@@ -568,7 +568,7 @@ nlqServer:
       path: /api/ai/nlq/context/health
   resources:
 
-# FogLifter® NLQ agent (Postgres-backed, HTTP; route prefix stripped) — opt-in addon
+# FogLifter® NLQ agent — opt-in addon
 nlqAgent:
   enabled: false
   # App default is 3142; forced to 8000 to match the Service/route backend
@@ -601,7 +601,7 @@ nlqAgent:
   startupProbe: {}
   resources:
 
-# FogLifter® Assistant (Buddy) agent (Postgres-backed, HTTP; route prefix stripped) — opt-in addon
+# FogLifter® Assistant (Buddy) agent — opt-in addon
 assistant:
   enabled: false
   port: 3141
@@ -629,7 +629,7 @@ assistant:
   startupProbe: {}
   resources:
 
-# FogHorn read-only query API — PostgREST over the foghorn DB (upstream image) — opt-in addon
+# FogHorn read-only query API
 foghorn:
   enabled: false
   port: 3000
@@ -649,7 +649,7 @@ foghorn:
     secret:
       name: foglifter-pg-foghorn-readonly
       key: password
-  # Idempotent grants/default-privileges the CNPG CRs cannot express (see initdb.yaml)
+  # Idempotent grants/default-privileges the CNPG CRs cannot express
   bootstrap:
     enabled: true
     image: ghcr.io/cloudnative-pg/postgresql:16
@@ -661,15 +661,6 @@ foghorn:
     PGRST_DB_ANON_ROLE: foghorn_anon
     PGRST_OPENAPI_MODE: ignore-privileges
   secretRef:
-  resources:
-
-# FogLifter® NLQ chat UI (static nginx) — opt-in addon (droppable)
-nlqChat:
-  enabled: false
-  port: 80
-  replicas: 1
-  repository: nlq-chat-client
-  tag: prod
   resources:
 
 # Traefik ingress controller parameters
@@ -699,7 +690,7 @@ gatewayAPI:
   gateway:
     # Gateway name
     name: foglifter-gateway
-    # Gateway namespace (defaults to Release namespace)
+    # Gateway namespace
     namespace: ""
     # Gateway controller name
     gatewayClassName: traefik
@@ -731,9 +722,9 @@ gatewayAPI:
     enabled: true
     # HTTPRoute name
     name: foglifter-routes
-    # HTTPRoute namespace (defaults to Release namespace)
+    # HTTPRoute namespace
     namespace: ""
-    # HTTPRoute hostnames for routing (optional)
+    # HTTPRoute hostnames for routing
     # Can be used to route specific hostnames to the foglifter services
     hostnames: []
     # HTTPRoute annotations
@@ -768,15 +759,11 @@ gatewayAPI:
       - name: scheduler
         path: /scheduler
         enabledKey: scheduler
-      # Addon-service routes (render only when the matching service is enabled)
+      # Addon-service routes
       - name: nlqServer
         service: nlq-server
         path: /api/ai/nlq
         enabledKey: nlqServer
-      - name: nlqChat
-        service: nlq-chat
-        path: /chat
-        enabledKey: nlqChat
       - name: nlqAgent
         service: nlq-agent
         path: /ai/agent
@@ -881,7 +868,6 @@ cluster:
           - notifications
         passwordSecret:
           name: foglifter-pg-apiservice
-      # Addon-service roles (opt-in; only used when the matching service is enabled)
       - name: nlq
         ensure: present
         login: true

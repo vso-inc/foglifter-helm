@@ -78,7 +78,7 @@ e.g. `--set nlqServer.enabled=true`:
 
 - `compliance` — the compliance API (with an optional bundled MSSQL instance via
   `mssql.enabled=true`).
-- `nlqServer`, `nlqAgent`, `assistant`, `foghorn` (PostgREST), `nlqChat`.
+- `nlqServer`, `nlqAgent`, `assistant`, `foghorn` (PostgREST).
 
 - **Compliance.** Backed by MSSQL; provide connection details via the
   `compliance.secret` block (or an existing secret) and, if using the bundled
