@@ -25,6 +25,9 @@ imageUpdater:
     - notification
     - routing
     - scheduler
+    - nlqServer
+    - nlqAgent
+    - assistant
 
 # Recommended default FogLifter configurations
 foglifter:
@@ -51,6 +54,7 @@ foglifter:
     repository: foglifter-client
     tag: prod
   compliance:
+    enabled: false
     repository: foglifter-compliance-api
     tag: prod
   core:
@@ -67,6 +71,18 @@ foglifter:
     tag: prod
   scheduler:
     repository: foglifter-scheduler
+    tag: prod
+  nlqServer:
+    enabled: false
+    repository: foglifter-nlq-server
+    tag: prod
+  nlqAgent:
+    enabled: false
+    repository: foglifter-agents/foglifter-nlq-agent
+    tag: prod
+  assistant:
+    enabled: false
+    repository: foglifter-agents/foglifter-assistant
     tag: prod
 
 # Recommended default FogLifter Traefik ingress configurations
