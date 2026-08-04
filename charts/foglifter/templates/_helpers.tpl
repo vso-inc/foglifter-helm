@@ -334,6 +334,7 @@ rules:
         kind: Service
         name: {{ $.Release.Name }}-{{ $r.service | default $r.name }}-svc
         port: {{ $r.port | default (index $.Values $r.name).port | int }}
+        weight: 1
     {{- end }}
 {{- end }}
 {{- end }}
