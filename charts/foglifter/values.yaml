@@ -851,17 +851,22 @@ cluster:
               name: postgresql
             spec:
               type: ClusterIP
+          updateStrategy: patch
     affinity:
       topologyKey: kubernetes.io/hostname
     roles:
       - name: notifications
         ensure: present
+        connectionLimit: -1
+        inherit: true
         login: true
         superuser: false
         passwordSecret:
           name: foglifter-pg-notifications
       - name: apiservice
         ensure: present
+        connectionLimit: -1
+        inherit: true
         login: true
         superuser: false
         inRoles:
@@ -870,29 +875,39 @@ cluster:
           name: foglifter-pg-apiservice
       - name: nlq
         ensure: present
+        connectionLimit: -1
+        inherit: true
         login: true
         superuser: false
         passwordSecret:
           name: foglifter-pg-nlq
       - name: agent_assistant
         ensure: present
+        connectionLimit: -1
+        inherit: true
         login: true
         superuser: false
         passwordSecret:
           name: foglifter-pg-agent-assistant
       - name: foghorn_etl
         ensure: present
+        connectionLimit: -1
+        inherit: true
         login: true
         superuser: false
         passwordSecret:
           name: foglifter-pg-foghorn-etl
       - name: foghorn_anon
         ensure: present
+        connectionLimit: -1
+        inherit: true
         login: false
         superuser: false
         disablePassword: true
       - name: foghorn_readonly
         ensure: present
+        connectionLimit: -1
+        inherit: true
         login: true
         superuser: false
         # == GRANT foghorn_anon TO foghorn_readonly
