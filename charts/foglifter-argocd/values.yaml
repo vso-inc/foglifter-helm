@@ -82,7 +82,7 @@ foglifter:
     tag: prod
   assistant:
     enabled: false
-    repository: foglifter-agents/foglifter-assistant
+    repository: foglifter-agents/foglifter-assistant-agent
     tag: prod
 
 # Recommended default FogLifter Traefik ingress configurations
