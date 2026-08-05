@@ -751,7 +751,6 @@ gatewayAPI:
         enabledKey: client
       - name: compliance
         path: /api/compliance
-        enabled: false
         enabledKey: compliance
       - name: core
         path: /api
