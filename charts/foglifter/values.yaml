@@ -752,6 +752,7 @@ gatewayAPI:
       - name: compliance
         path: /api/compliance
         enabledKey: compliance
+        service: compliance-api
       - name: core
         path: /api
       - name: routing
