@@ -1,0 +1,53 @@
+{{- if and (.Values.gatewayAPI).enabled ((.Values.gatewayAPI).httpRoute).enabled }}
+{{- $base := trimSuffix "/" (default "/dashboard/" .Values.prefix) -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ default (printf "%s-route" .Release.Name) .Values.gatewayAPI.httpRoute.name }}
+  {{- with .Values.gatewayAPI.httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: {{ required "gatewayAPI.gateway.name must be set when gatewayAPI is enabled!" (.Values.gatewayAPI.gateway).name }}
+      namespace: {{ default .Release.Namespace (.Values.gatewayAPI.gateway).namespace }}
+      {{- with (.Values.gatewayAPI.gateway).sectionName }}
+      sectionName: {{ . }}
+      {{- end }}
+  {{- with .Values.gatewayAPI.httpRoute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- if and (ne .Values.gatewayAPI.httpRoute.slashRedirect false) $base }}
+    # Redirect <prefix> to <prefix>/ so the View app's SUB_PATH assets resolve.
+    # Native RequestRedirect filter, no Traefik Middleware needed.
+    - matches:
+        - path:
+            type: Exact
+            value: {{ $base | quote }}
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: {{ printf "%s/" $base | quote }}
+            statusCode: 302
+    {{- end }}
+    # Forward everything under <prefix>/ to the View app service.
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ printf "%s/" $base | quote }}
+      backendRefs:
+        - group: ''
+          kind: Service
+          name: {{ .Release.Name }}-svc
+          port: {{ default "3000" .Values.port | int }}
+          weight: 1
+{{- end }}

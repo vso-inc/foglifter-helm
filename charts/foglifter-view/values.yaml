@@ -6,7 +6,7 @@ registry: tooljet/
 # Image repository for View app workloads
 repository: tooljet
 # Image tag for View app workloads
-imageTag: v3.0.30-ee-lts
+imageTag: v3.20.166-lts
 # ImagePullPolicy for View app workloads
 imagePullPolicy: IfNotPresent
 
@@ -114,6 +114,39 @@ ingress:
     secret: ""
   # Ingress annotations
   annotations: {}
+
+# View app Gateway API configurations
+gatewayAPI:
+  # Enable Gateway API resources (HTTPRoute)
+  # Mutually exclusive with ingress.enabled in practice
+  enabled: false
+  # Gateway to attach the HTTPRoute to
+  # Defaults match the Gateway created by the foglifter chart
+  gateway:
+    # Gateway name
+    name: foglifter-gateway
+    # Gateway namespace (defaults to release namespace)
+    # Note: when the Gateway lives in another namespace, its listener must
+    # allow routes from this namespace
+    # (gatewayAPI.gateway.listeners.<name>.allowedRoutes.namespaces.from in
+    # the foglifter chart)
+    namespace: foglifter
+    # Gateway listener to attach to (e.g. http, https)
+    # Empty attaches to every listener that allows this route
+    sectionName: ""
+  # HTTPRoute resource configuration
+  httpRoute:
+    # Enable HTTPRoute creation
+    enabled: true
+    # HTTPRoute name (defaults to <release>-route)
+    name: ""
+    # HTTPRoute hostnames for routing
+    # Empty matches every hostname the Gateway listener accepts
+    hostnames: []
+    # Redirect <prefix> to <prefix>/ (302) so SUB_PATH assets resolve
+    slashRedirect: true
+    # HTTPRoute annotations
+    annotations: {}
 
 # View app service configurations
 service:

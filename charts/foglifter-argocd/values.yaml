@@ -113,13 +113,13 @@ view:
     # Install application
     install: false
     # Application destination namespace
-    namespace: foglifter-view
+    namespace: foglifter
     # Application name
     name: foglifter-view
     # Application Argo CD project
     project: view
     # Chart version
-    version: 0.2.8
+    version: 0.2.9
 
 # Recommended default configurations for FogLifter Postgres
 postgres:
