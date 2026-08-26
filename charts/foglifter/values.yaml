@@ -768,7 +768,7 @@ gatewayAPI:
         enabledKey: nlqServer
       - name: nlqAgent
         service: nlq-agent
-        path: /ai/agent
+        path: /ai/agents/nlq
         enabledKey: nlqAgent
         urlRewrite:
           replacePrefix: /
