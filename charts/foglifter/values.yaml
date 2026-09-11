@@ -802,6 +802,21 @@ ingress:
   # Ingress annotations
   annotations: {}
 
+# FogLifter® response security header configurations
+securityHeaders:
+  # Strip server identification headers at the edge
+  removeServerHeaders: true
+  # HTTP Strict Transport Security
+  hsts:
+    # Enable the Strict-Transport-Security header
+    enabled: true
+    # max-age directive, in seconds
+    maxAge: 31536000
+    # Append the includeSubDomains directive
+    includeSubdomains: false
+    # Append the preload directive
+    preload: false
+
 # FogLifter® service configurations
 service:
   # Service type (ClusterIP, NodePort, LoadBalancer, etc.)
