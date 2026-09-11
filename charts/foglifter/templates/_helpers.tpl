@@ -304,6 +304,8 @@ spec:
 {{- $ := .root -}}
 {{- $listener := .listener -}}
 {{- $redirect := and (eq $listener "http") .httpsEnabled .httpsRedirect -}}
+{{- $sh := $.Values.securityHeaders -}}
+{{- $applyHeaders := and (ne $listener "internal") (or $sh.removeServerHeaders $sh.hsts.enabled) -}}
 rules:
 {{- range $r := $.Values.gatewayAPI.httpRoute.routes }}
 {{- $listeners := $r.listeners | default (list "http" "https" "internal") }}
@@ -321,13 +323,29 @@ rules:
           scheme: https
           statusCode: 301
     {{- else }}
-    {{- with $r.urlRewrite }}
+    {{- if or $r.urlRewrite $applyHeaders }}
     filters:
+      {{- with $r.urlRewrite }}
       - type: URLRewrite
         urlRewrite:
           path:
             type: ReplacePrefixMatch
             replacePrefixMatch: {{ .replacePrefix }}
+      {{- end }}
+      {{- if $applyHeaders }}
+      - type: ResponseHeaderModifier
+        responseHeaderModifier:
+          {{- if $sh.removeServerHeaders }}
+          remove:
+            - Server
+            - X-Powered-By
+          {{- end }}
+          {{- if $sh.hsts.enabled }}
+          set:
+            - name: Strict-Transport-Security
+              value: {{ printf "max-age=%d%s%s" ($sh.hsts.maxAge | int) (ternary "; includeSubDomains" "" $sh.hsts.includeSubdomains) (ternary "; preload" "" $sh.hsts.preload) | quote }}
+          {{- end }}
+      {{- end }}
     {{- end }}
     backendRefs:
       - group: ''
