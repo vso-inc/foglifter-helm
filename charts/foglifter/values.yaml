@@ -654,11 +654,17 @@ foghorn:
     enabled: true
     image: ghcr.io/cloudnative-pg/postgresql:16
     ownerSecret: foglifter-pg-foghorn-etl
+    # CNPG generates this secret as <cluster.fullnameOverride>-superuser. Only the
+    # schema-cache reload triggers use it; CREATE EVENT TRIGGER requires superuser.
+    # Set empty to skip installing those triggers.
+    superuserSecret: postgresql-1-superuser
   env:
     PGRST_DB_SCHEMAS: api
     PGRST_DB_EXTRA_SEARCH_PATH: ""
     PGRST_DB_AGGREGATES_ENABLED: "true"
     PGRST_DB_ANON_ROLE: foghorn_anon
+    PGRST_DB_CHANNEL_ENABLED: "true"
+    PGRST_DB_CHANNEL: pgrst
     PGRST_OPENAPI_MODE: ignore-privileges
   secretRef:
   resources:
@@ -856,6 +862,8 @@ cluster:
     mode: standalone
   cluster:
     instances: 1
+    # Supplies the secret the foghorn initdb Job uses to install event triggers
+    enableSuperuserAccess: true
     storage:
       size: 10Gi
       storageClass: ""
@@ -942,9 +950,13 @@ cluster:
       owner: agent_assistant
     - name: foghorn
       owner: foghorn_etl
-      # Schema created by the Database CR; grants applied by the foghorn initdb Job
+      # Schemas created by the Database CR; grants applied by the foghorn initdb Job.
+      # staging holds half-loaded export tables and is deliberately left ungranted:
+      # privileges travel with a moved table, so a grant here would leak partial data.
       schemas:
         - name: api
+          owner: foghorn_etl
+        - name: staging
           owner: foghorn_etl
 
 # MongoDB Kubernetes Operator parameters

@@ -41,6 +41,18 @@ spec:
                 secretKeyRef:
                   name: {{ .bootstrap.ownerSecret }}
                   key: password
+            {{- with .bootstrap.superuserSecret }}
+            - name: PGSUPERUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: username
+            - name: PGSUPERPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ . }}
+                  key: password
+            {{- end }}
           command: ["/bin/sh", "-c"]
           args:
             - |
@@ -49,6 +61,7 @@ spec:
               until pg_isready -q; do sleep 2; done
               until [ "$(psql -tAc "select 1 from pg_roles where rolname='foghorn_readonly'")" = "1" ]; do sleep 2; done
               until [ "$(psql -tAc "select 1 from information_schema.schemata where schema_name='api'")" = "1" ]; do sleep 2; done
+              until [ "$(psql -tAc "select 1 from information_schema.schemata where schema_name='staging'")" = "1" ]; do sleep 2; done
               echo "applying grants and default privileges"
               psql -v ON_ERROR_STOP=1 <<'SQL'
               GRANT USAGE ON SCHEMA api TO foghorn_readonly;
@@ -56,6 +69,41 @@ spec:
               ALTER DEFAULT PRIVILEGES FOR ROLE foghorn_etl IN SCHEMA api GRANT SELECT ON TABLES TO foghorn_readonly;
               GRANT USAGE ON SCHEMA api TO foghorn_anon;
               SQL
+              {{- if .bootstrap.superuserSecret }}
+              echo "installing PostgREST schema-cache reload triggers"
+              PGUSER="$PGSUPERUSER" PGPASSWORD="$PGSUPERPASSWORD" psql -v ON_ERROR_STOP=1 <<'SQL'
+              CREATE SCHEMA IF NOT EXISTS foghorn_admin;
+
+              CREATE OR REPLACE FUNCTION foghorn_admin.pgrst_ddl_watch() RETURNS event_trigger AS $fn$
+              DECLARE cmd record;
+              BEGIN
+                FOR cmd IN SELECT * FROM pg_event_trigger_ddl_commands() LOOP
+                  IF cmd.schema_name = 'api' THEN
+                    NOTIFY pgrst, 'reload schema';
+                  END IF;
+                END LOOP;
+              END; $fn$ LANGUAGE plpgsql;
+
+              CREATE OR REPLACE FUNCTION foghorn_admin.pgrst_drop_watch() RETURNS event_trigger AS $fn$
+              DECLARE obj record;
+              BEGIN
+                FOR obj IN SELECT * FROM pg_event_trigger_dropped_objects() LOOP
+                  IF obj.schema_name = 'api' AND obj.is_temporary IS FALSE THEN
+                    NOTIFY pgrst, 'reload schema';
+                  END IF;
+                END LOOP;
+              END; $fn$ LANGUAGE plpgsql;
+
+              BEGIN;
+              DROP EVENT TRIGGER IF EXISTS pgrst_ddl_watch;
+              DROP EVENT TRIGGER IF EXISTS pgrst_drop_watch;
+              CREATE EVENT TRIGGER pgrst_ddl_watch ON ddl_command_end
+                EXECUTE FUNCTION foghorn_admin.pgrst_ddl_watch();
+              CREATE EVENT TRIGGER pgrst_drop_watch ON sql_drop
+                EXECUTE FUNCTION foghorn_admin.pgrst_drop_watch();
+              COMMIT;
+              SQL
+              {{- end }}
               echo "foghorn bootstrap complete"
       {{- if $.Values.priorityClass.create }}
       priorityClassName: {{ $.Release.Name }}
