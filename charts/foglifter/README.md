@@ -88,9 +88,11 @@ e.g. `--set nlqServer.enabled=true`:
   default `cluster` block; their role password secrets are minted by the Step 2
   render (`createPostgresRoleSecrets=true`).
 - **Agent provider keys.** `nlqAgent` and `assistant` read AI-provider keys
-  (e.g. `OPENAI_API_KEY` / `AZURE_OPENAI_API_KEY`) from an out-of-band Secret
-  named by `agentSecretName` (default `foglifter-agent-secret`). Create it
-  separately — it is never rendered by this chart.
+  from an out-of-band Secret named by `agentSecretName` (default
+  `foglifter-agent-secret`): `AZURE_API_KEY` and `AZURE_RESOURCE_NAME` for
+  `MODEL_PROVIDER=azure` (both required, or the agents fail their boot), or
+  `OPENAI_API_KEY` for `openai`. Create it separately — it is never rendered
+  by this chart.
 - **FogHorn.** Requires the CNPG cluster (`cluster.enabled=true`). A
   post-install/upgrade Job applies the schema grants the CNPG CRs cannot express.
 - **Routing.** The agent and FogHorn routes strip their path prefix via the
