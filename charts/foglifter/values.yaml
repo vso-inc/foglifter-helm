@@ -538,9 +538,11 @@ scheduler:
   #     cpu: 500m
   #     memory: 2048Mi
 
-# Out-of-band Secret holding AI-provider keys for the agents (OPENAI_API_KEY /
-# ANTHROPIC_API_KEY / AZURE_OPENAI_API_KEY ...). Created separately; consumed via
-# envFrom (optional) by nlqAgent and assistant. Never rendered by this chart.
+# Out-of-band Secret holding AI-provider keys for the agents: AZURE_API_KEY and
+# AZURE_RESOURCE_NAME for MODEL_PROVIDER=azure (both required, or the agents
+# fail their boot), or OPENAI_API_KEY for openai — the only two providers.
+# Created separately; consumed via envFrom (optional) by nlqAgent and
+# assistant. Never rendered by this chart.
 agentSecretName: foglifter-agent-secret
 
 # FogLifter® NLQ context server — opt-in addon
@@ -596,12 +598,24 @@ nlqAgent:
     MODEL_PROVIDER: azure
     MODEL_NAME: gpt-4o
   secretRef:
-  livenessProbe: {}
-  readinessProbe: {}
-  startupProbe: {}
+  # GET /health is open and static (no auth, no DB/MCP check). The startup
+  # probe covers boot: tool discovery (NLQ) and the chat-store connect.
+  livenessProbe:
+    httpGet:
+      path: /health
+    periodSeconds: 10
+  readinessProbe:
+    httpGet:
+      path: /health
+    periodSeconds: 5
+  startupProbe:
+    httpGet:
+      path: /health
+    periodSeconds: 5
+    failureThreshold: 24
   resources:
 
-# FogLifter® Assistant (Buddy) agent — opt-in addon
+# FogLifter® Assistant agent — opt-in addon
 assistant:
   enabled: false
   port: 3141
@@ -624,9 +638,21 @@ assistant:
     MODEL_PROVIDER: azure
     MODEL_NAME: gpt-4o
   secretRef:
-  livenessProbe: {}
-  readinessProbe: {}
-  startupProbe: {}
+  # GET /health is open and static (no auth, no DB/MCP check). The startup
+  # probe covers boot: tool discovery (NLQ) and the chat-store connect.
+  livenessProbe:
+    httpGet:
+      path: /health
+    periodSeconds: 10
+  readinessProbe:
+    httpGet:
+      path: /health
+    periodSeconds: 5
+  startupProbe:
+    httpGet:
+      path: /health
+    periodSeconds: 5
+    failureThreshold: 24
   resources:
 
 # FogHorn read-only query API
