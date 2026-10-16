@@ -555,6 +555,11 @@ nlqServer:
   env:
     API_PREFIX: api/ai/nlq/context
     API_PREFIX_SWAGGER: api/ai/nlq
+    # Keep the liveness/readiness/startup probes out of the request logs
+    EXCLUDE_ROUTES_FROM_LOGGING_ARRAY: |
+      [
+        "/api/ai/nlq/context/health"
+      ]
   secretRef:
   livenessProbe:
     httpGet:
