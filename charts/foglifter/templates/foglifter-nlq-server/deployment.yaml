@@ -1,6 +1,12 @@
 {{- if .Values.nlqServer.enabled }}
+{{- /* FogHorn Insights MCP (/mcp) reads FogHorn as the read-only role PostgREST uses. Its grants come
+       from the foghorn initdb Job, so the URI is only set when FogHorn and the CNPG cluster are on. */}}
+{{- $foghornQuery := dict }}
+{{- if and .Values.nlqServer.foghornQuery.enabled .Values.foghorn.enabled .Values.cluster.enabled }}
+{{- $foghornQuery = merge (dict "name" "FOGHORN_QUERY_POSTGRES_URI") (pick .Values.foghorn.postgres "host" "port" "db" "user" "secret") }}
+{{- end }}
 {{- include "foglifter.deployment" (dict
     "root" . "name" "nlq-server" "svc" .Values.nlqServer "container" "nlq-server"
     "port" (.Values.nlqServer.port | int) "portEnv" true "mongoUri" true
-    "jwtSecret" true "startupProbe" true) }}
+    "jwtSecret" true "postgres" $foghornQuery "startupProbe" true) }}
 {{- end }}
