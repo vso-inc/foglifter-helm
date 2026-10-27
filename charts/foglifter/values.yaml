@@ -552,6 +552,11 @@ nlqServer:
   replicas: 1
   repository: foglifter-nlq-server
   tag: prod
+  # FogHorn Insights MCP endpoint (/mcp), which the NLQ agent calls. Sets FOGHORN_QUERY_POSTGRES_URI
+  # for the read-only role in foghorn.postgres. Only rendered when foghorn and cluster are also
+  # enabled; otherwise nlq-server logs the endpoint as off and /mcp answers 404.
+  foghornQuery:
+    enabled: true
   env:
     API_PREFIX: api/ai/nlq/context
     API_PREFIX_SWAGGER: api/ai/nlq

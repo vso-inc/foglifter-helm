@@ -86,7 +86,16 @@ e.g. `--set nlqServer.enabled=true`:
 - **Postgres.** `nlqAgent`, `assistant`, and `foghorn` use the built-in
   CloudNativePG cluster. Their roles and databases are provisioned from the
   default `cluster` block; their role password secrets are minted by the Step 2
-  render (`createPostgresRoleSecrets=true`).
+  render (`createPostgresRoleSecrets=true`). `nlqServer` also connects to the
+  `foghorn` database as the read-only `foghorn_readonly` role (see below).
+- **NLQ server.** Serves the FogHorn Insights MCP endpoint
+  (`/api/ai/nlq/context/mcp`), which `nlqAgent` calls, and the legacy one
+  (`/api/ai/nlq/context/mcp-legacy`). The endpoint queries FogHorn with the
+  read-only credential in `foghorn.postgres` (secret
+  `foglifter-pg-foghorn-readonly`), never the `foghorn_etl` one. It is on by
+  default (`nlqServer.foghornQuery.enabled`) but only when `foghorn.enabled`
+  and `cluster.enabled` are also true; otherwise nlq-server logs it as off and
+  the endpoint answers 404, while the legacy endpoint keeps working.
 - **Agent provider keys.** `nlqAgent` and `assistant` read AI-provider keys
   from an out-of-band Secret named by `agentSecretName` (default
   `foglifter-agent-secret`): `AZURE_API_KEY` and `AZURE_RESOURCE_NAME` for
