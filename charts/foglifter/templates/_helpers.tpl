@@ -305,7 +305,23 @@ spec:
 {{- $listener := .listener -}}
 {{- $redirect := and (eq $listener "http") .httpsEnabled .httpsRedirect -}}
 {{- $sh := $.Values.securityHeaders -}}
-{{- $applyHeaders := and (ne $listener "internal") (or $sh.removeServerHeaders $sh.hsts.enabled) -}}
+{{- $setHeaders := list -}}
+{{- if $sh.hsts.enabled }}
+{{- $setHeaders = append $setHeaders (dict "name" "Strict-Transport-Security" "value" (printf "max-age=%d%s%s" ($sh.hsts.maxAge | int) (ternary "; includeSubDomains" "" $sh.hsts.includeSubdomains) (ternary "; preload" "" $sh.hsts.preload))) }}
+{{- end }}
+{{- with $sh.frameOptions }}
+{{- $setHeaders = append $setHeaders (dict "name" "X-Frame-Options" "value" .) }}
+{{- end }}
+{{- with $sh.frameAncestors }}
+{{- $setHeaders = append $setHeaders (dict "name" "Content-Security-Policy" "value" (printf "frame-ancestors %s" (join " " .))) }}
+{{- end }}
+{{- if $sh.contentTypeOptions }}
+{{- $setHeaders = append $setHeaders (dict "name" "X-Content-Type-Options" "value" "nosniff") }}
+{{- end }}
+{{- with $sh.referrerPolicy }}
+{{- $setHeaders = append $setHeaders (dict "name" "Referrer-Policy" "value" .) }}
+{{- end }}
+{{- $applyHeaders := and (ne $listener "internal") (or $sh.removeServerHeaders $setHeaders) -}}
 rules:
 {{- range $r := $.Values.gatewayAPI.httpRoute.routes }}
 {{- $listeners := $r.listeners | default (list "http" "https" "internal") }}
@@ -340,10 +356,12 @@ rules:
             - Server
             - X-Powered-By
           {{- end }}
-          {{- if $sh.hsts.enabled }}
+          {{- with $setHeaders }}
           set:
-            - name: Strict-Transport-Security
-              value: {{ printf "max-age=%d%s%s" ($sh.hsts.maxAge | int) (ternary "; includeSubDomains" "" $sh.hsts.includeSubdomains) (ternary "; preload" "" $sh.hsts.preload) | quote }}
+            {{- range . }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
           {{- end }}
       {{- end }}
     {{- end }}

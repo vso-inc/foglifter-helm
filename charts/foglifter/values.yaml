@@ -858,6 +858,15 @@ securityHeaders:
     includeSubdomains: false
     # Append the preload directive
     preload: false
+  # X-Frame-Options value (e.g. SAMEORIGIN, DENY); set to "" to omit
+  frameOptions: SAMEORIGIN
+  # Content-Security-Policy frame-ancestors sources; set to [] to omit
+  frameAncestors:
+    - "'self'"
+  # Set X-Content-Type-Options: nosniff
+  contentTypeOptions: true
+  # Referrer-Policy value; set to "" to omit
+  referrerPolicy: strict-origin-when-cross-origin
 
 # FogLifter® service configurations
 service:
