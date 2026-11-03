@@ -10,8 +10,9 @@ spec:
     stsSeconds: {{ $sh.hsts.maxAge | int }}
     stsIncludeSubdomains: {{ $sh.hsts.includeSubdomains | default false }}
     stsPreload: {{ $sh.hsts.preload | default false }}
-    # Send HSTS even when TLS is terminated in front of Traefik
+    {{- if $sh.hsts.force }}
     forceSTSHeader: true
+    {{- end }}
     {{- end }}
     {{- with $sh.frameOptions }}
     customFrameOptionsValue: {{ . | quote }}
