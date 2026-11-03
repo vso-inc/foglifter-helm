@@ -17,6 +17,33 @@ certificate:
   # Existing tls secret name
   name: ""
 
+# Response security headers, applied to every HTTPS IngressRoute through a
+# Traefik headers Middleware. Mirrors securityHeaders in the foglifter chart.
+securityHeaders:
+  # Set to false to omit the middleware entirely
+  enabled: true
+  # Strip server identification headers (Server, X-Powered-By)
+  removeServerHeaders: true
+  # HTTP Strict Transport Security
+  hsts:
+    # Enable the Strict-Transport-Security header
+    enabled: true
+    # max-age directive, in seconds
+    maxAge: 31536000
+    # Append the includeSubDomains directive
+    includeSubdomains: false
+    # Append the preload directive
+    preload: false
+  # X-Frame-Options value (e.g. SAMEORIGIN, DENY); set to "" to omit
+  frameOptions: SAMEORIGIN
+  # Content-Security-Policy frame-ancestors sources; set to [] to omit
+  frameAncestors:
+    - "'self'"
+  # Set X-Content-Type-Options: nosniff
+  contentTypeOptions: true
+  # Referrer-Policy value; set to "" to omit
+  referrerPolicy: strict-origin-when-cross-origin
+
 # FogLifter core app ingress configurations
 core:
   # Core app service port

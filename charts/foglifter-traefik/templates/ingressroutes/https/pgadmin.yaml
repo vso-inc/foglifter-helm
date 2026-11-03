@@ -9,6 +9,7 @@ spec:
   routes:
     - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.pgadmin }}
       kind: Rule
+      {{- with include "traefik.securityHeadersRef" . }}{{ . | nindent 6 }}{{- end }}
       services:
         - name: {{ default "foglifter-pgadmin-svc" (.Values.pgadmin).name }}
           namespace: {{ default "foglifter-postgres" (.Values.pgadmin).namespace }}
