@@ -8,7 +8,7 @@ spec:
   routes:
     - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.auth }}
       kind: Rule
-      {{- with include "traefik.securityHeadersRef" . }}{{ . | nindent 6 }}{{- end }}
+      {{- with include "traefik.securityHeadersRef" (dict "root" $ "route" "auth") }}{{ . | nindent 6 }}{{- end }}
       services:
         - name: {{ default "foglifter-auth-svc" (.Values.auth).name }}
           namespace: {{ default "foglifter" .Values.foglifterNamespace }}

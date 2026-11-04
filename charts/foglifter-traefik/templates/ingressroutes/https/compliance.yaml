@@ -9,7 +9,7 @@ spec:
   routes:
     - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.compliance }}
       kind: Rule
-      {{- with include "traefik.securityHeadersRef" . }}{{ . | nindent 6 }}{{- end }}
+      {{- with include "traefik.securityHeadersRef" (dict "root" $ "route" "compliance") }}{{ . | nindent 6 }}{{- end }}
       services:
         - name: {{ default "foglifter-compliance-api-svc" (.Values.compliance).name }}
           namespace: {{ default "foglifter" .Values.foglifterNamespace }}

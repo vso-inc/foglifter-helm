@@ -1,35 +1,24 @@
-{{- if eq (include "traefik.securityHeadersEnabled" .) "true" }}
-{{- $sh := .Values.securityHeaders }}
+{{- $full := false }}
+{{- $noCsp := false }}
+{{- range $route := splitList " " (include "traefik.shRoutes" .) }}
+{{- $name := include "traefik.shMiddlewareName" (dict "root" $ "route" $route) }}
+{{- if eq $name (printf "%s-security-headers" $.Release.Name) }}{{ $full = true }}{{ end }}
+{{- if eq $name (printf "%s-security-headers-no-csp" $.Release.Name) }}{{ $noCsp = true }}{{ end }}
+{{- end }}
+{{- if $full }}
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: {{ .Release.Name }}-security-headers
 spec:
-  headers:
-    {{- if ($sh.hsts).enabled }}
-    stsSeconds: {{ $sh.hsts.maxAge | int }}
-    stsIncludeSubdomains: {{ $sh.hsts.includeSubdomains | default false }}
-    stsPreload: {{ $sh.hsts.preload | default false }}
-    {{- if $sh.hsts.force }}
-    forceSTSHeader: true
-    {{- end }}
-    {{- end }}
-    {{- with $sh.frameOptions }}
-    customFrameOptionsValue: {{ . | quote }}
-    {{- end }}
-    {{- with $sh.frameAncestors }}
-    contentSecurityPolicy: {{ printf "frame-ancestors %s" (join " " .) | quote }}
-    {{- end }}
-    {{- if $sh.contentTypeOptions }}
-    contentTypeNosniff: true
-    {{- end }}
-    {{- with $sh.referrerPolicy }}
-    referrerPolicy: {{ . | quote }}
-    {{- end }}
-    {{- if $sh.removeServerHeaders }}
-    # An empty value removes the header from the response
-    customResponseHeaders:
-      Server: ""
-      X-Powered-By: ""
-    {{- end }}
+  {{- include "traefik.securityHeadersSpec" (dict "root" . "csp" true) | nindent 2 }}
+{{- end }}
+{{- if $noCsp }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ .Release.Name }}-security-headers-no-csp
+spec:
+  {{- include "traefik.securityHeadersSpec" (dict "root" . "csp" false) | nindent 2 }}
 {{- end }}

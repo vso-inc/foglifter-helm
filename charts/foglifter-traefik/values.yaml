@@ -19,6 +19,11 @@ certificate:
 
 # Response security headers, applied to every HTTPS IngressRoute through a
 # Traefik headers Middleware. Mirrors securityHeaders in the foglifter chart.
+# Each route block (core, client, view, ...) can set securityHeaders to:
+#   full   every header below (default)
+#   noCsp  every header except Content-Security-Policy, leaving any CSP the
+#          app sends itself untouched (X-Frame-Options still blocks framing)
+#   off    no security headers on that route
 securityHeaders:
   # Set to false to omit the middleware entirely
   enabled: true
@@ -141,6 +146,9 @@ view:
   namespace: foglifter-view
   # View app route path
   path: /dashboard/
+  # Security headers on this route (full, noCsp, off). ToolJet may send its
+  # own Content-Security-Policy, which the full set would replace.
+  securityHeaders: noCsp
 
 # FogLifter PGAdmin ingress configurations
 pgadmin:
