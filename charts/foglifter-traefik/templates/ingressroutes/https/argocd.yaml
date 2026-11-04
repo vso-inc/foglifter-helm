@@ -9,6 +9,7 @@ spec:
   routes:
     - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.argocd }}
       kind: Rule
+      {{- with include "traefik.securityHeadersRef" (dict "root" $ "route" "argocd") }}{{ . | nindent 6 }}{{- end }}
       services:
         - name: {{ default "foglifter-argocd-server" (.Values.argocd).name }}
           namespace: {{ default "foglifter-argocd" (.Values.argocd).namespace }}

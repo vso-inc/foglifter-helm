@@ -9,6 +9,7 @@ spec:
   routes:
     - match: {{ include "traefik.hosts" .Values }}{{ include "traefik.path" .Values.view }}
       kind: Rule
+      {{- with include "traefik.securityHeadersRef" (dict "root" $ "route" "view") }}{{ . | nindent 6 }}{{- end }}
       services:
         - name: {{ default "foglifter-view-svc" (.Values.view).name }}
           namespace: {{ default "foglifter-view" (.Values.view).namespace }}
