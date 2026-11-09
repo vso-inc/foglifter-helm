@@ -89,13 +89,12 @@ e.g. `--set nlqServer.enabled=true`:
   render (`createPostgresRoleSecrets=true`). `nlqServer` also connects to the
   `foghorn` database as the read-only `foghorn_readonly` role (see below).
 - **NLQ server.** Serves the FogHorn Insights MCP endpoint
-  (`/api/ai/nlq/context/mcp`), which `nlqAgent` calls, and the legacy one
-  (`/api/ai/nlq/context/mcp-legacy`). The endpoint queries FogHorn with the
-  read-only credential in `foghorn.postgres` (secret
-  `foglifter-pg-foghorn-readonly`), never the `foghorn_etl` one. It is on by
-  default (`nlqServer.foghornQuery.enabled`) but only when `foghorn.enabled`
-  and `cluster.enabled` are also true; otherwise nlq-server logs it as off and
-  the endpoint answers 404, while the legacy endpoint keeps working.
+  (`/api/ai/nlq/context/mcp`), which `nlqAgent` calls, and `/health`. It
+  queries FogHorn with the read-only credential in `foghorn.postgres` (secret
+  `foglifter-pg-foghorn-readonly`), never the `foghorn_etl` one, and does not
+  start without it: `nlqServer.enabled` requires `foghorn.enabled` and
+  `cluster.enabled`, and the render fails otherwise. (`nlqServer.foghornQuery`
+  is gone; a values file that still sets it is ignored.)
 - **Agent provider keys.** `nlqAgent` and `assistant` read AI-provider keys
   from an out-of-band Secret named by `agentSecretName` (default
   `foglifter-agent-secret`): `AZURE_API_KEY` and `AZURE_RESOURCE_NAME` for
