@@ -685,7 +685,8 @@ foghorn:
   # Idempotent grants/default-privileges the CNPG CRs cannot express
   bootstrap:
     enabled: true
-    image: ghcr.io/cloudnative-pg/postgresql:16
+    # psql client only; keep it on the same image as the cluster below
+    image: ghcr.io/cloudnative-pg/postgresql:16.16-standard-trixie
     ownerSecret: foglifter-pg-foghorn-etl
     # CNPG generates this secret as <cluster.fullnameOverride>-superuser. Only the
     # schema-cache reload triggers use it; CREATE EVENT TRIGGER requires superuser.
@@ -903,6 +904,12 @@ cluster:
     postgresql: "16"
     mode: standalone
   cluster:
+    # Pinned image. The bare major tag the subchart would use (ghcr.io/cloudnative-pg/postgresql:16)
+    # is CNPG's deprecated Debian 11 (bullseye) tag: frozen at 16.15 since bullseye's EOL
+    # (2026-08-31) and due to be removed. Trixie (Debian 13) has CNPG full support until 2028-08-09.
+    # Bump the patch here when PostgreSQL releases one; CNPG only restarts Postgres when this changes.
+    # All databases use the C collation, so the OS (glibc) change doesn't affect indexes.
+    imageName: ghcr.io/cloudnative-pg/postgresql:16.16-standard-trixie
     instances: 1
     # Supplies the secret the foghorn initdb Job uses to install event triggers
     enableSuperuserAccess: true
