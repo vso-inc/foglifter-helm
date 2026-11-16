@@ -1,0 +1,45 @@
+{{- if .Values.backups.enabled }}
+# Binds the backups PVC on a fresh install. Its storage class may be WaitForFirstConsumer
+# (AKS managed-csi), and the only consumer is the nightly CronJob, so the PVC would stay
+# Pending until the first backup. Argo CD counts a Pending PVC as Progressing and waits on
+# it, so a sync that hit an error (e.g. the CNPG webhook not being up yet) never finishes
+# and never retries. This Sync hook mounts the PVC once, so it binds right away.
+# A no-op where the PVC is already Bound. Plain helm ignores the Argo CD annotations.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-backups-bind
+  labels:
+    app: {{ .Release.Name }}-backup
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-backup
+    spec:
+      containers:
+        - name: bind
+          {{- with (index .Values "mongodb-kubernetes").community }}
+          image: {{ printf "%s/%s:%s-%s" .mongodb.repo .mongodb.name .resource.version .mongodb.imageType }}
+          {{- end }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          command: ["/bin/sh", "-c", "date -u > /data/backups/.bound && echo bound"]
+          resources:
+            requests: {cpu: 10m, memory: 16Mi}
+            limits: {memory: 64Mi}
+          volumeMounts:
+            - name: mongo-backup-pvc
+              mountPath: /data/backups
+      restartPolicy: Never
+      serviceAccountName: {{ .Release.Name }}-sa
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - name: mongo-backup-pvc
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-backups
+{{- end }}
