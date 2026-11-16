@@ -118,6 +118,8 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: {{ $.Release.Name }}-{{ $name }}
+  annotations:
+    {{- include "foglifter.appSyncWave" $ | nindent 4 }}
   labels:
     app: {{ $.Release.Name }}
 spec:
@@ -387,6 +389,8 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: {{ .root.Release.Name }}-exec-{{ .deployName }}
+  annotations:
+    {{- include "foglifter.appSyncWave" .root | nindent 4 }}
   labels:
     app: {{ .root.Release.Name }}
 spec:
@@ -575,3 +579,16 @@ spec:
       priorityClassName: {{ .root.Release.Name }}
       {{- end }}
 {{- end }}
+
+{{/*
+  Argo CD sync wave for the app Deployments. Wave 0 holds the operators, CRDs, the
+  Postgres Cluster/Databases, MongoDB and the backups PVC; the apps go in wave 1, so
+  Argo CD only starts them once Postgres is healthy. On a fresh install the CNPG
+  webhook race then fails wave 0 fast and the automated-sync retry recovers in
+  seconds, instead of each attempt waiting on crash-looping apps. The CNPG CRDs
+  come from the subchart and can't take a wave annotation, which is why Postgres
+  can't move to an earlier wave instead. Plain helm ignores this.
+*/}}
+{{- define "foglifter.appSyncWave" -}}
+argocd.argoproj.io/sync-wave: "1"
+{{- end -}}

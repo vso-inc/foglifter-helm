@@ -4,6 +4,8 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: {{ $.Release.Name }}-compliance
+  annotations:
+    {{- include "foglifter.appSyncWave" $ | nindent 4 }}
   labels:
     app: {{ $.Release.Name }}-compliance
 spec:
