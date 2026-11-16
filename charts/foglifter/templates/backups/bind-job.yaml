@@ -22,6 +22,10 @@ spec:
       labels:
         app: {{ .Release.Name }}-backup
     spec:
+      # The image runs as uid/gid 1000 (mongod); a fresh disk's root is root:root 0755.
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: bind
           {{- with (index .Values "mongodb-kubernetes").community }}
